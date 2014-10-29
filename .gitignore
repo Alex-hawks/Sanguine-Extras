@@ -1,0 +1,7 @@
+eclipse/
+.settings/
+.gradle/
+bin/
+build/
+.metadata/
+libs/

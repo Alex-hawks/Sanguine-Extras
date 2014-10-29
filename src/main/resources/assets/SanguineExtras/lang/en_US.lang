@@ -1,0 +1,45 @@
+
+##  Creative Tab
+itemGroup.tabSanguineExtras=Sanguine Extras
+
+##  Block Localizations
+tile.blockAdvancedMasterStone.name=Advanced Master Ritual Stone
+tile.blockWardedMasterStone.name=Warded Master Ritual Stone
+
+##  Item Localizations
+item.sigilDestruction.tier0.name=Sigil of Destruction: Tier 1
+item.sigilDestruction.tier1.name=Sigil of Destruction: Tier 2
+item.sigilDestruction.tier2.name=Sigil of Destruction: Tier 3
+item.sigilDestruction.tier3.name=Sigil of Destruction: Tier 4
+item.sigilDestruction.tier4.name=Sigil of Destruction: Tier 5
+item.sigilDestruction.tier5.name=Sigil of Destruction: Tier 6
+item.sigilMobNet.name=Sigil of Entrapment
+item.sigilRebuilding.name=Sigil of Rebuilding
+
+
+##  Tooltip Localizations
+tooltip.se.destruction.currentlength=Current Length: %s
+tooltip.se.destruction.maximumlength=Maximum Length: %s
+
+tooltip.se.mobnet.mob=Current Mob: %s
+tooltip.se.mobnet.mob.null=Current Mob: None
+
+tooltip.se.owner=Current owner: %s
+tooltip.se.owner.null=Current owner: No-one
+
+tooltip.se.rebuilding.block=New Block: %s
+tooltip.se.rebuilding.block.null=New Block: None set
+tooltip.se.rebuilding.meta=Metadata: %s
+tooltip.se.rebuilding.meta.null=Metadata: None set
+
+
+##  Chat MSG Localizations
+msg.se.fail.sigil.mobnet.full=You somehow feel that you should try emptying the sigil first
+msg.se.fail.sigil.mobnet.boss=You somehow feel that this enemy is too powerful to capture
+msg.se.fail.block.MRS.warding=The block falls like any other, but strangely rematerializes where it was before.
+
+
+##  Pun Localizations
+pun.se.sigil.rebuilding=Let's take this, and replace it with that.
+pun.se.sigil.destruction=Do you want to build a Mineshaft?
+pun.se.sigil.mobnet=What is it really like inside?

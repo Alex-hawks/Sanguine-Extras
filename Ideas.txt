@@ -1,0 +1,44 @@
+
+Interactable rituals
+	has an onRightClick and onLeftClick method
+
+
+Immovable MRS
+	breakable only if there has never been any ritual activated since it was placed, or you are the owner
+	is not capable for use with interactable rituals
+	
+	
+Advanced MRS
+	used for interactable rituals
+	
+
+Handheld interdiction (mob repulsion)
+	upgrade to the Sigil of the Whirlwind
+	
+	
+Huge chest
+	upgraded by infusing in an altar
+	
+	
+Inventory Sharing
+	ritual that functions like an enderchest
+	uses reagents for frequency
+	
+	
+Pump
+	ritual like the crusher.
+	picks up fluid blocks in a 3*3*3 underneath it and puts them in the IFluidHandler above the MRS
+	config option to not pick up fluids with a MRS beneath them
+	not a priority
+	
+	
+Floodgate
+	exact opposite of the  pump
+	not a priority
+	
+	
+Fluid Extractor
+	Like the mining ritual, reagents and all
+	does not "mine" the block beneath the MRS as that is the filter.
+	Ritual design must not let fluid out of the 3*3*3 above the MRS
+	not a priority
