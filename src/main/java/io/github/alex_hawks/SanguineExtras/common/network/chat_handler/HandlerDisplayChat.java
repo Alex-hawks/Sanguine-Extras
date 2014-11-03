@@ -1,4 +1,4 @@
-package io.github.alex_hawks.SanguineExtras.common.network;
+package io.github.alex_hawks.SanguineExtras.common.network.chat_handler;
 
 import static io.github.alex_hawks.SanguineExtras.common.util.LangUtils.translate;
 import net.minecraft.client.Minecraft;

@@ -57,14 +57,22 @@ public class BlockWardedMasterStone extends BlockContainer
     {
         TEWardedMasterStone tileEntity = (TEWardedMasterStone) world.getTileEntity(x, y, z);
 
-        if (tileEntity == null || player.isSneaking())
+        if (tileEntity == null)
         {
             return false;
         }
+        
+        UUID stoneOwner = tileEntity.getBlockOwner();
 
+        if (stoneOwner == null)
+        {
+            tileEntity.setBlockOwner(player.getPersistentID());
+            stoneOwner = tileEntity.getBlockOwner();
+        }
+        
         ItemStack playerItem = player.getCurrentEquippedItem();
 
-        if (playerItem == null)
+        if (playerItem == null || player.isSneaking())
         {
             return false;
         }
@@ -74,14 +82,6 @@ public class BlockWardedMasterStone extends BlockContainer
         if (!(item instanceof ActivationCrystal))
         {
             return false;
-        }
-
-        UUID stoneOwner = tileEntity.getBlockOwner();
-
-        if (stoneOwner == null)
-        {
-            tileEntity.setBlockOwner(player.getPersistentID());
-            stoneOwner = tileEntity.getBlockOwner();
         }
 
         if (stoneOwner.equals(player.getPersistentID()))

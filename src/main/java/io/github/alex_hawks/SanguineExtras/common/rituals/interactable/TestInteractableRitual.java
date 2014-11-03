@@ -1,4 +1,4 @@
-package io.github.alex_hawks.SanguineExtras.common.rituals;
+package io.github.alex_hawks.SanguineExtras.common.rituals.interactable;
 
 import java.util.LinkedList;
 import java.util.List;

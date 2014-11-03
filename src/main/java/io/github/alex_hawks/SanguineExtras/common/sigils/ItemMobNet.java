@@ -3,11 +3,10 @@ package io.github.alex_hawks.SanguineExtras.common.sigils;
 import static io.github.alex_hawks.SanguineExtras.api.MobNetBlacklist.isCaptureBlacklisted;
 import static io.github.alex_hawks.SanguineExtras.common.util.LangUtils.translate;
 import io.github.alex_hawks.SanguineExtras.common.SanguineExtras;
+import io.github.alex_hawks.SanguineExtras.common.sigil_utils.UtilsMobNet;
 import io.github.alex_hawks.SanguineExtras.common.util.BloodUtils;
 import io.github.alex_hawks.SanguineExtras.common.util.SanguineExtrasCreativeTab;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 import net.minecraft.entity.EntityList;
@@ -46,7 +45,7 @@ public class ItemMobNet extends Item implements IBindable
             par3List.add(translate("tooltip.se.owner.null"));
 
         par3List.add("");
-        String s = getEntityName(stack);
+        String s = UtilsMobNet.getEntityName(stack);
         par3List.add(translate(s == null ? "tooltip.se.mobnet.mob.null" : "tooltip.se.mobnet.mob").replace("%s", translate(s == null ? "" : s)));
     }
 
@@ -105,7 +104,7 @@ public class ItemMobNet extends Item implements IBindable
 
         EnergyItems.checkAndSetItemOwner(stack, player);
         
-        EntityLivingBase ent = createNewEntity(stack, w);
+        EntityLivingBase ent = UtilsMobNet.createCopiedEntity(stack, w);
         ent.setPosition(player.posX + w.rand.nextDouble() - 0.5, player.posY, player.posZ + w.rand.nextDouble() - 0.5);
         w.spawnEntityInWorld(ent);
 
@@ -128,7 +127,7 @@ public class ItemMobNet extends Item implements IBindable
         
         EnergyItems.checkAndSetItemOwner(stack, player);
         
-        EntityLivingBase ent = createNewEntity(stack, w);
+        EntityLivingBase ent = UtilsMobNet.createCopiedEntity(stack, w);
         ent.setPosition(x + d.offsetX + hitX, y + d.offsetY, z + d.offsetZ + hitZ);
         w.spawnEntityInWorld(ent);
 
@@ -137,55 +136,5 @@ public class ItemMobNet extends Item implements IBindable
         stack.stackTagCompound.removeTag("isBoss");
         stack.stackTagCompound.removeTag("entityName");;
         return true;
-    }
-    
-    public static String getEntityName(ItemStack stack)
-    {
-        if (stack.stackTagCompound != null && stack.stackTagCompound.hasKey("entityName"))
-            return stack.stackTagCompound.getString("entityName");
-        return null;
-    }
-    
-    @SuppressWarnings("unchecked")
-	public static EntityLivingBase createNewEntity(ItemStack stack, World w)
-    {
-        if (stack.stackTagCompound == null || !stack.stackTagCompound.hasKey("entityClass") || !stack.stackTagCompound.hasKey("entity"))
-        {
-            return null;
-        }
-        else
-        {
-            try
-            {
-                Class<? extends EntityLivingBase> clazz = (Class<? extends EntityLivingBase>) Class.forName(stack.stackTagCompound.getString("entityClass"));
-                Constructor<? extends EntityLivingBase> constructor = clazz.getConstructor(World.class);
-                
-                EntityLivingBase newmob = constructor.newInstance(w);
-                newmob.readFromNBT(stack.stackTagCompound.getCompoundTag("entity"));
-                return newmob;
-            } catch (ClassNotFoundException e)
-            {
-                throw new RuntimeException(e);
-            } catch (NoSuchMethodException e)
-            {
-                e.printStackTrace();
-            } catch (SecurityException e)
-            {
-                e.printStackTrace();
-            } catch (InstantiationException e)
-            {
-                e.printStackTrace();
-            } catch (IllegalAccessException e)
-            {
-                e.printStackTrace();
-            } catch (IllegalArgumentException e)
-            {
-                e.printStackTrace();
-            } catch (InvocationTargetException e)
-            {
-                e.printStackTrace();
-            }
-        }
-        return null;
     }
 }

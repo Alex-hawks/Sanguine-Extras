@@ -38,6 +38,9 @@ public class BloodUtils
         return true;
     }
 
+    /**
+     * @return the highest tier of orb available, -1 if there is no orb at all
+     */
     public static int getHighestTierOrb()
     {
         int i = -1;

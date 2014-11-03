@@ -1,4 +1,4 @@
-package io.github.alex_hawks.SanguineExtras.common.network;
+package io.github.alex_hawks.SanguineExtras.common.network.chat_handler;
 
 import io.netty.buffer.ByteBuf;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;

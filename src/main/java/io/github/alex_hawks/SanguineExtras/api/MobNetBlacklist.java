@@ -3,40 +3,98 @@ package io.github.alex_hawks.SanguineExtras.api;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.IEntityMultiPart;
+import net.minecraft.entity.monster.EntityWitch;
 
 public class MobNetBlacklist
 {
-    private static final Set<Class<? extends EntityLivingBase>> capture = new LinkedHashSet<Class<? extends EntityLivingBase>>();
-    private static final Set<Class<? extends EntityLivingBase>> spawn = new LinkedHashSet<Class<? extends EntityLivingBase>>();
+    private static final Set<Class<?>> capture = new LinkedHashSet<Class<?>>();
+    private static final Set<Class<?>> spawn = new LinkedHashSet<Class<?>>();
     
-    public static void addToCaptureBlacklist(Class<? extends EntityLivingBase> ent)
+    static
+    {
+        addToCaptureBlacklist(IEntityMultiPart.class);
+        addToCaptureBlacklist("thaumcraft.common.entities.golems.EntityGolemBase");
+        
+        addToSpawnBlacklist(IEntityMultiPart.class);
+        addToSpawnBlacklist(EntityWitch.class);
+    }
+    
+    public static void addToCaptureBlacklist(Class<?> ent)
     {
         capture.add(ent);
-    }    
+    }
     
-    public static void addToSpawnBlacklist(Class<? extends EntityLivingBase> ent)
+    public static void addToCaptureBlacklist(String name)
+    {
+        try
+        {
+            addToCaptureBlacklist((Class<?>) Class.forName(name));
+        } catch (ClassNotFoundException e)
+        {
+            e.printStackTrace();
+        }
+    }
+    
+    public static void addToSpawnBlacklist(Class<?> ent)
     {
         spawn.add(ent);
     }
     
-    public static void removeFromCaptureBlacklist(Class<? extends EntityLivingBase> ent)
+    public static void addToSpawnBlacklist(String name)
+    {
+        try
+        {
+            addToSpawnBlacklist((Class<?>) Class.forName(name));
+        } catch (ClassNotFoundException e)
+        {
+            e.printStackTrace();
+        }
+    }
+    
+    public static void removeFromCaptureBlacklist(Class<?> ent)
     {
         capture.remove(ent);
     }
     
-    public static void removeFromSpawnBlacklist(Class<? extends EntityLivingBase> ent)
+    public static void removeFromSpawnBlacklist(Class<?> ent)
     {
         spawn.remove(ent);
     }
     
-    public static boolean isCaptureBlacklisted(Class<? extends EntityLivingBase> ent)
+    public static boolean isCaptureBlacklisted(Class<?> ent)
     {
-        return capture.contains(ent);
+        if (capture.contains(ent)) 
+            return true;
+        else 
+        {
+            for (Class<?> clazz : capture)
+            {
+                if (clazz.isInstance(ent))
+                {
+                    capture.add(ent.getClass());
+                    return true;
+                }
+            }
+        }
+        return false;
     }
     
-    public static boolean isSpawnBlacklisted(Class<? extends EntityLivingBase> ent)
+    public static boolean isSpawnBlacklisted(Class<?> ent)
     {
-        return spawn.contains(ent);
+        if (spawn.contains(ent)) 
+            return true;
+        else 
+        {
+            for (Class<?> clazz : spawn)
+            {
+                if (clazz.isInstance(ent))
+                {
+                    spawn.add(ent.getClass());
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

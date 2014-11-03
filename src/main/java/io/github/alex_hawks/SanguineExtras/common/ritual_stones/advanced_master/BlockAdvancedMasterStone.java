@@ -4,6 +4,7 @@ import io.github.alex_hawks.SanguineExtras.common.util.SanguineExtrasCreativeTab
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IIconRegister;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -84,5 +85,20 @@ public class BlockAdvancedMasterStone extends BlockContainer
     public TileEntity createNewTileEntity(World world, int meta)
     {
         return new TEAdvancedMasterStone();
+    }
+    
+    @Override
+    public void onEntityCollidedWithBlock(World w, int x, int y, int z, Entity ent)
+    {
+    	TileEntity te = w.getTileEntity(x, y, z);
+    	if (te instanceof TEAdvancedMasterStone)
+    	{
+    		AMRSHandler.onColide((TEAdvancedMasterStone) te, ent);
+    	}
+    	else
+    	{
+    		System.out.println("Please give the following stacktrace to the creator of the mod");
+    		((TEAdvancedMasterStone) te).canUpdate();	// yes. if this code is reached, it will always throw either a NPE or a ClassCastException. It should never be reached though...
+    	}
     }
 }

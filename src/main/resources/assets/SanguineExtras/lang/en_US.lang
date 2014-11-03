@@ -5,6 +5,7 @@ itemGroup.tabSanguineExtras=Sanguine Extras
 ##  Block Localizations
 tile.blockAdvancedMasterStone.name=Advanced Master Ritual Stone
 tile.blockWardedMasterStone.name=Warded Master Ritual Stone
+tile.blockWardedRitualStone.name=Warded Ritual Stone
 
 ##  Item Localizations
 item.sigilDestruction.tier0.name=Sigil of Destruction: Tier 1
@@ -36,7 +37,7 @@ tooltip.se.rebuilding.meta.null=Metadata: None set
 ##  Chat MSG Localizations
 msg.se.fail.sigil.mobnet.full=You somehow feel that you should try emptying the sigil first
 msg.se.fail.sigil.mobnet.boss=You somehow feel that this enemy is too powerful to capture
-msg.se.fail.block.MRS.warding=The block falls like any other, but strangely rematerializes where it was before.
+msg.se.fail.mine.RitualStone.warding=The block falls like any other, but strangely rematerializes where it was before.
 
 
 ##  Pun Localizations

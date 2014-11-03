@@ -18,6 +18,7 @@ Handheld interdiction (mob repulsion)
 	
 Huge chest
 	upgraded by infusing in an altar
+	crafted out of slates
 	
 	
 Inventory Sharing
@@ -28,7 +29,7 @@ Inventory Sharing
 Pump
 	ritual like the crusher.
 	picks up fluid blocks in a 3*3*3 underneath it and puts them in the IFluidHandler above the MRS
-	config option to not pick up fluids with a MRS beneath them
+	config option to not pick up fluids with a MRS beneath them (this part needs work)
 	not a priority
 	
 	

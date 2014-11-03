@@ -9,6 +9,11 @@ buildscript {
             name = "sonatype"
             url = "https://oss.sonatype.org/content/repositories/snapshots/"
         }
+		//ivy {
+		//name "BloodMagic"
+        //artifactPattern ""
+		//http://minetweaker3.powerofbytes.com/download/[module]-[revision].[ext]"
+    }
     }
     dependencies {
         classpath 'net.minecraftforge.gradle:ForgeGradle:1.2-SNAPSHOT'
