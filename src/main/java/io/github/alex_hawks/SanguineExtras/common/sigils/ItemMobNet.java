@@ -1,6 +1,6 @@
 package io.github.alex_hawks.SanguineExtras.common.sigils;
 
-import static io.github.alex_hawks.SanguineExtras.api.MobNetBlacklist.isCaptureBlacklisted;
+import static io.github.alex_hawks.SanguineExtras.api.sigil.MobNet.isCaptureBlacklisted;
 import static io.github.alex_hawks.SanguineExtras.common.util.LangUtils.translate;
 import io.github.alex_hawks.SanguineExtras.common.SanguineExtras;
 import io.github.alex_hawks.SanguineExtras.common.sigil_utils.UtilsMobNet;

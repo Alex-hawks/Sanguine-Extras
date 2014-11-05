@@ -1,5 +1,6 @@
 package io.github.alex_hawks.SanguineExtras.common;
 
+import io.github.alex_hawks.SanguineExtras.api.sigil.Interdiction;
 import io.github.alex_hawks.SanguineExtras.common.network.chat_handler.HandlerDisplayChat;
 import io.github.alex_hawks.SanguineExtras.common.network.chat_handler.MsgDisplayChat;
 import io.github.alex_hawks.SanguineExtras.common.ritual_stones.advanced_master.AMRSHandler;
@@ -7,9 +8,13 @@ import io.github.alex_hawks.SanguineExtras.common.ritual_stones.warded.WRSHandle
 import io.github.alex_hawks.SanguineExtras.common.ritual_stones.warded_master.WMRSHandler;
 import io.github.alex_hawks.SanguineExtras.common.rituals.basic.Spawn;
 import io.github.alex_hawks.SanguineExtras.common.rituals.interactable.TestInteractableRitual;
+import io.github.alex_hawks.SanguineExtras.common.sigil_utils.interdiction.PushHandlerEnergyBlastProjectile;
+import io.github.alex_hawks.SanguineExtras.common.sigil_utils.interdiction.PushHandlerTamable;
+import net.minecraft.entity.IEntityOwnable;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
 import WayofTime.alchemicalWizardry.api.rituals.Rituals;
+import WayofTime.alchemicalWizardry.common.entity.projectile.EnergyBlastProjectile;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
@@ -31,6 +36,8 @@ public class SanguineExtras
     public static boolean spawnableBossMobs;
     public static int spawnLpPerHealth;
     public static int spawnMaxEntities;
+    public static float interdictionRange;
+    
 
     @EventHandler
     public static void preInit(FMLPreInitializationEvent e)
@@ -58,7 +65,8 @@ public class SanguineExtras
     @EventHandler
     public static void postInit(FMLPostInitializationEvent e)
     {
-        
+        Interdiction.addToPushConditional(IEntityOwnable.class, new PushHandlerTamable());
+        Interdiction.addToPushConditional(EnergyBlastProjectile.class, new PushHandlerEnergyBlastProjectile());
     }
     
     public static void readConfig()
@@ -75,6 +83,8 @@ public class SanguineExtras
         spawnableBossMobs = config2.getBoolean("Spawnable Boss Mobs", Configuration.CATEGORY_GENERAL, false, "Set to \"true\" if you want to be able to spawn boss mobs at 10 times the LP cost");
         spawnLpPerHealth = config2.getInt("Base Spawner LP Cost Per Health", Configuration.CATEGORY_GENERAL, 150, 118, 15000, "This is the lowest that the cost can go, if you don't use reagents, it drains double to spawn one mob, and this is per half heart that the mob has at max, plus what it is missing as well");
         spawnMaxEntities = config2.getInt("Max Entities in Spawner", Configuration.CATEGORY_GENERAL, 20, 1, 50, "The maximum number of entities inside the spawner's area of effect, before it gives up on spawning more. It only counts what it is currenly spawning. Divide by 10 if the mob in question is a boss");       
+        interdictionRange = config2.getFloat("Interdiction Range", Configuration.CATEGORY_GENERAL, 5.0f, 0.5f, 10.0f, "Entities will be pushed away from you if they are closer than this many blocks, calculated using pythagorean theorem");
+        
         if (config2.hasChanged())
             config2.save();
     }

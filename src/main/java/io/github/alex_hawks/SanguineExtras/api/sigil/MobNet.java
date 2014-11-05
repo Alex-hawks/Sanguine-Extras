@@ -1,4 +1,4 @@
-package io.github.alex_hawks.SanguineExtras.api;
+package io.github.alex_hawks.SanguineExtras.api.sigil;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -6,7 +6,7 @@ import java.util.Set;
 import net.minecraft.entity.IEntityMultiPart;
 import net.minecraft.entity.monster.EntityWitch;
 
-public class MobNetBlacklist
+public class MobNet
 {
     private static final Set<Class<?>> capture = new LinkedHashSet<Class<?>>();
     private static final Set<Class<?>> spawn = new LinkedHashSet<Class<?>>();
@@ -62,9 +62,9 @@ public class MobNetBlacklist
         spawn.remove(ent);
     }
     
-    public static boolean isCaptureBlacklisted(Class<?> ent)
+    public static boolean isCaptureBlacklisted(Object ent)
     {
-        if (capture.contains(ent)) 
+        if (capture.contains(ent.getClass())) 
             return true;
         else 
         {
@@ -80,9 +80,9 @@ public class MobNetBlacklist
         return false;
     }
     
-    public static boolean isSpawnBlacklisted(Class<?> ent)
+    public static boolean isSpawnBlacklisted(Object ent)
     {
-        if (spawn.contains(ent)) 
+        if (spawn.contains(ent.getClass())) 
             return true;
         else 
         {

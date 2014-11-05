@@ -1,0 +1,119 @@
+package io.github.alex_hawks.SanguineExtras.common.sigils;
+
+import static io.github.alex_hawks.SanguineExtras.common.util.LangUtils.translate;
+
+import java.util.List;
+
+import io.github.alex_hawks.SanguineExtras.api.sigil.Interdiction;
+import io.github.alex_hawks.SanguineExtras.common.SanguineExtras;
+import io.github.alex_hawks.SanguineExtras.common.util.BloodUtils;
+import io.github.alex_hawks.SanguineExtras.common.util.SanguineExtrasCreativeTab;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.world.World;
+import WayofTime.alchemicalWizardry.api.items.interfaces.IBindable;
+import WayofTime.alchemicalWizardry.common.items.EnergyItems;
+
+public class ItemInterdiction extends Item implements IBindable
+{
+    public ItemInterdiction()
+    {
+        super();
+        this.maxStackSize = 1;
+        setCreativeTab(SanguineExtrasCreativeTab.Instance);
+        this.setUnlocalizedName("sigilInterdiction");
+    }
+    
+    @Override
+    public ItemStack onItemRightClick(ItemStack stack, World w, EntityPlayer player)
+    {
+        EnergyItems.checkAndSetItemOwner(stack, player);
+        
+        stack.stackTagCompound.setBoolean("isActive", !stack.stackTagCompound.getBoolean("isActive"));
+        
+        return stack;
+    }
+    
+    @Override
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public void addInformation(ItemStack stack, EntityPlayer par2EntityPlayer, List par3List, boolean par4)
+    {
+        par3List.add("§5§o" + translate("pun.se.sigil.interdiction"));
+        par3List.add("");
+
+        if (stack.stackTagCompound != null && stack.stackTagCompound.hasKey("ownerName"))
+            par3List.add(translate("tooltip.se.owner").replace("%s", stack.stackTagCompound.getString("ownerName")));
+        else
+            par3List.add(translate("tooltip.se.owner.null"));
+        
+        if (stack.stackTagCompound != null && stack.stackTagCompound.hasKey("isActive") && stack.stackTagCompound.getBoolean("isActive"))
+            par3List.add(translate("tooltip.se.sigil.active"));
+        else
+            par3List.add(translate("tooltip.se.sigil.inactive"));
+
+        par3List.add("");
+    }
+    
+    @Override
+    public void onUpdate(ItemStack stack, World w, Entity par3Entity, int par4, boolean par5)
+    {
+        if (!(stack.stackTagCompound != null && stack.stackTagCompound.hasKey("ownerName")))
+            return;
+        
+        String sigilOwner = stack.stackTagCompound.getString("ownerName");
+        if (!(par3Entity instanceof EntityPlayer))
+        {
+            return;
+        }
+
+        EntityPlayer p = (EntityPlayer) par3Entity;
+
+        if (stack.stackTagCompound == null)
+        {
+            stack.setTagCompound(new NBTTagCompound());
+        }
+
+        if (stack.stackTagCompound.getBoolean("isActive"))
+        {
+            List<?> l = w.getEntitiesWithinAABB(Entity.class, getInterdictionAABB(p, SanguineExtras.interdictionRange));
+            
+            for (Object o : l)
+            {
+                if (o instanceof Entity && Interdiction.isPushAllowed((Entity) o, p))  //  Stupid lack of typing... You don't support Java 5 anymore, Mojang
+                {
+                    Entity e = (Entity) o;
+                    final double movX = e.motionX, movY = e.motionY, movZ = e.motionZ;
+
+                    e.motionX -= (p.posX - e.posX);
+                    //e.motionY -= (p.posY - e.posY) / 2;
+                    e.motionZ -= (p.posZ - e.posZ);
+                    
+                    //System.out.println("movX: " + e.motionX);
+                    //System.out.println("Doing stuff");
+                }
+            }
+        }
+
+        if (w.getWorldTime() % 200 == stack.stackTagCompound.getInteger("worldTimeDelay") && stack.stackTagCompound.getBoolean("isActive"))
+        {
+            if (!p.capabilities.isCreativeMode)
+            {
+                if (!BloodUtils.drainSoulNetworkWithDamage(sigilOwner, p, 200))
+                {
+                    // if code here is executed, something went horribly wrong...
+                }
+            }
+        }
+
+        return;
+    }
+    
+    static AxisAlignedBB getInterdictionAABB(Entity e, double range)
+    {
+        return AxisAlignedBB.getBoundingBox(e.posX - range, e.posY - range, e.posZ - range, e.posX + range, e.posY + range, e.posZ + range);
+    }
+}

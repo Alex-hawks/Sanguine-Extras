@@ -1,6 +1,6 @@
 package io.github.alex_hawks.SanguineExtras.common.rituals.basic;
 
-import io.github.alex_hawks.SanguineExtras.api.MobNetBlacklist;
+import io.github.alex_hawks.SanguineExtras.api.sigil.MobNet;
 import io.github.alex_hawks.SanguineExtras.common.SanguineExtras;
 import io.github.alex_hawks.SanguineExtras.common.sigil_utils.UtilsMobNet;
 import io.github.alex_hawks.SanguineExtras.common.sigils.ItemMobNet;
@@ -129,7 +129,7 @@ public class Spawn extends RitualEffect
                 if (ent == null)
                     return;
 
-                if (MobNetBlacklist.isSpawnBlacklisted(ent.getClass()))
+                if (MobNet.isSpawnBlacklisted(ent.getClass()))
                     return;
                 
                 if (w.getEntitiesWithinAABB(ent.getClass(), AxisAlignedBB.getBoundingBox(x-2, y-4, z-2, x+2, y, z+2)).size() > (ent instanceof IBossDisplayData ? SanguineExtras.spawnMaxEntities / 10 : SanguineExtras.spawnMaxEntities))
