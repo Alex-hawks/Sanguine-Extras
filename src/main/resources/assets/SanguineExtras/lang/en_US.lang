@@ -16,6 +16,7 @@ item.sigilDestruction.tier4.name=Sigil of Destruction: Tier 5
 item.sigilDestruction.tier5.name=Sigil of Destruction: Tier 6
 item.sigilMobNet.name=Sigil of Entrapment
 item.sigilRebuilding.name=Sigil of Rebuilding
+item.sigilInterdiction.name=Interdiction Sigil
 
 
 ##  Tooltip Localizations
@@ -27,6 +28,9 @@ tooltip.se.mobnet.mob.null=Current Mob: None
 
 tooltip.se.owner=Current owner: %s
 tooltip.se.owner.null=Current owner: No-one
+
+tooltip.se.sigil.active=Activated
+tooltip.se.sigil.inactive=Deactivated
 
 tooltip.se.rebuilding.block=New Block: %s
 tooltip.se.rebuilding.block.null=New Block: None set
@@ -44,3 +48,4 @@ msg.se.fail.mine.RitualStone.warding=The block falls like any other, but strange
 pun.se.sigil.rebuilding=Let's take this, and replace it with that.
 pun.se.sigil.destruction=Do you want to build a Mineshaft?
 pun.se.sigil.mobnet=What is it really like inside?
+pun.se.sigil.interdiction=Get away from me!

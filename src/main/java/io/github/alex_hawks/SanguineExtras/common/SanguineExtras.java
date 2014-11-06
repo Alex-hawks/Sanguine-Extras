@@ -3,6 +3,8 @@ package io.github.alex_hawks.SanguineExtras.common;
 import io.github.alex_hawks.SanguineExtras.api.sigil.Interdiction;
 import io.github.alex_hawks.SanguineExtras.common.network.chat_handler.HandlerDisplayChat;
 import io.github.alex_hawks.SanguineExtras.common.network.chat_handler.MsgDisplayChat;
+import io.github.alex_hawks.SanguineExtras.common.network.entity_motion.HandlerEntityMotion;
+import io.github.alex_hawks.SanguineExtras.common.network.entity_motion.MsgEntityMotion;
 import io.github.alex_hawks.SanguineExtras.common.ritual_stones.advanced_master.AMRSHandler;
 import io.github.alex_hawks.SanguineExtras.common.ritual_stones.warded.WRSHandler;
 import io.github.alex_hawks.SanguineExtras.common.ritual_stones.warded_master.WMRSHandler;
@@ -60,6 +62,7 @@ public class SanguineExtras
         
         networkWrapper = NetworkRegistry.INSTANCE.newSimpleChannel(Constants.MetaData.MOD_ID);
         networkWrapper.registerMessage(HandlerDisplayChat.class, MsgDisplayChat.class, 0, Side.CLIENT);
+        networkWrapper.registerMessage(HandlerEntityMotion.class, MsgEntityMotion.class, 1, Side.CLIENT);
     }
 
     @EventHandler

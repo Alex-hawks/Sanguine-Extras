@@ -6,15 +6,19 @@ import java.util.List;
 
 import io.github.alex_hawks.SanguineExtras.api.sigil.Interdiction;
 import io.github.alex_hawks.SanguineExtras.common.SanguineExtras;
+import io.github.alex_hawks.SanguineExtras.common.network.entity_motion.MsgEntityMotion;
 import io.github.alex_hawks.SanguineExtras.common.util.BloodUtils;
 import io.github.alex_hawks.SanguineExtras.common.util.SanguineExtrasCreativeTab;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.IProjectile;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.World;
+import WayofTime.alchemicalWizardry.AlchemicalWizardry;
 import WayofTime.alchemicalWizardry.api.items.interfaces.IBindable;
 import WayofTime.alchemicalWizardry.common.items.EnergyItems;
 
@@ -59,18 +63,18 @@ public class ItemInterdiction extends Item implements IBindable
     }
     
     @Override
-    public void onUpdate(ItemStack stack, World w, Entity par3Entity, int par4, boolean par5)
+    public void onUpdate(ItemStack stack, World w, Entity ent, int par4, boolean par5)
     {
         if (!(stack.stackTagCompound != null && stack.stackTagCompound.hasKey("ownerName")))
             return;
         
         String sigilOwner = stack.stackTagCompound.getString("ownerName");
-        if (!(par3Entity instanceof EntityPlayer))
+        if (!(ent instanceof EntityPlayer))
         {
             return;
         }
 
-        EntityPlayer p = (EntityPlayer) par3Entity;
+        EntityPlayer p = (EntityPlayer) ent;
 
         if (stack.stackTagCompound == null)
         {
@@ -81,19 +85,38 @@ public class ItemInterdiction extends Item implements IBindable
         {
             List<?> l = w.getEntitiesWithinAABB(Entity.class, getInterdictionAABB(p, SanguineExtras.interdictionRange));
             
-            for (Object o : l)
+            for (Object o : l)  //  Stupid lack of typing... You don't support Java 5 anymore, Mojang
             {
-                if (o instanceof Entity && Interdiction.isPushAllowed((Entity) o, p))  //  Stupid lack of typing... You don't support Java 5 anymore, Mojang
+                if (o instanceof Entity && Interdiction.isPushAllowed((Entity) o, p))
                 {
                     Entity e = (Entity) o;
-                    final double movX = e.motionX, movY = e.motionY, movZ = e.motionZ;
+
+                    p.addPotionEffect(new PotionEffect(AlchemicalWizardry.customPotionProjProt.id, 2, 1));  //  #ImLazy
+//                    System.out.println("movX: " + e.motionX + ", calc: " + (p.posX - e.posX));
+//                    System.out.println("movY: " + e.motionY + ", calc: " + (p.posY - e.posY));
+//                    System.out.println("movZ: " + e.motionZ + ", calc: " + (p.posZ - e.posZ));
+//                    
+//                    System.out.println("x: " + (e.motionX < 0 && p.posX - e.posX > 0 || e.motionX > 0 && p.posX - e.posX < 0));
+//                    System.out.println("z: " + (e.motionZ < 0 && p.posZ - e.posZ > 0 || e.motionZ > 0 && p.posZ - e.posZ < 0));
+//                    
+//                    if ((e.motionX < 0 && p.posX - e.posX < 0) || (e.motionX > 0 && p.posX - e.posX > 0))
+//                        e.motionX = -e.motionX;
+//                    
+//                    if ((e.motionY < 0 && p.posY - e.posY < 0) || (e.motionY > 0 && p.posY - e.posY > 0))
+//                        e.motionY = -e.motionY;
+//                    
+//                    if ((e.motionZ < 0 && p.posZ - e.posZ < 0) || (e.motionZ > 0 && p.posZ - e.posZ > 0))
+//                        e.motionZ = -e.motionZ;
+                    
+                    if (e instanceof IProjectile)
+                        continue;
 
                     e.motionX -= (p.posX - e.posX);
-                    //e.motionY -= (p.posY - e.posY) / 2;
+                    e.motionY -= (p.posY - e.posY);
                     e.motionZ -= (p.posZ - e.posZ);
                     
-                    //System.out.println("movX: " + e.motionX);
-                    //System.out.println("Doing stuff");
+                    if (!e.worldObj.isRemote)
+                        SanguineExtras.networkWrapper.sendToAll(new MsgEntityMotion(e));
                 }
             }
         }
