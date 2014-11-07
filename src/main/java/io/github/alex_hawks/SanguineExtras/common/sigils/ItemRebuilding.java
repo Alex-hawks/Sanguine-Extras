@@ -24,6 +24,7 @@ public class ItemRebuilding extends Item implements IBindable
         this.maxStackSize = 1;
         setCreativeTab(SanguineExtrasCreativeTab.Instance);
         this.setUnlocalizedName("sigilRebuilding");
+        this.setTextureName("SanguineExtras:sigilRebuilding");
     }
     
     @Override

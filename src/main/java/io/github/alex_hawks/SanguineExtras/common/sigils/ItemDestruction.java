@@ -26,6 +26,7 @@ public class ItemDestruction extends Item implements IBindable
         this.maxStackSize = 1;
         setCreativeTab(SanguineExtrasCreativeTab.Instance);
         this.setUnlocalizedName("sigilDestruction");
+        this.setTextureName("SanguineExtras:sigilDestruction");
     }
     
     @Override

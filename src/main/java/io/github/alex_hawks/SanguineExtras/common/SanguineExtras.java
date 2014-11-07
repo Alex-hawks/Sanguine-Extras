@@ -9,7 +9,6 @@ import io.github.alex_hawks.SanguineExtras.common.ritual_stones.advanced_master.
 import io.github.alex_hawks.SanguineExtras.common.ritual_stones.warded.WRSHandler;
 import io.github.alex_hawks.SanguineExtras.common.ritual_stones.warded_master.WMRSHandler;
 import io.github.alex_hawks.SanguineExtras.common.rituals.basic.Spawn;
-import io.github.alex_hawks.SanguineExtras.common.rituals.interactable.TestInteractableRitual;
 import io.github.alex_hawks.SanguineExtras.common.sigil_utils.interdiction.PushHandlerEnergyBlastProjectile;
 import io.github.alex_hawks.SanguineExtras.common.sigil_utils.interdiction.PushHandlerTamable;
 import net.minecraft.entity.IEntityOwnable;
@@ -54,7 +53,7 @@ public class SanguineExtras
         ModItems.initItems();
         ModBlocks.initBlocks();
         Rituals.registerRitual("SE001Spawner", 1, 250000, new Spawn(), "Ritual of Re-creation");
-        Rituals.registerRitual("SE002TEST", 1, 0, new TestInteractableRitual(), "Superior Ritual of Testing");
+        //Rituals.registerRitual("SE002TEST", 1, 0, new TestInteractableRitual(), "Superior Ritual of Testing");
         
         MinecraftForge.EVENT_BUS.register(new AMRSHandler());
         MinecraftForge.EVENT_BUS.register(new WMRSHandler());
@@ -70,6 +69,7 @@ public class SanguineExtras
     {
         Interdiction.addToPushConditional(IEntityOwnable.class, new PushHandlerTamable());
         Interdiction.addToPushConditional(EnergyBlastProjectile.class, new PushHandlerEnergyBlastProjectile());
+        Recipes.register();
     }
     
     public static void readConfig()
@@ -84,7 +84,7 @@ public class SanguineExtras
         rebuildSigilCost = config2.getInt("Sigil Of Rebuilding LP Cost", Configuration.CATEGORY_GENERAL, 25, 0, Integer.MAX_VALUE, "The LP cost of replacing one block using the Sigil Of Rebuilding");
         trappableBossMobs = config2.getBoolean("Trappable Boss Mobs", Configuration.CATEGORY_GENERAL, true, "Set to \"true\" if you want to be able to trap boss mobs at 10 times the LP cost");
         spawnableBossMobs = config2.getBoolean("Spawnable Boss Mobs", Configuration.CATEGORY_GENERAL, false, "Set to \"true\" if you want to be able to spawn boss mobs at 10 times the LP cost");
-        spawnLpPerHealth = config2.getInt("Base Spawner LP Cost Per Health", Configuration.CATEGORY_GENERAL, 150, 118, 15000, "This is the lowest that the cost can go, if you don't use reagents, it drains double to spawn one mob, and this is per half heart that the mob has at max, plus what it is missing as well");
+        spawnLpPerHealth = config2.getInt("Base Spawner LP Cost Per Health", Configuration.CATEGORY_GENERAL, 150, 118, 15000, "This is the lowest that the cost can go. If you don't use reagents, it drains double to spawn one mob, and this is per half heart that the mob has at max, plus what health it is missing as well");
         spawnMaxEntities = config2.getInt("Max Entities in Spawner", Configuration.CATEGORY_GENERAL, 20, 1, 50, "The maximum number of entities inside the spawner's area of effect, before it gives up on spawning more. It only counts what it is currenly spawning. Divide by 10 if the mob in question is a boss");       
         interdictionRange = config2.getFloat("Interdiction Range", Configuration.CATEGORY_GENERAL, 5.0f, 0.5f, 10.0f, "Entities will be pushed away from you if they are closer than this many blocks, calculated using pythagorean theorem");
         

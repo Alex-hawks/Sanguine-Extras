@@ -4,11 +4,14 @@ import static io.github.alex_hawks.SanguineExtras.common.util.LangUtils.translat
 
 import java.util.List;
 
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import io.github.alex_hawks.SanguineExtras.api.sigil.Interdiction;
 import io.github.alex_hawks.SanguineExtras.common.SanguineExtras;
 import io.github.alex_hawks.SanguineExtras.common.network.entity_motion.MsgEntityMotion;
 import io.github.alex_hawks.SanguineExtras.common.util.BloodUtils;
 import io.github.alex_hawks.SanguineExtras.common.util.SanguineExtrasCreativeTab;
+import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.IProjectile;
 import net.minecraft.entity.player.EntityPlayer;
@@ -17,6 +20,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.IIcon;
 import net.minecraft.world.World;
 import WayofTime.alchemicalWizardry.AlchemicalWizardry;
 import WayofTime.alchemicalWizardry.api.items.interfaces.IBindable;
@@ -24,12 +28,45 @@ import WayofTime.alchemicalWizardry.common.items.EnergyItems;
 
 public class ItemInterdiction extends Item implements IBindable
 {
+    @SideOnly(Side.CLIENT)
+    private IIcon passiveIcon;
+    @SideOnly(Side.CLIENT)
+    private IIcon activeIcon;
+    
     public ItemInterdiction()
     {
         super();
         this.maxStackSize = 1;
         setCreativeTab(SanguineExtrasCreativeTab.Instance);
         this.setUnlocalizedName("sigilInterdiction");
+    }
+    
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void registerIcons(IIconRegister iconRegister)
+    {
+        this.itemIcon = iconRegister.registerIcon("SanguineExtras:sigilInterdiction.passive");
+        this.passiveIcon = iconRegister.registerIcon("SanguineExtras:sigilInterdiction.passive");
+        this.activeIcon = iconRegister.registerIcon("SanguineExtras:sigilInterdiction.active");
+    }
+    
+    @Override
+    public IIcon getIcon(ItemStack stack, int renderPass, EntityPlayer player, ItemStack usingItem, int useRemaining)
+    {
+        if (stack.stackTagCompound == null)
+        {
+            stack.setTagCompound(new NBTTagCompound());
+        }
+        
+        NBTTagCompound tag = stack.stackTagCompound;
+        
+        if (tag.getBoolean("isActive"))
+        {
+            return this.activeIcon;
+        } else
+        {
+            return this.passiveIcon;
+        }
     }
     
     @Override
@@ -58,8 +95,6 @@ public class ItemInterdiction extends Item implements IBindable
             par3List.add(translate("tooltip.se.sigil.active"));
         else
             par3List.add(translate("tooltip.se.sigil.inactive"));
-
-        par3List.add("");
     }
     
     @Override
