@@ -8,16 +8,21 @@ tile.blockWardedMasterStone.name=Warded Master Ritual Stone
 tile.blockWardedRitualStone.name=Warded Ritual Stone
 
 ##  Item Localizations
+item.sigilBuilding.name=Sigil of Building
 item.sigilDestruction.tier0.name=Sigil of Destruction: Tier 1
 item.sigilDestruction.tier1.name=Sigil of Destruction: Tier 2
 item.sigilDestruction.tier2.name=Sigil of Destruction: Tier 3
 item.sigilDestruction.tier3.name=Sigil of Destruction: Tier 4
 item.sigilDestruction.tier4.name=Sigil of Destruction: Tier 5
 item.sigilDestruction.tier5.name=Sigil of Destruction: Tier 6
+item.sigilInterdiction.name=Interdiction Sigil
 item.sigilMobNet.name=Sigil of Entrapment
 item.sigilRebuilding.name=Sigil of Rebuilding
-item.sigilInterdiction.name=Interdiction Sigil
 
+##	Multipart Localizations
+item.partMicroRitualStone.name=Micro Ritual Stone
+item.partMicroStone.name=Unactivated Micro Ritual Stone
+item.stableRitualStone.name=Stabilized Ritual Stone
 
 ##  Tooltip Localizations
 tooltip.se.destruction.currentlength=Current Length: %s
@@ -39,13 +44,14 @@ tooltip.se.rebuilding.meta.null=Metadata: None set
 
 
 ##  Chat MSG Localizations
+msg.se.fail.mine.RitualStone.warding=The block falls like any other, but strangely rematerializes where it was before.
 msg.se.fail.sigil.mobnet.full=You somehow feel that you should try emptying the sigil first
 msg.se.fail.sigil.mobnet.boss=You somehow feel that this enemy is too powerful to capture
-msg.se.fail.mine.RitualStone.warding=The block falls like any other, but strangely rematerializes where it was before.
 
 
 ##  Pun Localizations
-pun.se.sigil.rebuilding=Let's take this, and replace it with that.
+pun.se.sigil.building=
 pun.se.sigil.destruction=Do you want to build a Mineshaft?
-pun.se.sigil.mobnet=What is it really like inside?
 pun.se.sigil.interdiction=Get away from me!
+pun.se.sigil.mobnet=What is it really like inside?
+pun.se.sigil.rebuilding=Let's take this, and replace it with that.
