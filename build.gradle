@@ -1,69 +1,102 @@
 buildscript {
-    repositories {
-        mavenCentral()
-        maven {
-            name = "forge"
-            url = "http://files.minecraftforge.net/maven"
-        }
-        maven {
-            name = "sonatype"
-            url = "https://oss.sonatype.org/content/repositories/snapshots/"
-        }
+	repositories {
+		mavenCentral()
+		maven {
+			name = "forge"
+				url "http://files.minecraftforge.net/maven"
+		}
+		maven {
+			name = "sonatype"
+				url "https://oss.sonatype.org/content/repositories/snapshots/"
+		}
 		//ivy {
 		//name "BloodMagic"
-        //artifactPattern ""
+		//artifactPattern ""
 		//http://minetweaker3.powerofbytes.com/download/[module]-[revision].[ext]"
 		//}
-    }
-    dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:1.2-SNAPSHOT'
+	}
+	dependencies {
+		classpath 'net.minecraftforge.gradle:ForgeGradle:1.2-SNAPSHOT'
+	}
+}
+
+repositories {
+	maven {
+		name 'CB Repo'
+			url "http://chickenbones.net/maven/"
+	}
+    ivy {
+		name 'FMP'
+		artifactPattern "http://files.minecraftforge.net/[module]/[module]-dev-[revision].[ext]"
     }
 }
 
+ext.buildProps = file "build.properties"
+ 
+buildProps.withReader {
+    def prop = new Properties()
+    prop.load(it)
+    ext.config = new ConfigSlurper().parse prop
+}
+
+apply plugin: 'scala'
 apply plugin: 'forge'
 
-version = "1.0"
+version = "${config.version.mod}"
 group= "io.github.alex_hawks.SanguineExtras" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "Sanguine Utilities"
 
 minecraft {
-    version = "1.7.10-10.13.1.1224"
-    runDir = "eclipse"
+	version = "${config.version.minecraft}-${config.version.forge}"
+	runDir = "eclipse"
 }
 
-dependencies {
-    // you may put jars on which you depend on in ./libs
-    // or you may define them like so..
-    //compile "some.group:artifact:version:classifier"
-    //compile "some.group:artifact:version"
-      
-    // real examples
-    //compile 'WayofTime.alchemicalWizardry:Blood Magic:v1.2.0Beta22(1.7.10):dev'  // adds buildcraft to the dev env
-    //compile 'com.googlecode.efficient-java-matrix-library:ejml:0.24' // adds ejml to the dev env
+dependencies { 
+	compile "codechicken:CodeChickenLib:${config.version.minecraft}-${config.version.cclib}:dev"
+	compile "codechicken:ForgeMultipart:${config.version.minecraft}-${config.version.fmp}:dev"
+	compile "codechicken:CodeChickenCore:${config.version.minecraft}-${config.version.cccore}:dev"
+	compile "codechicken:NotEnoughItems:${config.version.minecraft}-${config.version.nei}:dev"
+	
+	// real examples
+	//compile 'WayofTime.alchemicalWizardry:Blood Magic:v1.2.0Beta22(1.7.10):dev'  // adds buildcraft to the dev env
+	//compile 'com.googlecode.efficient-java-matrix-library:ejml:0.24' // adds ejml to the dev env
 
-    // for more info...
-    // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
-    // http://www.gradle.org/docs/current/userguide/dependency_management.html
+	// for more info...
+	// http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
+	// http://www.gradle.org/docs/current/userguide/dependency_management.html
 
 }
 
 processResources
 {
-    // this will ensure that this task is redone when the versions change.
-    inputs.property "version", project.version
-    inputs.property "mcversion", project.minecraft.version
+	// this will ensure that this task is redone when the versions change.
+	inputs.property "version", project.version
+	inputs.property "mcversion", project.minecraft.version
 
-    // replace stuff in mcmod.info, nothing else
-    from(sourceSets.main.resources.srcDirs) {
-        include 'mcmod.info'
+	// replace stuff in mcmod.info, nothing else
+	from(sourceSets.main.resources.srcDirs) {
+		include 'mcmod.info'
 		include 'Constants.java'
-                
-        // replace version and mcversion
-        expand 'version':project.version, 'mcversion':project.minecraft.version
-    }
-        
-    // copy everything else, thats not the mcmod.info
-    from(sourceSets.main.resources.srcDirs) {
-        exclude 'mcmod.info'
-    }
+				
+		// replace version and mcversion
+		expand 'version':project.version, 'mcversion':project.minecraft.version
+	}
+		
+	// copy everything else, thats not the mcmod.info
+	from(sourceSets.main.resources.srcDirs) {
+		exclude 'mcmod.info'
+	}
 }
+
+task copyChicken(type: Copy, dependsOn: "extractUserDev") {
+	from { configurations.compile }
+	include "**/*Chicken*.jar", "**/*NotEnoughItems*.jar", "**/*ForgeMultipart*.jar"
+	exclude "**/CodeChickenLib*" // because CCC downloads it anyways.. -_-
+	into file(minecraft.runDir + "/mods")
+
+	mustRunAfter "deobfBinJar"
+	mustRunAfter "repackMinecraft"
+}
+tasks.setupDevWorkspace.dependsOn copyChicken
+tasks.setupDecompWorkspace.dependsOn copyChicken
+

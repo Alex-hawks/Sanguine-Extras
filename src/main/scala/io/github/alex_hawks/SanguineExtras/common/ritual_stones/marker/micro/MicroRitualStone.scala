@@ -18,7 +18,7 @@ import codechicken.lib.vec.Vector3
 import net.minecraft.client.renderer.Tessellator
 import WayofTime.alchemicalWizardry.ModBlocks
 
-class MicroRitualStone(stoneType: Int = 0) extends MicroStone("MicroRitualStone", stoneType, new ItemStack(ModItems.MicroRitualStone)) with ITileRitualStone {
+class MicroRitualStone(stoneType2: Int = 0) extends MicroStone("MicroRitualStone", stoneType2, new ItemStack(ModItems.MicroRitualStone)) with ITileRitualStone {
 
   override def isRuneType(runeType: Int): Boolean = {
     return stoneType == runeType

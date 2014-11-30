@@ -64,5 +64,5 @@ object Recipe {
 
   def c(c: Char): Character = new Character(c)
 
-  def c(c: String): Character = c(0)
+  def c(c: String): Character = if (c.length < 1) throw new IllegalArgumentException("intput too short") else if (c.length > 1) throw new IllegalArgumentException("intput too long") else c(0)
 }
