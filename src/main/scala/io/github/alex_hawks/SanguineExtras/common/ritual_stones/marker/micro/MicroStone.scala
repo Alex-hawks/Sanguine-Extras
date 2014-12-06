@@ -89,7 +89,7 @@ class MicroStone(val name: String, var stoneType: Int = 0, val pickedItem: ItemS
     val textureMinV = ModBlocks.ritualStone.getIcon(0, stoneType).getMinV();
     val textureMaxV = ModBlocks.ritualStone.getIcon(0, stoneType).getMaxV();
 
-    tessellator.setBrightness(ModBlocks.ritualStone.getMixedBrightnessForBlock(world, tile.xCoord, tile.yCoord, tile.zCoord));
+    tessellator.setBrightness(ModBlocks.ritualStone.getMixedBrightnessForBlock(world, tile.xCoord, tile.yCoord, tile.zCoord))
     Minecraft.getMinecraft.renderEngine.bindTexture(Minecraft.getMinecraft.renderEngine.getResourceLocation(0))
 
     tessellator.addVertexWithUV(minX, minY, maxZ, textureMinU, textureMinV);

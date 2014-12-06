@@ -14,11 +14,17 @@ public class PlayerUtils
     {
         if (player.capabilities.isCreativeMode)
             return true;
-        for (ItemStack is2 : player.inventory.mainInventory)
+        ItemStack is2;
+        for (int i = 0; i < player.inventory.mainInventory.length; i++)
         {
+            is2 = player.inventory.mainInventory[i];
+            if (is2 == null)
+                continue;
             if (is.isItemEqual(is2) && ItemStack.areItemStackTagsEqual(is, is2))
             {
                 is2.stackSize--;
+                if (is2.stackSize <= 0)
+                    player.inventory.mainInventory[i] = null;
                 return true;
             }
         }

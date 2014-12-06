@@ -1,7 +1,7 @@
 package io.github.alex_hawks.SanguineExtras.client;
 
 import io.github.alex_hawks.SanguineExtras.client.ritual_stones.marker.micro.RenderRitualStoneCube;
-import io.github.alex_hawks.SanguineExtras.client.sigil_utils.ClientUtilsBuilding;
+import io.github.alex_hawks.SanguineExtras.client.sigil_utils.UtilsBuilding;
 import io.github.alex_hawks.SanguineExtras.common.CommonProxy;
 import io.github.alex_hawks.SanguineExtras.common.ModItems;
 import net.minecraftforge.client.MinecraftForgeClient;
@@ -14,8 +14,8 @@ public class ClientProxy extends CommonProxy
     @Override
     public void registerClientStuff()
     {
-        MinecraftForge.EVENT_BUS.register(new ClientUtilsBuilding());
-        FMLCommonHandler.instance().bus().register(new ClientUtilsBuilding());
+        MinecraftForge.EVENT_BUS.register(new UtilsBuilding());
+        FMLCommonHandler.instance().bus().register(new UtilsBuilding());
         if (Loader.isModLoaded("ForgeMultipart"))
         {
             MinecraftForgeClient.registerItemRenderer(ModItems.MicroRitualStone, new RenderRitualStoneCube());
