@@ -44,7 +44,8 @@ object Recipe {
   def registerAltar {
     AltarRecipeRegistry.registerAltarRecipe(s(ModBlocks.AdvancedMRS), s(blockMasterStone), 4, 30000, 40, 10, false)
     AltarRecipeRegistry.registerAltarRecipe(s(ModItems.SigilInterdiction), s(sigilOfWind), 4, 30000, 40, 10, false)
-    AltarRecipeRegistry.registerAltarRecipe(s(ModItems.SigilRebuild), s(sigilOfTheBridge), 3, 10000, 30, 10, false)
+    AltarRecipeRegistry.registerAltarRecipe(s(ModItems.SigilBuilding), s(sigilOfTheBridge), 3, 5000, 30, 10, false)
+    AltarRecipeRegistry.registerAltarRecipe(s(ModItems.SigilRebuild), s(ModItems.SigilBuilding), 3, 15000, 30, 10, false)
     
     if (Loader.isModLoaded("ForgeMultipart")) {
       AltarRecipeRegistry.registerAltarRecipe(s(ModItems.MicroRitualStone), s(ModItems.MicroStone), 4, 5000, 100, 40, false)
