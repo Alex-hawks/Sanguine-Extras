@@ -20,6 +20,7 @@ import WayofTime.alchemicalWizardry.common.entity.projectile.EnergyBlastProjecti
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
+import cpw.mods.fml.common.Mod.Instance;
 import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
@@ -35,6 +36,9 @@ public class SanguineExtras
 	
 	@SidedProxy(clientSide = "io.github.alex_hawks.SanguineExtras.client.ClientProxy", serverSide = "io.github.alex_hawks.SanguineExtras.common.CommonProxy", modId = Constants.MetaData.MOD_ID)
 	public static CommonProxy proxy;
+	
+	@Instance(Constants.MetaData.MOD_ID)
+	public static SanguineExtras INSTANCE;
 	
     private static Configuration config;
     public static int pathfindIterations;
@@ -80,6 +84,7 @@ public class SanguineExtras
         Interdiction.addToPushConditional(EnergyBlastProjectile.class, new PushHandlerEnergyBlastProjectile());
         Recipe.register();
         proxy.registerClientStuff();
+        NetworkRegistry.INSTANCE.registerGuiHandler(INSTANCE, proxy);
     }
     
     public static void readConfig()

@@ -1,8 +1,5 @@
 package io.github.alex_hawks.SanguineExtras.common;
 
-import io.github.alex_hawks.SanguineExtras.common.ritual_stones.marker.micro.ItemMicroRitualStone;
-import io.github.alex_hawks.SanguineExtras.common.ritual_stones.marker.micro.ItemMicroStone;
-import io.github.alex_hawks.SanguineExtras.common.ritual_stones.marker.micro.ItemStabilisedRitualStone;
 import io.github.alex_hawks.SanguineExtras.common.sigils.ItemBuilding;
 import io.github.alex_hawks.SanguineExtras.common.sigils.ItemDestruction;
 import io.github.alex_hawks.SanguineExtras.common.sigils.ItemInterdiction;
@@ -23,6 +20,7 @@ public final class ModItems
     public static Item MicroStone;
     public static Item StableRitualStone;
     
+    @SuppressWarnings("unchecked")
     public static void initItems()
     {
         SigilBuilding = new ItemBuilding();
@@ -33,7 +31,7 @@ public final class ModItems
         
         SigilInterdiction = new ItemInterdiction();
         GameRegistry.registerItem(SigilInterdiction, "SigilInterdiction");
-
+        
         SigilMobNet = new ItemMobNet();
         GameRegistry.registerItem(SigilMobNet, "SigilMobNet");
         
@@ -42,14 +40,36 @@ public final class ModItems
         
         if (Loader.isModLoaded("ForgeMultipart"))
         {
-            MicroRitualStone = new ItemMicroRitualStone();
-            GameRegistry.registerItem(MicroRitualStone, "MicroRitualStone");
-            
-            StableRitualStone = new ItemStabilisedRitualStone();
-            GameRegistry.registerItem(StableRitualStone, "StableRitualStone");
-            
-            MicroStone = new ItemMicroStone();
-            GameRegistry.registerItem(MicroStone, "MicroStone");
+            try 
+            {
+                Class<? extends Item> clazz;
+                clazz = (Class<? extends Item>) Class.forName("io.github.alex_hawks.SanguineExtras.common.ritual_stones.marker.micro.ItemMicroRitualStone");
+                MicroRitualStone = (Item) clazz.newInstance();
+                GameRegistry.registerItem(MicroRitualStone, "MicroRitualStone");
+                
+                
+                clazz = (Class<? extends Item>) Class.forName("io.github.alex_hawks.SanguineExtras.common.ritual_stones.marker.micro.ItemStabilisedRitualStone");
+                StableRitualStone = (Item) clazz.newInstance();
+                GameRegistry.registerItem(StableRitualStone, "StableRitualStone");
+                
+                
+                clazz = (Class<? extends Item>) Class.forName("io.github.alex_hawks.SanguineExtras.common.ritual_stones.marker.micro.ItemMicroStone");
+                MicroStone = (Item) clazz.newInstance();
+                GameRegistry.registerItem(MicroStone, "MicroStone");
+            } catch (ClassNotFoundException e)
+            {
+                e.printStackTrace();
+            } catch (InstantiationException e)
+            {
+                e.printStackTrace();
+            } catch (IllegalAccessException e)
+            {
+                e.printStackTrace();
+            }
+            finally 
+            {
+                
+            }
         }
         
         System.out.println("Initializing Items");

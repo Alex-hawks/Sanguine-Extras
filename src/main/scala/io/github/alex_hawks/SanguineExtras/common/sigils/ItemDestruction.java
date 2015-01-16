@@ -5,6 +5,7 @@ import io.github.alex_hawks.SanguineExtras.common.sigil_utils.UtilsDestruction;
 import io.github.alex_hawks.SanguineExtras.common.util.BloodUtils;
 import io.github.alex_hawks.SanguineExtras.common.util.SanguineExtrasCreativeTab;
 import io.github.alex_hawks.util.Vector3;
+import static io.github.alex_hawks.SanguineExtras.common.package$.MODULE$;
 
 import java.util.List;
 
@@ -39,7 +40,7 @@ public class ItemDestruction extends Item implements IBindable
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public void addInformation(ItemStack stack, EntityPlayer par2EntityPlayer, List par3List, boolean par4)
     {
-        par3List.add("§5§o" + translate("pun.se.sigil.destruction"));
+        par3List.add(MODULE$.loreFormat() + translate("pun.se.sigil.destruction"));
         par3List.add("");
 
         if (stack.stackTagCompound != null && stack.stackTagCompound.hasKey("ownerName"))

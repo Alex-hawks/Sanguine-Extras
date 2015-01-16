@@ -76,9 +76,14 @@ processResources
 	// replace stuff in mcmod.info, nothing else
 	from(sourceSets.main.resources.srcDirs) {
 		include 'mcmod.info'
-		include 'Constants.java'
 				
 		// replace version and mcversion
+		expand 'version':project.version, 'mcversion':project.minecraft.version
+	}
+	
+	from(sourceSets.main.scala.srcDirs) {
+		include 'Constants.java'
+		
 		expand 'version':project.version, 'mcversion':project.minecraft.version
 	}
 		

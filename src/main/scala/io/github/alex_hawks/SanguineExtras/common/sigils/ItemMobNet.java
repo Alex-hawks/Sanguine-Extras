@@ -1,6 +1,7 @@
 package io.github.alex_hawks.SanguineExtras.common.sigils;
 
 import static io.github.alex_hawks.SanguineExtras.api.sigil.MobNet.isCaptureBlacklisted;
+import static io.github.alex_hawks.SanguineExtras.common.package$.MODULE$;
 import static io.github.alex_hawks.SanguineExtras.common.util.LangUtils.translate;
 import io.github.alex_hawks.SanguineExtras.common.SanguineExtras;
 import io.github.alex_hawks.SanguineExtras.common.sigil_utils.UtilsMobNet;
@@ -73,7 +74,7 @@ public class ItemMobNet extends Item implements IBindable
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public void addInformation(ItemStack stack, EntityPlayer par2EntityPlayer, List par3List, boolean par4)
     {
-        par3List.add("§5§o" + translate("pun.se.sigil.mobnet"));
+        par3List.add(MODULE$.loreFormat() + translate("pun.se.sigil.mobnet"));
         par3List.add("");
         
         if (stack.stackTagCompound != null && stack.stackTagCompound.hasKey("ownerName"))

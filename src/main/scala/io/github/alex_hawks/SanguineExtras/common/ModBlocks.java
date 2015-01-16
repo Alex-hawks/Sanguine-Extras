@@ -1,5 +1,7 @@
 package io.github.alex_hawks.SanguineExtras.common;
 
+import io.github.alex_hawks.SanguineExtras.common.constructs.BlockChest;
+import io.github.alex_hawks.SanguineExtras.common.constructs.TileChest;
 import io.github.alex_hawks.SanguineExtras.common.ritual_stones.marker.warded.BlockWardedRitualStone;
 import io.github.alex_hawks.SanguineExtras.common.ritual_stones.marker.warded.TEWardedRitualStone;
 import io.github.alex_hawks.SanguineExtras.common.ritual_stones.master.advanced.BlockAdvancedMasterStone;
@@ -13,6 +15,7 @@ public class ModBlocks
     public static BlockAdvancedMasterStone AdvancedMRS;
     public static BlockWardedMasterStone WardedMRS;
     public static BlockWardedRitualStone WardedRitualStone;
+    public static BlockChest Chest;
 
     public static void initBlocks()
     {
@@ -29,6 +32,12 @@ public class ModBlocks
         WardedRitualStone = new BlockWardedRitualStone();
         GameRegistry.registerBlock(WardedRitualStone, "WardedRitualStone");
         GameRegistry.registerTileEntity(TEWardedRitualStone.class, "WardedRitualStone");
+        
+
+        Chest = new BlockChest();
+        GameRegistry.registerBlock(Chest, "SanguineChest");
+        GameRegistry.registerTileEntity(TileChest.class, "SanguineChest");
+        
         
         System.out.println("Initializing Blocks");
     }

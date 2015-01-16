@@ -23,12 +23,11 @@ class UtilsBuilding {
   def render(e: RenderWorldLastEvent)
   {
 
-    val mc: Minecraft = Minecraft.getMinecraft()
+    val mc: Minecraft = Minecraft.getMinecraft
     val p: EntityClientPlayerMP = mc.thePlayer
     val w: World = p.worldObj
-    val h = p.inventory.currentItem
 
-    if ((p.inventory.mainInventory(h) != null) && ((p.inventory.mainInventory(h).getItem().isInstanceOf[ItemBuilding]))) {
+    if ((p.inventory.getCurrentItem != null) && ((p.inventory.getCurrentItem.getItem.isInstanceOf[ItemBuilding]))) {
 
       val b: Block = w.getBlock(mc.objectMouseOver.blockX, mc.objectMouseOver.blockY, mc.objectMouseOver.blockZ)
       val meta = w.getBlockMetadata(mc.objectMouseOver.blockX, mc.objectMouseOver.blockY, mc.objectMouseOver.blockZ)
@@ -99,6 +98,6 @@ class UtilsBuilding {
 
   def g(b: Block, m: Int, s: Int): (Float, Float, Float, Float) = {
     val i = b.getIcon(s, m)
-    (i.getMinU(), i.getMaxU(), i.getMinV(), i.getMaxV())
+    (i.getMinU, i.getMaxU, i.getMinV, i.getMaxV)
   }
 }
