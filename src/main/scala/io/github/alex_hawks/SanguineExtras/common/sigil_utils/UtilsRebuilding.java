@@ -58,15 +58,15 @@ public class UtilsRebuilding
             {
                 for (ForgeDirection d : ForgeDirection.VALID_DIRECTIONS)
                 {
-                    b = world.getBlock(v.x + d.offsetX, v.y + d.offsetY, v.z + d.offsetZ);
+                    b = world.getBlock(v.x() + d.offsetX, v.y() + d.offsetY, v.z() + d.offsetZ);
 
                     if (b.isBlockSolid(world, x, y, z, world.getBlockMetadata(x, y, z)) && b.equals(original))
                     {
-                        solidBlocks.add(new Vector3(v.x + d.offsetX, v.y + d.offsetY, v.z + d.offsetZ));
+                        solidBlocks.add(new Vector3(v.x() + d.offsetX, v.y() + d.offsetY, v.z() + d.offsetZ));
                     }
                     else
                     {
-                        airBlocks.add(new Vector3(v.x + d.offsetX, v.y + d.offsetY, v.z + d.offsetZ));
+                        airBlocks.add(new Vector3(v.x() + d.offsetX, v.y() + d.offsetY, v.z() + d.offsetZ));
                     }
                 }
             }
@@ -74,11 +74,11 @@ public class UtilsRebuilding
             {
                 for (ForgeDirection d : ForgeDirection.VALID_DIRECTIONS)
                 {
-                    b = world.getBlock(v.x + d.offsetX, v.y + d.offsetY, v.z + d.offsetZ);
+                    b = world.getBlock(v.x() + d.offsetX, v.y() + d.offsetY, v.z() + d.offsetZ);
 
                     if (!b.isBlockSolid(world, x, y, z, world.getBlockMetadata(x, y, z)) && !b.equals(original))
                     {
-                        airBlocks.add(new Vector3(v.x + d.offsetX, v.y + d.offsetY, v.z + d.offsetZ));
+                        airBlocks.add(new Vector3(v.x() + d.offsetX, v.y() + d.offsetY, v.z() + d.offsetZ));
                     }
                 }
             }
@@ -91,7 +91,7 @@ public class UtilsRebuilding
             {
                 for (Vector3 air : airBlocks)
                 {
-                    vec3 = new Vector3(v.x + d.offsetX, v.y + d.offsetY, v.z + d.offsetZ);
+                    vec3 = new Vector3(v.x() + d.offsetX, v.y() + d.offsetY, v.z() + d.offsetZ);
 
                     if (air.equals(vec3))
                     {
@@ -107,7 +107,7 @@ public class UtilsRebuilding
 
     public static List<Vector3> find(Vector3 coords, World w)
     {
-        return find(coords.x, coords.y, coords.z, w);
+        return find(coords.x(), coords.y(), coords.z(), w);
     }
 
     public static void doReplace(EntityPlayer player, String sigilOwner, List<Vector3> list, World w, Block oldBlock, int oldMeta, Block newBlock, int newMeta)
@@ -122,10 +122,10 @@ public class UtilsRebuilding
         BlockSnapshot s;
         for (Vector3 v : list)
         {
-            if (w.getBlock(v.x, v.y, v.z).equals(oldBlock) && w.getBlockMetadata(v.x, v.y, v.z) == oldMeta)
+            if (w.getBlock(v.x(), v.y(), v.z()).equals(oldBlock) && w.getBlockMetadata(v.x(), v.y(), v.z()) == oldMeta)
             {
-                e = new BreakEvent(v.x, v.y, v.z, w, oldBlock, oldMeta, player);
-                s = new BlockSnapshot(w, v.x, v.y, v.z, newBlock, newMeta);
+                e = new BreakEvent(v.x(), v.y(), v.z(), w, oldBlock, oldMeta, player);
+                s = new BlockSnapshot(w, v.x(), v.y(), v.z(), newBlock, newMeta);
                 e2 = new PlaceEvent(s, null, player);
                 if (!FMLCommonHandler.instance().bus().post(e))
                 {
@@ -133,8 +133,8 @@ public class UtilsRebuilding
                     {
                         if (BloodUtils.drainSoulNetwork(sigilOwner, SanguineExtras.rebuildSigilCost) && takeItem(player, new ItemStack(newBlock, 1, newMeta)))
                         {
-                            putItem(player, oldBlock.getDrops(w, v.x, v.y, v.z, oldMeta, 0).toArray(new ItemStack[0]));
-                            w.setBlock(v.x, v.y, v.z, newBlock, newMeta, 0x3);
+                            putItem(player, oldBlock.getDrops(w, v.x(), v.y(), v.z(), oldMeta, 0).toArray(new ItemStack[0]));
+                            w.setBlock(v.x(), v.y(), v.z(), newBlock, newMeta, 0x3);
 
                             if (e.getExpToDrop() > 0)
                                 w.spawnEntityInWorld(new EntityXPOrb(w, player.posX, player.posY, player.posZ, e.getExpToDrop()));

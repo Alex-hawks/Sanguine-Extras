@@ -58,13 +58,13 @@ public class ItemBuilding extends Item implements IBindable
         
         for (Vector3 v : ls)
         {
-            e = new PlaceEvent(new BlockSnapshot(w, v.x, v.y, v.z, w.getBlock(x, y, z), w.getBlockMetadata(x, y, z)), null, player);
+            e = new PlaceEvent(new BlockSnapshot(w, v.x(), v.y(), v.z(), w.getBlock(x, y, z), w.getBlockMetadata(x, y, z)), null, player);
             if (!MinecraftForge.EVENT_BUS.post(e))
             {
                 if (BloodUtils.drainSoulNetworkWithDamage(stack.stackTagCompound.getString("ownerName"), player, SanguineExtras.rebuildSigilCost)
                         && PlayerUtils.takeItem(player, new ItemStack(w.getBlock(x, y, z), 1, w.getBlockMetadata(x, y, z))))
                 {
-                    w.setBlock(v.x, v.y, v.z, w.getBlock(x, y, z), w.getBlockMetadata(x, y, z), 0x3);
+                    w.setBlock(v.x(), v.y(), v.z(), w.getBlock(x, y, z), w.getBlockMetadata(x, y, z), 0x3);
                 }
             }
         }

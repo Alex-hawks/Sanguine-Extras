@@ -2,6 +2,7 @@ package io.github.alex_hawks.SanguineExtras.client;
 
 import io.github.alex_hawks.SanguineExtras.client.constructs.GuiChest;
 import io.github.alex_hawks.SanguineExtras.client.constructs.RenderChest;
+import io.github.alex_hawks.SanguineExtras.client.handler.RitualDivinerRender;
 import io.github.alex_hawks.SanguineExtras.client.ritual_stones.marker.micro.RenderRitualStoneCube;
 import io.github.alex_hawks.SanguineExtras.client.sigil_utils.UtilsBuilding;
 import io.github.alex_hawks.SanguineExtras.common.CommonProxy;
@@ -21,7 +22,7 @@ public class ClientProxy extends CommonProxy
     public void registerClientStuff()
     {
         MinecraftForge.EVENT_BUS.register(new UtilsBuilding());
-        FMLCommonHandler.instance().bus().register(new UtilsBuilding());
+        MinecraftForge.EVENT_BUS.register(new RitualDivinerRender());
         ClientRegistry.bindTileEntitySpecialRenderer(TileChest.class, new RenderChest());
         if (Loader.isModLoaded("ForgeMultipart"))
         {

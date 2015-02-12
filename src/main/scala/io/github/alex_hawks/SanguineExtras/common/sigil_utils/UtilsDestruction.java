@@ -83,23 +83,23 @@ public class UtilsDestruction
         
         for(Vector3 v : list)
         {
-            if (v.y > 255 || v.y < 0 )
+            if (v.y() > 255 || v.y() < 0 )
                 continue;
             
-            Block b = w.getBlock(v.x, v.y, v.z);
-            int meta = w.getBlockMetadata(v.x, v.y, v.z);
+            Block b = w.getBlock(v.x(), v.y(), v.z());
+            int meta = w.getBlockMetadata(v.x(), v.y(), v.z());
             
-            if (b.getBlockHardness(w, v.x, v.y, v.z) < 0 || b.isAir(w, v.x, v.y, v.z))
+            if (b.getBlockHardness(w, v.x(), v.y(), v.z()) < 0 || b.isAir(w, v.x(), v.y(), v.z()))
                 continue;
             
-            BreakEvent e = new BreakEvent(v.x, v.y, v.z, w, b, meta, p);
+            BreakEvent e = new BreakEvent(v.x(), v.y(), v.z(), w, b, meta, p);
 
             if (!FMLCommonHandler.instance().bus().post(e))
             {
                 if (BloodUtils.drainSoulNetwork(sigilOwner, ++blocks))
                 {
-                    List<ItemStack> drops = b.getDrops(w, v.x, v.y, v.z, meta, 0);
-                    w.setBlock(v.x, v.y, v.z, Blocks.air);
+                    List<ItemStack> drops = b.getDrops(w, v.x(), v.y(), v.z(), meta, 0);
+                    w.setBlock(v.x(), v.y(), v.z(), Blocks.air);
 
                     for (ItemStack drop : drops)
                     {

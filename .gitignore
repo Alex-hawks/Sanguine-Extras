@@ -6,3 +6,10 @@ build/
 .metadata/
 libs/
 run/
+.idea/
+*.iml
+*.ipr
+*.iws
+lib/
+out/
+logs/
