@@ -39,6 +39,12 @@ object Recipe {
     if (Loader.isModLoaded("ForgeMultipart")) {
       GameRegistry.addRecipe(new ShapelessOreRecipe (s(ModItems.MicroStone, qty = 8), s(ModItems.StableRitualStone), s(GameData.getItemRegistry().getObject("ForgeMicroblock:sawDiamond"))))
     }
+
+    GameRegistry.addRecipe(new ShapedBloodOrbRecipe(s(ModBlocks.Chest, 1, 0), "!!!", "!@!", "!!!", c("!"), blankSlate, c("@"), weakBloodOrb))
+    GameRegistry.addRecipe(new ShapedBloodOrbRecipe(s(ModBlocks.Chest, 1, 1), "!!!", "!@!", "!!!", c("!"), reinforcedSlate, c("@"), weakBloodOrb))
+    GameRegistry.addRecipe(new ShapedBloodOrbRecipe(s(ModBlocks.Chest, 1, 2), "!!!", "!@!", "!!!", c("!"), imbuedSlate, c("@"), weakBloodOrb))
+    GameRegistry.addRecipe(new ShapedBloodOrbRecipe(s(ModBlocks.Chest, 1, 3), "!!!", "!@!", "!!!", c("!"), demonicSlate, c("@"), weakBloodOrb))
+    GameRegistry.addRecipe(new ShapedBloodOrbRecipe(s(ModBlocks.Chest, 1, 4), "!!!", "!@!", "!!!", c("!"), s(baseItems,1,27), c("@"), weakBloodOrb))
   }
 
   def registerAltar {
@@ -50,6 +56,11 @@ object Recipe {
     if (Loader.isModLoaded("ForgeMultipart")) {
       AltarRecipeRegistry.registerAltarRecipe(s(ModItems.MicroRitualStone), s(ModItems.MicroStone), 4, 5000, 100, 40, false)
     }
+
+    AltarRecipeRegistry.registerAltarRecipe(s(ModBlocks.Chest,1,1), s(ModBlocks.Chest,1,0), 2,  16000,  40,  40, false)
+    AltarRecipeRegistry.registerAltarRecipe(s(ModBlocks.Chest,1,2), s(ModBlocks.Chest,1,1), 2,  40000, 120,  80, false)
+    AltarRecipeRegistry.registerAltarRecipe(s(ModBlocks.Chest,1,3), s(ModBlocks.Chest,1,2), 2, 120000, 160, 160, false)
+    AltarRecipeRegistry.registerAltarRecipe(s(ModBlocks.Chest,1,4), s(ModBlocks.Chest,1,3), 2, 240000, 320, 800, false)
   }
 
   def registerAlchemy {
