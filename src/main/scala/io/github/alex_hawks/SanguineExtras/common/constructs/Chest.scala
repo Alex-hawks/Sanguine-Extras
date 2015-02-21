@@ -1,21 +1,16 @@
 package io.github.alex_hawks.SanguineExtras.common
 package constructs
 
-import org.lwjgl.opengl.GL11
 import WayofTime.alchemicalWizardry.common.spell.complex.effect.SpellHelper
-import cpw.mods.fml.relauncher.SideOnly
-import io.github.alex_hawks.SanguineExtras.common.SanguineExtras
 import io.github.alex_hawks.SanguineExtras.common.util.WorldUtils.dropItem
 import io.github.alex_hawks.SanguineExtras.common.constructs.Chest._
 import io.github.alex_hawks.SanguineExtras.common.util.SanguineExtrasCreativeTab
 import net.minecraft.block.Block
 import net.minecraft.block.BlockContainer
 import net.minecraft.block.material.Material
-import net.minecraft.client.gui.inventory.GuiContainer
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.entity.player.InventoryPlayer
 import net.minecraft.inventory.Container
-import net.minecraft.inventory.ISidedInventory
 import net.minecraft.inventory.Slot
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
@@ -75,6 +70,9 @@ class TileChest(val meta: Int) extends TileEntity with IInventory {
   var motion: Float = 0.01f
   var lidMoving: Boolean = _
   var numPlayersUsing: Int = _
+  var tier = meta
+
+  def this() = this(0)
 
   // Begin calculations
   def actInvSize = (meta + 2) * 18
@@ -125,6 +123,7 @@ class TileChest(val meta: Int) extends TileEntity with IInventory {
   }
 
   override def writeToNBT(tag: NBTTagCompound) = {
+    super.writeToNBT(tag)
     val tag2 = new NBTTagCompound
     for (i <- 0 until maxChestSize)
       if (chestContents(i) != null)
@@ -138,10 +137,12 @@ class TileChest(val meta: Int) extends TileEntity with IInventory {
     tag.setFloat("rotation", rotation)
     tag.setFloat("height", height)
     tag.setFloat("motion", motion)
+    tag.setInteger("tier", tier)
     tag
   }
 
   override def readFromNBT(tag: NBTTagCompound) = {
+    super.readFromNBT(tag)
     val tag2 = tag.getCompoundTag("inventory")
     if (tag2 != null)
       for (i <- 0 until maxChestSize)
@@ -154,6 +155,7 @@ class TileChest(val meta: Int) extends TileEntity with IInventory {
     rotation = tag.getFloat("rotation")
     height = tag.getFloat("height")
     motion = tag.getFloat("motion")
+    tier = tag.getInteger("tier")
     tag
   }
 
