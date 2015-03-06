@@ -29,7 +29,7 @@ import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import cpw.mods.fml.relauncher.Side;
 
-@Mod(dependencies = "after:AWWayofTime", modid = Constants.MetaData.MOD_ID, name = Constants.MetaData.NAME, useMetadata = false, version = Constants.MetaData.VERSION, modLanguage = "java") //modLanguage is the language this file is in
+@Mod(dependencies = "after:AWWayofTime", modid = Constants.MetaData.MOD_ID, name = Constants.MetaData.NAME, useMetadata = false, modLanguage = "java") //modLanguage is the language this file is in
 public class SanguineExtras
 {
 	public static SimpleNetworkWrapper networkWrapper;

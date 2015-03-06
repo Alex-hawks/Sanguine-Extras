@@ -10,6 +10,7 @@ import io.github.alex_hawks.util.Vector3
 import net.minecraft.client.Minecraft
 import net.minecraft.client.entity.EntityClientPlayerMP
 import net.minecraft.tileentity.TileEntity
+import net.minecraft.util.MovingObjectPosition
 import net.minecraft.world.World
 import net.minecraftforge.client.event.RenderWorldLastEvent
 
@@ -23,6 +24,10 @@ class RitualDivinerRender {
     val mc: Minecraft = Minecraft.getMinecraft
     val p: EntityClientPlayerMP = mc.thePlayer
     val w: World = p.worldObj
+
+    if (mc.objectMouseOver == null || mc.objectMouseOver.typeOfHit != MovingObjectPosition.MovingObjectType.BLOCK)
+      return
+
     val te: TileEntity = w.getTileEntity(mc.objectMouseOver.blockX, mc.objectMouseOver.blockY, mc.objectMouseOver.blockZ)
 
     if (!te.isInstanceOf[IMasterRitualStone])

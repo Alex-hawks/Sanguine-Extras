@@ -6,8 +6,7 @@ public class Constants
     {
         public static final String MOD_ID      = "SanguineExtras";
         public static final String NAME        = "Sanguine Utilities";
-        public static final String VERSION     = "${version}";
-        
+
         public static final String DESCRIPTION = "Blood Pact: How far are you willing to go for convenience?";
     }
     

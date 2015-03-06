@@ -58,7 +58,7 @@ class BlockChest extends BlockContainer(Material.rock) {
   }
 }
 
-class TileChest(val meta: Int) extends TileEntity with IInventory {
+class TileChest(var meta: Int) extends TileEntity with IInventory {
   val chestContents = new Array[ItemStack](Chest.maxChestSize);
 
   // the Chest Levitates and slowly rotates
@@ -70,7 +70,6 @@ class TileChest(val meta: Int) extends TileEntity with IInventory {
   var motion: Float = 0.01f
   var lidMoving: Boolean = _
   var numPlayersUsing: Int = _
-  var tier = meta
 
   def this() = this(0)
 
@@ -137,7 +136,7 @@ class TileChest(val meta: Int) extends TileEntity with IInventory {
     tag.setFloat("rotation", rotation)
     tag.setFloat("height", height)
     tag.setFloat("motion", motion)
-    tag.setInteger("tier", tier)
+    tag.setInteger("tier", meta)
     tag
   }
 
@@ -155,7 +154,7 @@ class TileChest(val meta: Int) extends TileEntity with IInventory {
     rotation = tag.getFloat("rotation")
     height = tag.getFloat("height")
     motion = tag.getFloat("motion")
-    tier = tag.getInteger("tier")
+    meta = tag.getInteger("tier")
     tag
   }
 
