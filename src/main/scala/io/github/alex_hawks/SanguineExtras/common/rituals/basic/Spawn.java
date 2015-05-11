@@ -95,7 +95,7 @@ public class Spawn extends RitualEffect
     {
         if (stone.getCooldown() > 0)
         {
-            stone.setCooldown(stone.getCooldown() -1);
+            stone.setCooldown(stone.getCooldown() - 1);
             return;
         }
         stone.setCooldown(200);

@@ -1,10 +1,15 @@
 package io.github.alex_hawks.SanguineExtras.common.ritual_stones.master.warded;
 
+import io.github.alex_hawks.SanguineExtras.common.SanguineExtras;
+
 import java.util.UUID;
 
+import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.relauncher.Side;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.World;
 import WayofTime.alchemicalWizardry.common.tileEntity.TEMasterStone;
 
@@ -30,6 +35,9 @@ public class TEWardedMasterStone extends TEMasterStone
             return true;
         if (this.getOwner().equals(""))
             return true;
+        if (FMLCommonHandler.instance().getSide() == Side.SERVER)
+        	if (MinecraftServer.getServer().getConfigurationManager().func_152596_g(player.getGameProfile()) && SanguineExtras.opsCanBreakWardedBlocks)
+        		return true;
         return false;
     }
     
