@@ -18,11 +18,11 @@ import net.minecraft.util.ResourceLocation
 object RenderChest {
   val size = 0.35f
   val model = new ModelChest
-  val chestpng0 = new ResourceLocation("assets/SanguineExtras/textures/model/chest0.png")
-  val chestpng1 = new ResourceLocation("assets/SanguineExtras/textures/model/chest1.png");  //  TODO make my chest texture
-  val chestpng2 = new ResourceLocation("assets/SanguineExtras/textures/model/chest2.png");  //  TODO make my chest texture
-  val chestpng3 = new ResourceLocation("assets/SanguineExtras/textures/model/chest3.png");  //  TODO make my chest texture
-  val chestpng4 = new ResourceLocation("assets/SanguineExtras/textures/model/chest4.png");  //  TODO make my chest texture
+  val chestpng0 = new ResourceLocation("sanguineextras:textures/model/chest0.png")
+  val chestpng1 = new ResourceLocation("sanguineextras:textures/model/chest1.png");  //  TODO make my chest texture
+  val chestpng2 = new ResourceLocation("sanguineextras:textures/model/chest2.png");  //  TODO make my chest texture
+  val chestpng3 = new ResourceLocation("sanguineextras:textures/model/chest3.png");  //  TODO make my chest texture
+  val chestpng4 = new ResourceLocation("sanguineextras:textures/model/chest4.png");  //  TODO make my chest texture
   val chestpngVanilla = new ResourceLocation("textures/entity/chest/normal.png")
   val pixel = 0.0625f
 }
@@ -51,7 +51,7 @@ class RenderChest extends TileEntitySpecialRenderer {
     val minZ = z - size
     val maxZ = z + size
 
-    this.bindTexture(te.getBlockMetadata match{
+    this.bindTexture(te.getBlockMetadata match {
       case 0 => chestpng0
       case 1 => chestpng0
       case 2 => chestpng0

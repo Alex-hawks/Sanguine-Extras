@@ -58,9 +58,9 @@ object Recipe {
     }
 
     AltarRecipeRegistry.registerAltarRecipe(s(ModBlocks.Chest,1,1), s(ModBlocks.Chest,1,0), 2,  16000,  40,  40, false)
-    AltarRecipeRegistry.registerAltarRecipe(s(ModBlocks.Chest,1,2), s(ModBlocks.Chest,1,1), 2,  40000, 120,  80, false)
-    AltarRecipeRegistry.registerAltarRecipe(s(ModBlocks.Chest,1,3), s(ModBlocks.Chest,1,2), 2, 120000, 160, 160, false)
-    AltarRecipeRegistry.registerAltarRecipe(s(ModBlocks.Chest,1,4), s(ModBlocks.Chest,1,3), 2, 240000, 320, 800, false)
+    AltarRecipeRegistry.registerAltarRecipe(s(ModBlocks.Chest,1,2), s(ModBlocks.Chest,1,1), 3,  40000, 120,  80, false)
+    AltarRecipeRegistry.registerAltarRecipe(s(ModBlocks.Chest,1,3), s(ModBlocks.Chest,1,2), 4, 120000, 160, 160, false)
+    AltarRecipeRegistry.registerAltarRecipe(s(ModBlocks.Chest,1,4), s(ModBlocks.Chest,1,3), 5, 240000, 320, 800, false)
   }
 
   def registerAlchemy {

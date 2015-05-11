@@ -13,3 +13,11 @@ run/
 lib/
 out/
 logs/
+saves/
+config/
+asm/
+options.txt
+.cache
+.project
+.classpath
+usernamecache.json

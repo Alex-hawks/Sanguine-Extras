@@ -2,7 +2,6 @@ package io.github.alex_hawks.SanguineExtras.common.util;
 
 import WayofTime.alchemicalWizardry.api.rituals.RitualEffect;
 import WayofTime.alchemicalWizardry.api.rituals.Rituals;
-import io.github.alex_hawks.SanguineExtras.common.ritual_stones.master.advanced.TEAdvancedMasterStone;
 import net.minecraft.entity.player.EntityPlayer;
 import WayofTime.alchemicalWizardry.api.altarRecipeRegistry.AltarRecipe;
 import WayofTime.alchemicalWizardry.api.altarRecipeRegistry.AltarRecipeRegistry;

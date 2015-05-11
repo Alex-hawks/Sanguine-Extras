@@ -43,49 +43,49 @@ public class Spawn extends RitualEffect
     {
         List<RitualComponent> ls = new LinkedList<RitualComponent>();
         
-        ls.add(new RitualComponent( 1,  0,  1, RitualComponent.AIR));
-        ls.add(new RitualComponent( 2,  0,  2, RitualComponent.DUSK));
-        ls.add(new RitualComponent( 2, -1,  2, RitualComponent.FIRE));
-        ls.add(new RitualComponent( 2, -2,  2, RitualComponent.WATER));
+        ls.add(new RitualComponent( 1, -1,  1, RitualComponent.AIR));
+        ls.add(new RitualComponent( 2, -2,  2, RitualComponent.DUSK));
         ls.add(new RitualComponent( 2, -3,  2, RitualComponent.FIRE));
-        ls.add(new RitualComponent( 2, -4,  2, RitualComponent.DUSK));
-        ls.add(new RitualComponent( 1, -4,  1, RitualComponent.EARTH));
+        ls.add(new RitualComponent( 2, -4,  2, RitualComponent.WATER));
+        ls.add(new RitualComponent( 2, -5,  2, RitualComponent.DUSK));
+        ls.add(new RitualComponent( 2, -6,  2, RitualComponent.EARTH));
+        ls.add(new RitualComponent( 1, -6,  1, RitualComponent.FIRE));
 
-        ls.add(new RitualComponent( 1,  0, -1, RitualComponent.AIR));
-        ls.add(new RitualComponent( 2,  0, -2, RitualComponent.DUSK));
-        ls.add(new RitualComponent( 2, -1, -2, RitualComponent.FIRE));
-        ls.add(new RitualComponent( 2, -2, -2, RitualComponent.WATER));
+        ls.add(new RitualComponent( 1, -1, -1, RitualComponent.AIR));
+        ls.add(new RitualComponent( 2, -2, -2, RitualComponent.DUSK));
         ls.add(new RitualComponent( 2, -3, -2, RitualComponent.FIRE));
-        ls.add(new RitualComponent( 2, -4, -2, RitualComponent.DUSK));
-        ls.add(new RitualComponent( 1, -4, -1, RitualComponent.EARTH));
+        ls.add(new RitualComponent( 2, -4, -2, RitualComponent.WATER));
+        ls.add(new RitualComponent( 2, -5, -2, RitualComponent.DUSK));
+        ls.add(new RitualComponent( 2, -6, -2, RitualComponent.EARTH));
+        ls.add(new RitualComponent( 1, -6, -1, RitualComponent.FIRE));
 
-        ls.add(new RitualComponent(-1,  0, -1, RitualComponent.AIR));
-        ls.add(new RitualComponent(-2,  0, -2, RitualComponent.DUSK));
-        ls.add(new RitualComponent(-2, -1, -2, RitualComponent.FIRE));
-        ls.add(new RitualComponent(-2, -2, -2, RitualComponent.WATER));
+        ls.add(new RitualComponent(-1, -1, -1, RitualComponent.AIR));
+        ls.add(new RitualComponent(-2, -2, -2, RitualComponent.DUSK));
         ls.add(new RitualComponent(-2, -3, -2, RitualComponent.FIRE));
-        ls.add(new RitualComponent(-2, -4, -2, RitualComponent.DUSK));
-        ls.add(new RitualComponent(-1, -4, -1, RitualComponent.EARTH));
+        ls.add(new RitualComponent(-2, -4, -2, RitualComponent.WATER));
+        ls.add(new RitualComponent(-2, -5, -2, RitualComponent.DUSK));
+        ls.add(new RitualComponent(-2, -6, -2, RitualComponent.EARTH));
+        ls.add(new RitualComponent(-1, -6, -1, RitualComponent.FIRE));
 
-        ls.add(new RitualComponent(-1,  0,  1, RitualComponent.AIR));
-        ls.add(new RitualComponent(-2,  0,  2, RitualComponent.DUSK));
-        ls.add(new RitualComponent(-2, -1,  2, RitualComponent.FIRE));
-        ls.add(new RitualComponent(-2, -2,  2, RitualComponent.WATER));
+        ls.add(new RitualComponent(-1, -1,  1, RitualComponent.AIR));
+        ls.add(new RitualComponent(-2, -2,  2, RitualComponent.DUSK));
         ls.add(new RitualComponent(-2, -3,  2, RitualComponent.FIRE));
-        ls.add(new RitualComponent(-2, -4,  2, RitualComponent.DUSK));
-        ls.add(new RitualComponent(-1, -4,  1, RitualComponent.EARTH));
+        ls.add(new RitualComponent(-2, -4,  2, RitualComponent.WATER));
+        ls.add(new RitualComponent(-2, -5,  2, RitualComponent.DUSK));
+        ls.add(new RitualComponent(-2, -6,  2, RitualComponent.EARTH));
+        ls.add(new RitualComponent(-1, -6,  1, RitualComponent.FIRE));
 
-        ls.add(new RitualComponent(0, -4,  0, RitualComponent.DUSK));
+//        ls.add(new RitualComponent(0, -4,  0, RitualComponent.DUSK));
 
 //        ls.add(new RitualComponent( 1,  0,  0, RitualComponent.BLANK));
 //        ls.add(new RitualComponent( 0,  0,  1, RitualComponent.BLANK));
 //        ls.add(new RitualComponent(-1,  0,  0, RitualComponent.BLANK));
 //        ls.add(new RitualComponent( 0,  0, -1, RitualComponent.BLANK));
         
-        ls.add(new RitualComponent( 1, -4,  0, RitualComponent.BLANK));
-        ls.add(new RitualComponent( 0, -4,  1, RitualComponent.BLANK));
-        ls.add(new RitualComponent(-1, -4,  0, RitualComponent.BLANK));
-        ls.add(new RitualComponent( 0, -4, -1, RitualComponent.BLANK));
+        ls.add(new RitualComponent( 1, -6,  0, RitualComponent.EARTH));
+        ls.add(new RitualComponent( 0, -6,  1, RitualComponent.EARTH));
+        ls.add(new RitualComponent(-1, -6,  0, RitualComponent.EARTH));
+        ls.add(new RitualComponent( 0, -6, -1, RitualComponent.EARTH));
         
         return ls;
     }

@@ -180,6 +180,10 @@ class TileChest(var meta: Int) extends TileEntity with IInventory {
     else {
       val y = chestContents(slot).copy
       y.stackSize = Math.max(Math.min(chestContents(slot).stackSize, qty), 0)
+      if (chestContents(slot).stackSize == y.stackSize)
+        chestContents(slot) = null
+      else
+        chestContents(slot).stackSize -= y.stackSize
       markDirty
       y
     }
@@ -240,19 +244,15 @@ class ContainerChest(val player: InventoryPlayer, val chest: TileChest) extends 
       }
     }
 
-    return itemstack;
+    itemstack
   }
 
-  override def onContainerClosed(player: EntityPlayer) = {
-    chest.closeInventory
-  }
+  override def onContainerClosed(player: EntityPlayer) = chest.closeInventory
 
 }
 
 class SlotChest(val inv: TileChest, index: Int, x: Int, y: Int) extends Slot(inv, index, x, y) {
 
-  override def isItemValid(stack: ItemStack): Boolean = {
-    inv.actInvSize > index
-  }
+  override def isItemValid(stack: ItemStack): Boolean = inv.actInvSize > index
 }
 

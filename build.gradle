@@ -47,7 +47,7 @@ group= "io.github.alex_hawks.SanguineExtras" // http://maven.apache.org/guides/m
 archivesBaseName = "Sanguine Utilities"
 
 minecraft {
-	version = "${config.version.minecraft}-${config.version.forge}"
+	version = "${config.version.minecraft}-${config.version.forge}-${config.version.minecraft}"
 	runDir = "eclipse"
 }
 
