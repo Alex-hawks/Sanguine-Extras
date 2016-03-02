@@ -1,36 +1,36 @@
 package io.github.alex_hawks.SanguineExtras.common.rituals.interactable;
 
-import java.util.LinkedList;
-import java.util.List;
-
-import WayofTime.alchemicalWizardry.api.rituals.IMasterRitualStone;
-import WayofTime.alchemicalWizardry.api.rituals.RitualComponent;
+import WayofTime.bloodmagic.api.ritual.EnumRuneType;
+import WayofTime.bloodmagic.api.ritual.IMasterRitualStone;
+import WayofTime.bloodmagic.api.ritual.Ritual;
+import WayofTime.bloodmagic.api.ritual.RitualComponent;
 import io.github.alex_hawks.SanguineExtras.api.ritual.IAdvancedMasterRitualStone;
 import io.github.alex_hawks.SanguineExtras.api.ritual.InteractableRitualEffect;
 
-public class TestInteractableRitual extends InteractableRitualEffect
+import java.util.ArrayList;
+
+public class Test extends InteractableRitualEffect
 {
 
     @Override
-    public int getCostPerRefresh()
+    public int getRefreshCost()
     {
         return 0;
     }
 
     @Override
-    public List<RitualComponent> getRitualComponentList()
+    public ArrayList<RitualComponent> getComponents()
     {
-        List<RitualComponent> ls = new LinkedList<RitualComponent>();
-        
-        ls.add(new RitualComponent( 0,  1,  0, RitualComponent.AIR));
+        ArrayList<RitualComponent> ls = new ArrayList<RitualComponent>();
+
+        this.addRune(ls, 0, 1, 0, EnumRuneType.AIR);
 
         return ls;
     }
 
     @Override
-    public void performEffect(IMasterRitualStone arg0)
+    public void performRitual(IMasterRitualStone arg0)
     {
-        // TODO Auto-generated method stub
         
     }
     
@@ -47,6 +47,11 @@ public class TestInteractableRitual extends InteractableRitualEffect
         System.out.println("Left Click");
         return true;
     }
-    
+
+    @Override
+    public Ritual getNewCopy()
+    {
+        return new Test();
+    }
 
 }

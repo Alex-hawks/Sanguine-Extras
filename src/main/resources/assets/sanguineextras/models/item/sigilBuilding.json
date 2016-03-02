@@ -1,0 +1,6 @@
+{
+  "parent":"sanguineextras:item/ItemModelBase",
+  "textures": {
+    "layer0":"sanguineextras:items/sigilBuilding"
+  }
+}

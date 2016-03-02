@@ -1,121 +1,219 @@
 buildscript {
-	repositories {
-		mavenCentral()
-		maven {
-			name = "forge"
-				url "http://files.minecraftforge.net/maven"
-		}
-		maven {
-			name = "sonatype"
-				url "https://oss.sonatype.org/content/repositories/snapshots/"
-		}
-		//ivy {
-		//name "BloodMagic"
-		//artifactPattern ""
-		//http://minetweaker3.powerofbytes.com/download/[module]-[revision].[ext]"
-		//}
-	}
-	dependencies {
-		classpath 'net.minecraftforge.gradle:ForgeGradle:1.2-SNAPSHOT'
-	}
-}
-
-repositories {
-	maven {
-		name 'CB Repo'
-			url "http://chickenbones.net/maven/"
-	}
-    ivy {
-		name 'FMP'
-		artifactPattern "http://files.minecraftforge.net/[module]/[module]-dev-[revision].[ext]"
+    repositories {
+        mavenCentral()
+        maven { url "http://files.minecraftforge.net/maven" }
+        maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+    }
+    dependencies {
+		classpath 'net.minecraftforge.gradle:ForgeGradle:2.1-SNAPSHOT'
+        classpath 'org.ajoberstar:gradle-git:0.10.1'
     }
 }
 
-ext.buildProps = file "build.properties"
- 
-buildProps.withReader {
-    def prop = new Properties()
-    prop.load(it)
-    ext.config = new ConfigSlurper().parse prop
+plugins {
+	id "net.minecraftforge.gradle.forge" version "2.0.2"
+    id 'com.matthewprenger.cursegradle' version '1.0.5'
+	id 'net.franz-becker.gradle-lombok' version '1.5'
 }
 
-apply plugin: 'scala'
-apply plugin: 'forge'
+apply plugin: 'maven-publish'
 
-version = "${config.version.mod}"
-group= "io.github.alex_hawks.SanguineExtras" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
-archivesBaseName = "Sanguine Utilities"
+def build_number = 'CUSTOM'
+
+if (System.getenv('BUILD_NUMBER') != null)
+    build_number = System.getenv('BUILD_NUMBER')
+
+group = package_group
+archivesBaseName = mod_name
+version = "${mc_version}-${mod_version}-${build_number}"
+
+if (project.hasProperty('gitpush'))
+    version += "-ss"
+
+import org.ajoberstar.grgit.*
+
+ext.repo = Grgit.open(project.file('.'))
+def gitHash = 'unknown'
+
+if (new File(projectDir, '.git').exists())
+    gitHash = repo.log().find().abbreviatedId
+
+repositories {
+    maven { url "http://dvs1.progwml6.com/files/maven" }
+    maven {	url "http://mobiusstrip.eu/maven" }
+	maven { url "http://maven.amadornes.com/" }
+
+    ivy {
+        name "Thaumcraft"
+        artifactPattern "https://dl.dropboxusercontent.com/u/47135879/[module]-[revision]-deobf.[ext]"
+    }
+    ivy {
+        name "Baubles"
+        artifactPattern "https://dl.dropboxusercontent.com/u/47135879/[module]-1.8.9-[revision]-deobf.[ext]"
+    }
+}
+
+dependencies {
+    deobfCompile "mezz.jei:jei_${mc_version}:${jei_version}"
+
+    compile "mcp.mobius.waila:Waila:${waila_version}_1.8.8:dev"
+    compile name: "Thaumcraft", version: "${mc_version}-${thaumcraft_version}", ext: "jar"
+    compile name: 'Baubles', version: "${baubles_version}", ext: 'jar'
+	
+	deobfCompile "MCMultiPart:MCMultiPart:${mcmp_version}:universal"
+
+}
 
 minecraft {
-	version = "${config.version.minecraft}-${config.version.forge}-${config.version.minecraft}"
-	runDir = "eclipse"
+    version = "${mc_version}-${forge_version}"
+    runDir = "run"
+
+    replace "@VERSION@", project.version
+    replaceIn "Constants.java"
+    replaceIn "BloodMagicAPI.java"
+
+
+    if (project.hasProperty('mappings_version'))
+        mappings = project.mappings_version
 }
 
-dependencies { 
-	compile "codechicken:CodeChickenLib:${config.version.minecraft}-${config.version.cclib}:dev"
-	compile "codechicken:ForgeMultipart:${config.version.minecraft}-${config.version.fmp}:dev"
-	compile "codechicken:CodeChickenCore:${config.version.minecraft}-${config.version.cccore}:dev"
-	compile "codechicken:NotEnoughItems:${config.version.minecraft}-${config.version.nei}:dev"
-	
-	// real examples
-	//compile 'WayofTime.alchemicalWizardry:Blood Magic:v1.2.0Beta22(1.7.10):dev'  // adds buildcraft to the dev env
-	//compile 'com.googlecode.efficient-java-matrix-library:ejml:0.24' // adds ejml to the dev env
+processResources {
+    inputs.property "version", project.version
+    inputs.property "mcversion", project.minecraft.version
 
-	// for more info...
-	// http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
-	// http://www.gradle.org/docs/current/userguide/dependency_management.html
+    from(sourceSets.main.resources.srcDirs) {
+        include '**/*.info'
+        include '**/*.properties'
 
+        expand 'version': project.version, 'mcversion': project.minecraft.version
+    }
+
+    from(sourceSets.main.resources.srcDirs) {
+        exclude '**/*.info'
+        exclude '**/*.properties'
+    }
 }
 
-processResources
-{
-	// this will ensure that this task is redone when the versions change.
-	inputs.property "version", project.version
-	inputs.property "mcversion", project.minecraft.version
-
-	// replace stuff in mcmod.info, nothing else
-	from(sourceSets.main.resources.srcDirs) {
-		include 'mcmod.info'
-				
-		// replace version and mcversion
-		expand 'version':project.version, 'mcversion':project.minecraft.version
-	}
-		
-	// copy everything else, thats not the mcmod.info
-	from(sourceSets.main.resources.srcDirs) {
-		exclude 'mcmod.info'
-	}
+if (JavaVersion.current().isJava8Compatible()) {
+    allprojects {
+        tasks.withType(Javadoc) {
+            options.addStringOption('Xdoclint:none', '-quiet')
+        }
+    }
 }
 
-task copyChicken(type: Copy, dependsOn: "extractUserDev") {
-	from { configurations.compile }
-	include "**/*Chicken*.jar", "**/*NotEnoughItems*.jar", "**/*ForgeMultipart*.jar"
-	exclude "**/CodeChickenLib*" // because CCC downloads it anyways.. -_-
-	into file(minecraft.runDir + "/mods")
-
-	mustRunAfter "deobfBinJar"
-	mustRunAfter "repackMinecraft"
+lombok {
+    version = "1.16.6"
+    sha256 = "e0a471be03e1e6b02bf019480cec7a3ac9801702bf7bf62f15d077ad4df8dd5d"
 }
-tasks.setupDevWorkspace.dependsOn copyChicken
-tasks.setupDecompWorkspace.dependsOn copyChicken
 
-// add a source jar
-task sourceJar(type: Jar) {
+import net.franz_becker.gradle.lombok.task.DelombokTask
+
+task delombok(type: DelombokTask) {
+    args("src/main/java", "-d", "build/sources/delomboked/java")
+}
+
+tasks.eclipse.dependsOn installLombok
+
+jar {
+    classifier = ''
+    manifest.mainAttributes(
+        "Built-By": System.getProperty('user.name'),
+        "Created-By": "${System.getProperty('java.vm.version')} + (${System.getProperty('java.vm.vendor')})",
+        "Implementation-Title": project.name,
+        "Implementation-Version": project.version,
+        "Git-Hash": gitHash,
+        "Built-On": "${mc_version}-${forge_version}"
+    )
+}
+
+// API jar
+task apiJar(type: Jar) {
     from sourceSets.main.allSource
-    classifier = 'sources'
+    from sourceSets.main.output
+	include 'WayofTime/bloodmagic/api/**/*'
+    classifier = 'api'
 }
 
-// add a javadoc jar
+// Javadoc jar
 task javadocJar(type: Jar, dependsOn: javadoc) {
     from javadoc.destinationDir
     classifier = 'javadoc'
 }
 
-// because the normal output has been made to be obfuscated
-task deobfJar(type: Jar) {
-    from sourceSets.main.output
-    classifier = 'deobf'
+javadoc {
+    source = projectDir.path + "/build/sources/delomboked/java"
 }
 
-tasks.build.dependsOn sourceJar, javadocJar, deobfJar
+tasks.javadoc.dependsOn delombok
+tasks.build.dependsOn javadoc, javadocJar, apiJar
 
+tasks.withType(JavaCompile) { task ->
+    task.options.encoding = 'UTF-8'
+}
+
+publishing {
+    tasks.publish.dependsOn 'build'
+    publications {
+        mavenJava(MavenPublication) {
+            artifact jar
+            artifact javadocJar
+            artifact sourceJar
+            artifact apiJar
+        }
+    }
+    repositories {
+        if (project.hasProperty('maven_repo')) {
+            maven { url maven_repo }
+        } else {
+            mavenLocal()
+        }
+    }
+}
+
+String getChangelogText() {
+    def changelogFile = new File('changelog.txt')
+    String str = ''
+    String separator = '---'
+    int lineCount = 0
+    boolean done = false
+    changelogFile.eachLine {
+        if (done || it == null) {
+            return
+        }
+        if (lineCount < 3) {
+            lineCount++
+            if (it.startsWith(separator)) {return}
+        }
+        if (!it.startsWith(separator)) {
+            str += "$it" + (lineCount < 3 ? ':\n\n' : '\n')
+            return
+        }
+        done = true // once we go past the first version block, parse no more
+    }
+    return str
+}
+
+def curseRelations = {
+    optionalLibrary 'just-enough-items-jei'
+    optionalLibrary 'waila'
+}
+
+curseforge {
+    if (project.hasProperty('curse_key_WayofTime'))
+        apiKey = project.curse_key_WayofTime
+
+    project {
+        id = "${curse_id}"
+        changelog = getChangelogText()
+        releaseType = 'beta'
+
+        addGameVersion '1.8.9'
+
+        relations curseRelations
+
+        addArtifact javadocJar
+        addArtifact sourceJar
+        addArtifact apiJar
+    }
+}

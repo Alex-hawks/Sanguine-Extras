@@ -1,6 +1,11 @@
 package io.github.alex_hawks.util
 
+import net.minecraft.util.BlockPos
+
 class Vector3 (val x: Int, val y: Int, val z: Int) {
+  
+  def Vector3(pos: BlockPos)
+  
 
   def +(w: (Int,Int,Int)): Vector3 = new Vector3(x + w._1, y+ w._2, z + w._3)
 
@@ -21,4 +26,6 @@ class Vector3 (val x: Int, val y: Int, val z: Int) {
     val state = Seq(x, y, z)
     state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
   }
+  
+  
 }

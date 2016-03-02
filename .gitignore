@@ -1,23 +1,24 @@
-eclipse/
-.settings/
-.gradle/
-bin/
-build/
-.metadata/
-libs/
-run/
-.idea/
-*.iml
+# eclipse
+bin
+*.launch
+.settings
+.metadata
+.classpath
+.project
+
+# idea
+out
 *.ipr
 *.iws
-lib/
-out/
-logs/
-saves/
-config/
-asm/
-options.txt
-.cache
-.project
-.classpath
-usernamecache.json
+*.iml
+.idea
+
+# gradle
+build
+.gradle
+
+# other
+eclipse
+run
+lib
+gradle
