@@ -1,35 +1,34 @@
 package io.github.alex_hawks.SanguineExtras.client.constructs
 
-import org.lwjgl.opengl.GL11
-
 import io.github.alex_hawks.SanguineExtras.client.constructs.RenderChest._
-import io.github.alex_hawks.SanguineExtras.common.ModBlocks
 import io.github.alex_hawks.SanguineExtras.common.constructs.Chest.textureLocGui
-import io.github.alex_hawks.SanguineExtras.common.constructs.ContainerChest
-import io.github.alex_hawks.SanguineExtras.common.constructs.TileChest
+import io.github.alex_hawks.SanguineExtras.common.constructs.{ContainerChest, TileChest}
 import net.minecraft.client.gui.inventory.GuiContainer
 import net.minecraft.client.model.ModelChest
-import net.minecraft.client.renderer.Tessellator
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer
-import net.minecraft.entity.player.InventoryPlayer
-import net.minecraft.tileentity.TileEntity
+import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.util.ResourceLocation
+import org.lwjgl.opengl.GL11
 
 object RenderChest {
   val size = 0.35f
   val model = new ModelChest
   val chestpng0 = new ResourceLocation("sanguineextras:textures/model/chest0.png")
-  val chestpng1 = new ResourceLocation("sanguineextras:textures/model/chest1.png");  //  TODO make my chest texture
-  val chestpng2 = new ResourceLocation("sanguineextras:textures/model/chest2.png");  //  TODO make my chest texture
-  val chestpng3 = new ResourceLocation("sanguineextras:textures/model/chest3.png");  //  TODO make my chest texture
-  val chestpng4 = new ResourceLocation("sanguineextras:textures/model/chest4.png");  //  TODO make my chest texture
+  val chestpng1 = new ResourceLocation("sanguineextras:textures/model/chest1.png");
+  //  TODO make my chest texture
+  val chestpng2 = new ResourceLocation("sanguineextras:textures/model/chest2.png");
+  //  TODO make my chest texture
+  val chestpng3 = new ResourceLocation("sanguineextras:textures/model/chest3.png");
+  //  TODO make my chest texture
+  val chestpng4 = new ResourceLocation("sanguineextras:textures/model/chest4.png");
+  //  TODO make my chest texture
   val chestpngVanilla = new ResourceLocation("textures/entity/chest/normal.png")
   val pixel = 0.0625f
 }
 
-class RenderChest extends TileEntitySpecialRenderer {
+class RenderChest extends TileEntitySpecialRenderer[TileChest] {
 
-  override def renderTileEntityAt(te: TileEntity, X: Double, Y: Double, Z: Double, partialTickTime: Float) = {
+  override def renderTileEntityAt(te: TileChest, X: Double, Y: Double, Z: Double, partialTickTime: Float, destroyStage: Int) = {
     val ch = te.asInstanceOf[TileChest]
 
     GL11.glPushMatrix
@@ -37,7 +36,7 @@ class RenderChest extends TileEntitySpecialRenderer {
     GL11.glRotatef(ch.rotation, 0, 1, 0)
     GL11.glScalef(size, size, size)
     GL11.glRotatef(180, 1, 0, 1) // the chest is rendered upside down
-    
+
     GL11.glTranslated(-(pixel + size), 0, -(pixel + size))
 
     val x = 0
@@ -60,7 +59,7 @@ class RenderChest extends TileEntitySpecialRenderer {
       case _ => chestpngVanilla
     })
 
-    Tessellator.instance.setBrightness(ModBlocks.Chest.getMixedBrightnessForBlock(te.getWorldObj, X.toInt, Y.toInt, Z.toInt))
+    //    Tessellator.getInstance().setBrightness(ModBlocks.Chest.getMixedBrightnessForBlock(te.getWorld, new BlockPos(X.toInt, Y.toInt, Z.toInt)))
     val f1: Float = ch.prevLidAngle + (ch.lidAngle - ch.prevLidAngle) * partialTickTime;
 
     model.chestLid.rotateAngleX = -(f1 * Math.PI / 2.0F).toFloat;
@@ -70,7 +69,7 @@ class RenderChest extends TileEntitySpecialRenderer {
   }
 }
 
-class GuiChest(val player: InventoryPlayer, val chest: TileChest) extends GuiContainer(new ContainerChest(player, chest)) {
+class GuiChest(val player: EntityPlayer, val chest: TileChest) extends GuiContainer(new ContainerChest(player, chest)) {
   xSize = 238;
   ySize = 256;
 

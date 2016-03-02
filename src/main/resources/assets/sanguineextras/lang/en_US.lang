@@ -3,9 +3,17 @@
 itemGroup.tabSanguineExtras=Sanguine Extras
 
 ##  Block Localizations
-tile.blockAdvancedMasterStone.name=Advanced Master Ritual Stone
-tile.blockWardedMasterStone.name=Warded Master Ritual Stone
-tile.blockWardedRitualStone.name=Warded Ritual Stone
+tile.advancedMasterStone.name=Advanced Master Ritual Stone
+tile.wardedMasterStone.name=Warded Master Ritual Stone
+tile.SanguineExtras.ritualStone.name=Warded Ritual Stone
+tile.SanguineExtras.ritualStone.blank.name=Warded Blank Ritual Stone
+tile.SanguineExtras.ritualStone.water.name=Warded Water Ritual Stone
+tile.SanguineExtras.ritualStone.fire.name=Warded Fire Ritual Stone
+tile.SanguineExtras.ritualStone.earth.name=Warded Earth Ritual Stone
+tile.SanguineExtras.ritualStone.air.name=Warded Air Ritual Stone
+tile.SanguineExtras.ritualStone.dusk.name=Warded Dusk Ritual Stone
+tile.SanguineExtras.ritualStone.dawn.name=Warded Dawn Ritual Stone
+tile.sanguineChest.name=Sanguine Chest
 
 ##  Item Localizations
 item.sigilBuilding.name=Sigil of Building
@@ -20,9 +28,7 @@ item.sigilMobNet.name=Sigil of Entrapment
 item.sigilRebuilding.name=Sigil of Rebuilding
 
 ##	Multipart Localizations
-item.partMicroRitualStone.name=Micro Ritual Stone
-item.partMicroStone.name=Unactivated Micro Ritual Stone
-item.stableRitualStone.name=Stabilized Ritual Stone
+item.microRitualStone.name=Micro Ritual Stone
 
 ##  Tooltip Localizations
 tooltip.se.destruction.currentlength=Current Length: %s

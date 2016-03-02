@@ -1,29 +1,37 @@
 package io.github.alex_hawks.SanguineExtras.common.sigils;
 
-import static io.github.alex_hawks.SanguineExtras.common.package$.MODULE$;
-import static io.github.alex_hawks.SanguineExtras.common.util.LangUtils.translate;
+import WayofTime.bloodmagic.api.Constants;
+import WayofTime.bloodmagic.api.iface.ISigil;
+import WayofTime.bloodmagic.api.util.helper.NBTHelper;
+import WayofTime.bloodmagic.api.util.helper.PlayerHelper;
+import WayofTime.bloodmagic.item.ItemBindable;
+import WayofTime.bloodmagic.util.helper.TextHelper;
+import com.google.common.base.Strings;
 import io.github.alex_hawks.SanguineExtras.common.SanguineExtras;
 import io.github.alex_hawks.SanguineExtras.common.sigil_utils.UtilsBuilding;
 import io.github.alex_hawks.SanguineExtras.common.util.BloodUtils;
 import io.github.alex_hawks.SanguineExtras.common.util.PlayerUtils;
 import io.github.alex_hawks.SanguineExtras.common.util.SanguineExtrasCreativeTab;
 import io.github.alex_hawks.util.Vector3;
-
-import java.util.List;
-import java.util.Set;
-
+import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.BlockSnapshot;
-import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.event.world.BlockEvent.PlaceEvent;
-import WayofTime.alchemicalWizardry.api.items.interfaces.IBindable;
-import WayofTime.alchemicalWizardry.common.items.EnergyItems;
 
-public class ItemBuilding extends Item implements IBindable
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+
+import static io.github.alex_hawks.SanguineExtras.common.package$.MODULE$;
+import static io.github.alex_hawks.SanguineExtras.common.util.LangUtils.translate;
+
+public class ItemBuilding extends ItemBindable implements ISigil
 {
     public ItemBuilding()
     {
@@ -31,44 +39,49 @@ public class ItemBuilding extends Item implements IBindable
         this.maxStackSize = 1;
         setCreativeTab(SanguineExtrasCreativeTab.Instance);
         this.setUnlocalizedName("sigilBuilding");
-        this.setTextureName("SanguineExtras:sigilBuilding");
+        this.setRegistryName("sigilBuilding");
     }
-    
+
     @Override
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    public void addInformation(ItemStack stack, EntityPlayer par2EntityPlayer, List par3List, boolean par4)
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    public void addInformation(ItemStack stack, EntityPlayer par2EntityPlayer, List tooltip, boolean par4)
     {
-        par3List.add(MODULE$.loreFormat() + translate("pun.se.sigil.building"));
-        par3List.add("");
-        
-        if (stack.stackTagCompound != null && stack.stackTagCompound.hasKey("ownerName"))
-            par3List.add(translate("tooltip.se.owner").replace("%s", stack.stackTagCompound.getString("ownerName")));
-        else
-            par3List.add(translate("tooltip.se.owner.null"));
+        tooltip.add(MODULE$.loreFormat() + translate("pun.se.sigil.building"));
+        tooltip.add("");
+
+        NBTHelper.checkNBT(stack);
+
+        if (!Strings.isNullOrEmpty(stack.getTagCompound().getString(Constants.NBT.OWNER_UUID)))
+            tooltip.add(TextHelper.localizeEffect("tooltip.BloodMagic.currentOwner", PlayerHelper.getUsernameFromStack(stack)));
     }
-    
+
     @Override
-    public boolean onItemUse(ItemStack stack, EntityPlayer player, World w, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
+    public boolean onItemUse(ItemStack stack, EntityPlayer player, World w, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ)
     {
-        EnergyItems.checkAndSetItemOwner(stack, player);
-        
-        Set<Vector3> ls = UtilsBuilding.getBlocksForBuild(w, new Vector3(x, y, z), ForgeDirection.getOrientation(side), player, 9);
-        
+        Set<Vector3> ls = UtilsBuilding.getBlocksForBuild(w, new Vector3(pos), side, player, 9);
+
         PlaceEvent e;
-        
+        Block b;
+        BlockSnapshot s;
+        IBlockState t;
+
         for (Vector3 v : ls)
         {
-            e = new PlaceEvent(new BlockSnapshot(w, v.x(), v.y(), v.z(), w.getBlock(x, y, z), w.getBlockMetadata(x, y, z)), null, player);
+            t = w.getBlockState(pos);
+            s = new BlockSnapshot(w, v.toPos(), t);
+            b = t.getBlock();
+            e = new PlaceEvent(s, t, player);
             if (!MinecraftForge.EVENT_BUS.post(e))
             {
-                if (BloodUtils.drainSoulNetworkWithDamage(stack.stackTagCompound.getString("ownerName"), player, SanguineExtras.rebuildSigilCost)
-                        && PlayerUtils.takeItem(player, new ItemStack(w.getBlock(x, y, z), 1, w.getBlockMetadata(x, y, z))))
+
+                if (BloodUtils.drainSoulNetworkWithDamage(UUID.fromString(this.getBindableOwner(stack)), player, SanguineExtras.rebuildSigilCost)
+                        && PlayerUtils.takeItem(player, new ItemStack(b, 1, b.getMetaFromState(w.getBlockState(pos)))))
                 {
-                    w.setBlock(v.x(), v.y(), v.z(), w.getBlock(x, y, z), w.getBlockMetadata(x, y, z), 0x3);
+                    w.setBlockState(v.toPos(), t, 0x3);
                 }
             }
         }
-        
+
         return true;
     }
 }

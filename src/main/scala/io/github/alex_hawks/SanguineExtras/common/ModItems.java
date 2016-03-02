@@ -1,13 +1,10 @@
 package io.github.alex_hawks.SanguineExtras.common;
 
-import io.github.alex_hawks.SanguineExtras.common.sigils.ItemBuilding;
-import io.github.alex_hawks.SanguineExtras.common.sigils.ItemDestruction;
-import io.github.alex_hawks.SanguineExtras.common.sigils.ItemInterdiction;
-import io.github.alex_hawks.SanguineExtras.common.sigils.ItemMobNet;
-import io.github.alex_hawks.SanguineExtras.common.sigils.ItemRebuilding;
+import io.github.alex_hawks.SanguineExtras.common.ritual_stones.marker.micro.ItemMicroStone;
+import io.github.alex_hawks.SanguineExtras.common.sigils.*;
 import net.minecraft.item.Item;
-import cpw.mods.fml.common.Loader;
-import cpw.mods.fml.common.registry.GameRegistry;
+import net.minecraftforge.fml.common.Loader;
+import net.minecraftforge.fml.common.registry.GameRegistry;
 
 public final class ModItems
 {
@@ -17,61 +14,31 @@ public final class ModItems
     public static ItemMobNet SigilMobNet;
     public static ItemRebuilding SigilRebuild;
     public static Item MicroRitualStone;
-    public static Item MicroStone;
-    public static Item StableRitualStone;
-    
+
     @SuppressWarnings("unchecked")
     public static void initItems()
     {
         SigilBuilding = new ItemBuilding();
-        GameRegistry.registerItem(SigilBuilding, "SigilBuilding");
-        
+        GameRegistry.registerItem(SigilBuilding, "sigilBuilding");
+
         SigilDestruction = new ItemDestruction();
-        GameRegistry.registerItem(SigilDestruction, "SigilDestruction");
-        
+        GameRegistry.registerItem(SigilDestruction, "sigilDestruction");
+
         SigilInterdiction = new ItemInterdiction();
-        GameRegistry.registerItem(SigilInterdiction, "SigilInterdiction");
-        
+        GameRegistry.registerItem(SigilInterdiction, "sigilInterdiction");
+
         SigilMobNet = new ItemMobNet();
-        GameRegistry.registerItem(SigilMobNet, "SigilMobNet");
-        
+        GameRegistry.registerItem(SigilMobNet, "sigilMobNet");
+
         SigilRebuild = new ItemRebuilding();
-        GameRegistry.registerItem(SigilRebuild, "SigilRebuilding");
-        
-        if (Loader.isModLoaded("ForgeMultipart"))
+        GameRegistry.registerItem(SigilRebuild, "sigilRebuilding");
+
+        if (Loader.isModLoaded("mcmultipart"))
         {
-            try 
-            {
-                Class<? extends Item> clazz;
-                clazz = (Class<? extends Item>) Class.forName("io.github.alex_hawks.SanguineExtras.common.ritual_stones.marker.micro.ItemMicroRitualStone");
-                MicroRitualStone = (Item) clazz.newInstance();
-                GameRegistry.registerItem(MicroRitualStone, "MicroRitualStone");
-                
-                
-                clazz = (Class<? extends Item>) Class.forName("io.github.alex_hawks.SanguineExtras.common.ritual_stones.marker.micro.ItemStabilisedRitualStone");
-                StableRitualStone = (Item) clazz.newInstance();
-                GameRegistry.registerItem(StableRitualStone, "StableRitualStone");
-                
-                
-                clazz = (Class<? extends Item>) Class.forName("io.github.alex_hawks.SanguineExtras.common.ritual_stones.marker.micro.ItemMicroStone");
-                MicroStone = (Item) clazz.newInstance();
-                GameRegistry.registerItem(MicroStone, "MicroStone");
-            } catch (ClassNotFoundException e)
-            {
-                e.printStackTrace();
-            } catch (InstantiationException e)
-            {
-                e.printStackTrace();
-            } catch (IllegalAccessException e)
-            {
-                e.printStackTrace();
-            }
-            finally 
-            {
-                
-            }
+            MicroRitualStone = new ItemMicroStone();
+            GameRegistry.registerItem(MicroRitualStone, "microRitualStone");
         }
-        
+
         System.out.println("Initializing Items");
     }
 }

@@ -14,11 +14,11 @@ public class PushHandlerTamable implements IPushCondition
         if (pushedEntity instanceof IEntityOwnable)
         {
             IEntityOwnable ent = (IEntityOwnable) pushedEntity;
-            
+
             return !ent.getOwner().equals(pusher);
-            
+
         }
         return false;
     }
-    
+
 }

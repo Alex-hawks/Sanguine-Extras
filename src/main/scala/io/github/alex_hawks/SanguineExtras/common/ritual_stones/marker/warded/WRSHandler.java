@@ -5,25 +5,25 @@ import io.github.alex_hawks.SanguineExtras.common.network.chat_handler.MsgDispla
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.event.world.BlockEvent;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class WRSHandler
 {
     @SubscribeEvent
     public void onBlockBreak(BlockEvent.BreakEvent e)
     {
-        if (e.block instanceof BlockWardedRitualStone)
+        if (e.state.getBlock() instanceof BlockWardedRitualStone)
         {
-            TileEntity te = e.world.getTileEntity(e.x, e.y, e.z);
+            TileEntity te = e.world.getTileEntity(e.pos);
 
             if (te instanceof TEWardedRitualStone)
             {
                 if (!((TEWardedRitualStone) te).canBreak(e.getPlayer()))
                 {
                     e.setCanceled(true);
-                    
+
                     if (e.getPlayer() instanceof EntityPlayerMP)
-                    	SanguineExtras.networkWrapper.sendTo(new MsgDisplayChat("msg.se.fail.mine.RitualStone.warding"), (EntityPlayerMP) e.getPlayer());
+                        SanguineExtras.networkWrapper.sendTo(new MsgDisplayChat("msg.se.fail.mine.RitualStone.warding"), (EntityPlayerMP) e.getPlayer());
                 }
             }
         }

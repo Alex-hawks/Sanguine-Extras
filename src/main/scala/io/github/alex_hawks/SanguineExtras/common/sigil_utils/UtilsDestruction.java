@@ -1,105 +1,101 @@
 package io.github.alex_hawks.SanguineExtras.common.sigil_utils;
 
-import static io.github.alex_hawks.SanguineExtras.common.util.PlayerUtils.putItem;
 import io.github.alex_hawks.SanguineExtras.common.util.BloodUtils;
 import io.github.alex_hawks.util.Vector3;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.item.EntityXPOrb;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.world.World;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.world.BlockEvent.BreakEvent;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
-import net.minecraft.block.Block;
-import net.minecraft.entity.item.EntityXPOrb;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
-import net.minecraft.item.ItemStack;
-import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
-import net.minecraftforge.event.world.BlockEvent.BreakEvent;
-import cpw.mods.fml.common.FMLCommonHandler;
+import static io.github.alex_hawks.SanguineExtras.common.util.PlayerUtils.putItem;
 
 public class UtilsDestruction
 {
-    public static List<Vector3> find(int x, int y, int z, World world, int side, int length)
+    public static List<Vector3> find(BlockPos pos, World world, EnumFacing side, int length)
     {
-        return find(x, y, z, world, ForgeDirection.getOrientation(side), length);
-    }
-
-    public static List<Vector3> find(int x, int y, int z, World world, ForgeDirection side, int length)
-    {
+        int x = pos.getX(), y = pos.getY(), z = pos.getZ();
         System.out.println(side);
         List<Vector3> toReturn = new ArrayList<Vector3>();
         switch (side)
         {
-        case UP: 
-            for (int i = -1; i < 2; i++)
-                for (int j = -1; j < 2; j++)
-                    for (int k = 0;  k < length; k++)
-                        toReturn.add(new Vector3(x + i, y - k, z + j));
-            break;
-        case DOWN:
-            for (int i = -1; i < 2; i++)
-                for (int j = -1; j < 2; j++)
-                    for (int k = 0;  k < length; k++)
-                        toReturn.add(new Vector3(x + i, y + k, z + j));
-            break;
-        case EAST:
-            for (int i = -1; i < 2; i++)
-                for (int j = -1; j < 2; j++)
-                    for (int k = 0;  k < length; k++)
-                        toReturn.add(new Vector3(x - k, y + i, z + j));
-            break;
-        case NORTH:
-            for (int i = -1; i < 2; i++)
-                for (int j = -1; j < 2; j++)
-                    for (int k = 0;  k < length; k++)
-                        toReturn.add(new Vector3(x + i, y + j, z + k));
-            break;
-        case SOUTH:
-            for (int i = -1; i < 2; i++)
-                for (int j = -1; j < 2; j++)
-                    for (int k = 0;  k < length; k++)
-                        toReturn.add(new Vector3(x + i, y + j, z - k));
-            break;
-        case WEST:
-            for (int i = -1; i < 2; i++)
-                for (int j = -1; j < 2; j++)
-                    for (int k = 0;  k < length; k++)
-                        toReturn.add(new Vector3(x + k, y + i, z + j));
-            break;
-        default:
-            //throw new IllegalArgumentException("What am I supposed to do with this direction?");
+            case UP:
+                for (int i = -1; i < 2; i++)
+                    for (int j = -1; j < 2; j++)
+                        for (int k = 0; k < length; k++)
+                            toReturn.add(new Vector3(x + i, y - k, z + j));
+                break;
+            case DOWN:
+                for (int i = -1; i < 2; i++)
+                    for (int j = -1; j < 2; j++)
+                        for (int k = 0; k < length; k++)
+                            toReturn.add(new Vector3(x + i, y + k, z + j));
+                break;
+            case EAST:
+                for (int i = -1; i < 2; i++)
+                    for (int j = -1; j < 2; j++)
+                        for (int k = 0; k < length; k++)
+                            toReturn.add(new Vector3(x - k, y + i, z + j));
+                break;
+            case NORTH:
+                for (int i = -1; i < 2; i++)
+                    for (int j = -1; j < 2; j++)
+                        for (int k = 0; k < length; k++)
+                            toReturn.add(new Vector3(x + i, y + j, z + k));
+                break;
+            case SOUTH:
+                for (int i = -1; i < 2; i++)
+                    for (int j = -1; j < 2; j++)
+                        for (int k = 0; k < length; k++)
+                            toReturn.add(new Vector3(x + i, y + j, z - k));
+                break;
+            case WEST:
+                for (int i = -1; i < 2; i++)
+                    for (int j = -1; j < 2; j++)
+                        for (int k = 0; k < length; k++)
+                            toReturn.add(new Vector3(x + k, y + i, z + j));
+                break;
+            default:
+                throw new IllegalArgumentException("What am I supposed to do with this direction?");
         }
         return toReturn;
     }
 
-    public static void doDrops(EntityPlayer p, String sigilOwner, List<Vector3> list, World w)
+    public static void doDrops(EntityPlayer p, UUID sigilOwner, List<Vector3> list, World w)
     {
         doDrops(p, sigilOwner, list.toArray(new Vector3[0]), w);
     }
-    
-    public static void doDrops(EntityPlayer p, String sigilOwner, Vector3[] list, World w)
+
+    public static void doDrops(EntityPlayer p, UUID sigilOwner, Vector3[] list, World w)
     {
         int blocks = 0;
-        
-        for(Vector3 v : list)
-        {
-            if (v.y() > 255 || v.y() < 0 )
-                continue;
-            
-            Block b = w.getBlock(v.x(), v.y(), v.z());
-            int meta = w.getBlockMetadata(v.x(), v.y(), v.z());
-            
-            if (b.getBlockHardness(w, v.x(), v.y(), v.z()) < 0 || b.isAir(w, v.x(), v.y(), v.z()))
-                continue;
-            
-            BreakEvent e = new BreakEvent(v.x(), v.y(), v.z(), w, b, meta, p);
 
-            if (!FMLCommonHandler.instance().bus().post(e))
+        for (Vector3 v : list)
+        {
+            if (v.y() > 255 || v.y() < 0)
+                continue;
+
+            IBlockState b = w.getBlockState(v.toPos());
+
+            if (b.getBlock().getBlockHardness(w, v.toPos()) < 0 || b.getBlock().isAir(w, v.toPos()))
+                continue;
+
+            BreakEvent e = new BreakEvent(w, v.toPos(), b, p);
+
+            if (!MinecraftForge.EVENT_BUS.post(e))
             {
                 if (BloodUtils.drainSoulNetwork(sigilOwner, ++blocks))
                 {
-                    List<ItemStack> drops = b.getDrops(w, v.x(), v.y(), v.z(), meta, 0);
-                    w.setBlock(v.x(), v.y(), v.z(), Blocks.air);
+                    List<ItemStack> drops = b.getBlock().getDrops(w, v.toPos(), b, 0);
+                    w.setBlockToAir(v.toPos());
 
                     for (ItemStack drop : drops)
                     {

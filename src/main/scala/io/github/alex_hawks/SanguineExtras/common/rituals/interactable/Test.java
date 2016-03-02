@@ -6,11 +6,17 @@ import WayofTime.bloodmagic.api.ritual.Ritual;
 import WayofTime.bloodmagic.api.ritual.RitualComponent;
 import io.github.alex_hawks.SanguineExtras.api.ritual.IAdvancedMasterRitualStone;
 import io.github.alex_hawks.SanguineExtras.api.ritual.InteractableRitualEffect;
+import io.github.alex_hawks.SanguineExtras.common.Constants;
 
 import java.util.ArrayList;
 
 public class Test extends InteractableRitualEffect
 {
+
+    public Test()
+    {
+        super("SE002Test", 0, 100, "ritual." + Constants.MetaData.MOD_ID + ".test");
+    }
 
     @Override
     public int getRefreshCost()
@@ -31,18 +37,18 @@ public class Test extends InteractableRitualEffect
     @Override
     public void performRitual(IMasterRitualStone arg0)
     {
-        
+
     }
-    
+
     @Override
-    public boolean onRightClick(IAdvancedMasterRitualStone mrs) 
+    public boolean onRightClick(IAdvancedMasterRitualStone mrs)
     {
         System.out.println("Right Click");
         return true;
     }
 
     @Override
-    public boolean onLeftClick(IAdvancedMasterRitualStone mrs) 
+    public boolean onLeftClick(IAdvancedMasterRitualStone mrs)
     {
         System.out.println("Left Click");
         return true;

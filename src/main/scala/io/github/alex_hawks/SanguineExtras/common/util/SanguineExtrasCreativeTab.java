@@ -8,7 +8,7 @@ import net.minecraft.item.ItemStack;
 public class SanguineExtrasCreativeTab extends CreativeTabs
 {
     public static final SanguineExtrasCreativeTab Instance = new SanguineExtrasCreativeTab("tabSanguineExtras");
-    
+
     public SanguineExtrasCreativeTab(String lable)
     {
         super(lable);
@@ -19,7 +19,7 @@ public class SanguineExtrasCreativeTab extends CreativeTabs
     {
         return ModItems.SigilRebuild;
     }
-    
+
     @Override
     public ItemStack getIconItemStack()
     {

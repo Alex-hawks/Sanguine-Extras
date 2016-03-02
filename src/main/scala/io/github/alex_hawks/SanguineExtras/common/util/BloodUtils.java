@@ -1,41 +1,54 @@
 package io.github.alex_hawks.SanguineExtras.common.util;
 
-import WayofTime.alchemicalWizardry.api.rituals.RitualEffect;
-import WayofTime.alchemicalWizardry.api.rituals.Rituals;
+
+import WayofTime.bloodmagic.api.altar.EnumAltarTier;
+import WayofTime.bloodmagic.api.network.SoulNetwork;
+import WayofTime.bloodmagic.api.registry.RitualRegistry;
+import WayofTime.bloodmagic.api.ritual.Ritual;
+import WayofTime.bloodmagic.api.util.helper.NetworkHelper;
+import WayofTime.bloodmagic.api.util.helper.PlayerHelper;
 import net.minecraft.entity.player.EntityPlayer;
-import WayofTime.alchemicalWizardry.api.altarRecipeRegistry.AltarRecipe;
-import WayofTime.alchemicalWizardry.api.altarRecipeRegistry.AltarRecipeRegistry;
-import WayofTime.alchemicalWizardry.api.items.interfaces.IBloodOrb;
-import WayofTime.alchemicalWizardry.api.soulNetwork.SoulNetworkHandler;
-import static WayofTime.alchemicalWizardry.api.soulNetwork.SoulNetworkHandler.hurtPlayer;;
+import net.minecraft.potion.Potion;
+import net.minecraft.potion.PotionEffect;
+
+import java.util.UUID;
+
 
 public class BloodUtils
 {
-    public static boolean drainSoulNetwork(String player, int amount)
+    public static boolean drainSoulNetwork(UUID player, int amount)
     {
-        return SoulNetworkHandler.syphonFromNetwork(player, amount) >= amount;
+        return NetworkHelper.getSoulNetwork(player.toString()).syphon(amount) >= amount;
     }
-    
-    public static boolean drainSoulNetworkWithNausea(String player, int amount)
+
+    public static boolean drainSoulNetworkWithNausea(UUID player, int amount)
     {
-        boolean b = SoulNetworkHandler.syphonFromNetwork(player, amount) >= amount;
-        
+        boolean b = NetworkHelper.getSoulNetwork(player.toString()).syphon(amount) >= amount;
+
         if (!b)
-            SoulNetworkHandler.causeNauseaToPlayer(player);
-        
+        {
+            EntityPlayer owner = PlayerHelper.getPlayerFromUUID(player);
+            if (owner != null)
+            {
+                owner.addPotionEffect(new PotionEffect(Potion.confusion.getId(), 99));
+            }
+        }
+
         return b;
     }
 
-    public static boolean drainSoulNetworkWithDamage(String ownerName, EntityPlayer player, int damageToBeDone)
+    public static boolean drainSoulNetworkWithDamage(UUID owner, EntityPlayer player, int amount)
     {
         if (player.worldObj.isRemote)
         {
             return false;
         }
 
-        int amount = SoulNetworkHandler.syphonFromNetwork(ownerName, damageToBeDone);
+        SoulNetwork n = NetworkHelper.getSoulNetwork(owner.toString());
 
-        hurtPlayer(player, damageToBeDone - amount);
+        int remain = n.syphon(amount);
+
+        n.hurtPlayer(player, remain);
 
         return true;
     }
@@ -45,26 +58,16 @@ public class BloodUtils
      */
     public static int getHighestTierOrb()
     {
-        int i = -1;
-
-        for (AltarRecipe recipe: AltarRecipeRegistry.altarRecipes)
-        {
-            if (recipe.canBeFilled) // is an orb
-            {
-                IBloodOrb orb = (IBloodOrb) recipe.requiredItem.getItem();
-                i = Math.max(i, orb.getOrbLevel());
-            }
-        }
-        return i;
+        return EnumAltarTier.MAXTIERS;
     }
 
-    public static RitualEffect getEffectFromString(String name)
+    public static Ritual getEffectFromString(String name)
     {
-        Rituals ritual = Rituals.ritualMap.get(name);
+        Ritual ritual = RitualRegistry.getRitualForId(name);
 
         if (ritual == null)
             return null;
 
-        return ritual.effect;
+        return ritual;
     }
 }

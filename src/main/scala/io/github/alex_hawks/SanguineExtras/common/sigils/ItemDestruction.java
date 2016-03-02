@@ -1,25 +1,32 @@
 package io.github.alex_hawks.SanguineExtras.common.sigils;
 
-import static io.github.alex_hawks.SanguineExtras.common.util.LangUtils.translate;
+import WayofTime.bloodmagic.api.Constants;
+import WayofTime.bloodmagic.api.util.helper.NBTHelper;
+import WayofTime.bloodmagic.api.util.helper.PlayerHelper;
+import WayofTime.bloodmagic.item.ItemBindable;
+import WayofTime.bloodmagic.util.helper.TextHelper;
+import com.google.common.base.Strings;
 import io.github.alex_hawks.SanguineExtras.common.sigil_utils.UtilsDestruction;
 import io.github.alex_hawks.SanguineExtras.common.util.BloodUtils;
 import io.github.alex_hawks.SanguineExtras.common.util.SanguineExtrasCreativeTab;
 import io.github.alex_hawks.util.Vector3;
-import static io.github.alex_hawks.SanguineExtras.common.package$.MODULE$;
-
-import java.util.List;
-
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
-import WayofTime.alchemicalWizardry.api.items.interfaces.IBindable;
-import WayofTime.alchemicalWizardry.common.items.EnergyItems;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class ItemDestruction extends Item implements IBindable 
+import java.util.List;
+import java.util.UUID;
+
+import static io.github.alex_hawks.SanguineExtras.common.package$.MODULE$;
+import static io.github.alex_hawks.SanguineExtras.common.util.LangUtils.translate;
+
+public class ItemDestruction extends ItemBindable
 {
     public ItemDestruction()
     {
@@ -27,39 +34,38 @@ public class ItemDestruction extends Item implements IBindable
         this.maxStackSize = 1;
         setCreativeTab(SanguineExtrasCreativeTab.Instance);
         this.setUnlocalizedName("sigilDestruction");
-        this.setTextureName("SanguineExtras:sigilDestruction");
+        this.setRegistryName("sigilDestruction");
     }
-    
+
     @Override
     public String getUnlocalizedName(ItemStack is)
     {
         return this.getUnlocalizedName() + ".tier" + is.getItemDamage();
     }
-    
+
     @Override
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    public void addInformation(ItemStack stack, EntityPlayer par2EntityPlayer, List par3List, boolean par4)
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    public void addInformation(ItemStack stack, EntityPlayer par2EntityPlayer, List tooltip, boolean par4)
     {
-        par3List.add(MODULE$.loreFormat() + translate("pun.se.sigil.destruction"));
-        par3List.add("");
+        tooltip.add(MODULE$.loreFormat() + translate("pun.se.sigil.destruction"));
+        tooltip.add("");
 
-        if (stack.stackTagCompound != null && stack.stackTagCompound.hasKey("ownerName"))
-            par3List.add(translate("tooltip.se.owner").replace("%s", stack.stackTagCompound.getString("ownerName")));
-        else
-            par3List.add(translate("tooltip.se.owner.null"));
+        NBTHelper.checkNBT(stack);
 
-        par3List.add("");
+        if (!Strings.isNullOrEmpty(stack.getTagCompound().getString(Constants.NBT.OWNER_UUID)))
+            tooltip.add(TextHelper.localizeEffect("tooltip.BloodMagic.currentOwner", PlayerHelper.getUsernameFromStack(stack)));
 
-        par3List.add(translate("tooltip.se.destruction.currentlength").replace("%s", "" + getLength(stack)));
-        par3List.add(translate("tooltip.se.destruction.maximumlength").replace("%s", "" + getMaxLength(stack)));
+        tooltip.add("");
+
+        tooltip.add(translate("tooltip.se.destruction.currentlength").replace("%s", "" + getLength(stack)));
+        tooltip.add(translate("tooltip.se.destruction.maximumlength").replace("%s", "" + getMaxLength(stack)));
     }
-    
+
     @Override
-    public boolean onItemUse(ItemStack stack, EntityPlayer player, World w, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
+    public boolean onItemUse(ItemStack stack, EntityPlayer player, World w, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ)
     {
         if (w.isRemote)
             return true;
-        EnergyItems.checkAndSetItemOwner(stack, player);
 
         if (player.isSneaking())
         {
@@ -69,24 +75,18 @@ public class ItemDestruction extends Item implements IBindable
             else
                 setLength(stack, 1);
             return true;
-        }
-        else
+        } else
         {
-            String sigilOwner = stack.stackTagCompound.getString("ownerName");
-            List<Vector3> toBreak = UtilsDestruction.find(x, y, z, w, side, getLength(stack));
-            for(Vector3 vec3 : toBreak)
-                System.out.println(vec3);
-            
-            UtilsDestruction.doDrops(player, sigilOwner, toBreak, w);
+            List<Vector3> toBreak = UtilsDestruction.find(pos, w, side, getLength(stack));
+
+            UtilsDestruction.doDrops(player, UUID.fromString(this.getBindableOwner(stack)), toBreak, w);
             return true;
         }
     }
-    
+
     @Override
     public ItemStack onItemRightClick(ItemStack stack, World w, EntityPlayer player)
     {
-        EnergyItems.checkAndSetItemOwner(stack, player);
-        
         if (player.isSneaking())
         {
             int l = getLength(stack);
@@ -97,35 +97,35 @@ public class ItemDestruction extends Item implements IBindable
         }
         return stack;
     }
-    
+
     @Override
     @SideOnly(Side.CLIENT)
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @SuppressWarnings({"rawtypes", "unchecked"})
     public void getSubItems(Item item, CreativeTabs tab, List items)
     {
         for (int i = 0; i < BloodUtils.getHighestTierOrb(); i++)
             items.add(new ItemStack(item, 1, i));
     }
-    
+
     private static int getLength(ItemStack stack)
     {
-        if (stack.stackTagCompound != null && stack.stackTagCompound.hasKey("length"))
+        if (stack.getTagCompound() != null && stack.getTagCompound().hasKey("length"))
         {
-            return stack.stackTagCompound.getInteger("length");
+            return stack.getTagCompound().getInteger("length");
         }
         return 1;
     }
-    
+
     private static int getMaxLength(ItemStack stack)
     {
         return (int) Math.round(Math.pow(4, stack.getItemDamage()));
     }
-    
+
     private static void setLength(ItemStack stack, int length)
     {
-        if (stack.stackTagCompound != null)
+        if (stack.getTagCompound() != null)
         {
-            stack.stackTagCompound.setInteger("length", length);
+            stack.getTagCompound().setInteger("length", length);
         }
     }
 }

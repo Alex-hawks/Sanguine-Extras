@@ -1,13 +1,15 @@
 package io.github.alex_hawks.util
 
-import net.minecraft.util.BlockPos
+import net.minecraft.util.{BlockPos, EnumFacing}
 
-class Vector3 (val x: Int, val y: Int, val z: Int) {
-  
-  def Vector3(pos: BlockPos)
-  
+class Vector3(val x: Int, val y: Int, val z: Int) {
 
-  def +(w: (Int,Int,Int)): Vector3 = new Vector3(x + w._1, y+ w._2, z + w._3)
+  def this(pos: BlockPos) = this(pos.getX, pos.getY, pos.getZ)
+
+
+  def +(w: (Int, Int, Int)): Vector3 = new Vector3(x + w._1, y + w._2, z + w._3)
+
+  def +(that: Vector3): Vector3 = new Vector3(this.x + that.x, this.y + that.y, this.z + that.z)
 
   override def toString = s"V3(${x}},${y}},${z}})"
 
@@ -26,6 +28,10 @@ class Vector3 (val x: Int, val y: Int, val z: Int) {
     val state = Seq(x, y, z)
     state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
   }
-  
-  
+
+  def toPos: BlockPos = new BlockPos(this.x, this.y, this.z)
+
+  def shift(dir: EnumFacing): Vector3 = this +(dir.getFrontOffsetX, dir.getFrontOffsetY, dir.getFrontOffsetZ)
+
+
 }

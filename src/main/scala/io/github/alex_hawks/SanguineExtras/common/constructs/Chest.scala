@@ -1,26 +1,22 @@
 package io.github.alex_hawks.SanguineExtras.common
 package constructs
 
-import WayofTime.alchemicalWizardry.common.spell.complex.effect.SpellHelper
-import io.github.alex_hawks.SanguineExtras.common.util.WorldUtils.dropItem
 import io.github.alex_hawks.SanguineExtras.common.constructs.Chest._
-import io.github.alex_hawks.SanguineExtras.common.util.SanguineExtrasCreativeTab
-import net.minecraft.block.Block
+import io.github.alex_hawks.SanguineExtras.common.util.WorldUtils.dropItem
+import io.github.alex_hawks.SanguineExtras.common.util.{PlayerUtils, SanguineExtrasCreativeTab}
 import net.minecraft.block.BlockContainer
 import net.minecraft.block.material.Material
+import net.minecraft.block.state.IBlockState
 import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.entity.player.InventoryPlayer
-import net.minecraft.inventory.Container
-import net.minecraft.inventory.Slot
+import net.minecraft.inventory.{Container, IInventory, Slot}
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
-import net.minecraft.network.NetworkManager
-import net.minecraft.network.Packet
+import net.minecraft.network.play.INetHandlerPlayClient
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity
+import net.minecraft.network.{NetworkManager, Packet}
 import net.minecraft.tileentity.TileEntity
-import net.minecraft.util.ResourceLocation
+import net.minecraft.util.{BlockPos, EnumFacing, IChatComponent, ResourceLocation}
 import net.minecraft.world.World
-import net.minecraft.inventory.IInventory
 
 object Chest {
   val maxChestSize = 108
@@ -37,24 +33,30 @@ object Chest {
 
 class BlockChest extends BlockContainer(Material.rock) {
 
-  this.setBlockName("blockSanguineChest");
+  this.setRegistryName(Constants.MetaData.MOD_ID, "sanguineChest");
+  this.setUnlocalizedName("sanguineChest")
   setCreativeTab(SanguineExtrasCreativeTab.Instance);
 
   override def getRenderType = -1
+
   override def createNewTileEntity(world: World, meta: Int) = new TileChest(meta)
+
   override def isOpaqueCube: Boolean = false
-  override def renderAsNormalBlock: Boolean = false
-  override def onBlockActivated(w: World, x: Int, y: Int, z: Int, player: EntityPlayer, side: Int, hitX: Float, hitY: Float, hitZ: Float) = {
-    player.openGui(SanguineExtras.INSTANCE, 0, w, x, y, z)
+
+  override def isBlockNormalCube: Boolean = false
+
+  override def onBlockActivated(w: World, pos: BlockPos, state: IBlockState, player: EntityPlayer, side: EnumFacing, hitX: Float, hitY: Float, hitZ: Float) = {
+    player.openGui(SanguineExtras.INSTANCE, 0, w, pos.getX, pos.getY, pos.getZ)
     true
   }
-  override def breakBlock(w: World, x: Int, y: Int, z: Int, block: Block, meta: Int) = {
-    val te = w.getTileEntity(x, y, z).asInstanceOf[TileChest]
+
+  override def breakBlock(w: World, pos: BlockPos, state: IBlockState) = {
+    val te = w.getTileEntity(pos).asInstanceOf[TileChest]
 
     for (item <- te.chestContents)
-      dropItem(w, item, x, y, z)
+      dropItem(w, item, pos.getX, pos.getY, pos.getZ)
 
-    super.breakBlock(w, x, y, z, block, meta)
+    super.breakBlock(w, pos, state)
   }
 }
 
@@ -77,8 +79,7 @@ class TileChest(var meta: Int) extends TileEntity with IInventory {
   def actInvSize = (meta + 2) * 18
 
   // Begin TileEntity overrides
-  override def canUpdate = true
-  override def updateEntity = {
+  def update = {
     prevLidAngle = lidAngle
 
     rotation += 1
@@ -93,7 +94,7 @@ class TileChest(var meta: Int) extends TileEntity with IInventory {
 
     height += Math.min(motion, maxHeightChange)
 
-    worldObj.markBlockForUpdate(xCoord, yCoord, zCoord)
+    worldObj.markBlockForUpdate(pos)
 
     if (lidMoving) {
       if (numPlayersUsing > 0) {
@@ -158,22 +159,23 @@ class TileChest(var meta: Int) extends TileEntity with IInventory {
     tag
   }
 
-  override def getDescriptionPacket: Packet = {
+  override def getDescriptionPacket: Packet[INetHandlerPlayClient] = {
     val tag = writeSyncData(new NBTTagCompound)
-    new S35PacketUpdateTileEntity(this.xCoord, this.yCoord, this.zCoord, 1, tag)
+    new S35PacketUpdateTileEntity(this.pos, 1, tag)
   }
 
   override def onDataPacket(net: NetworkManager, pkt: S35PacketUpdateTileEntity) = {
-    readSyncData(pkt.func_148857_g)
+    readSyncData(pkt.getNbtCompound)
   }
 
   // Begin IInventory
-  override def closeInventory: Unit = {
+  override def closeInventory(player: EntityPlayer): Unit = {
     this.numPlayersUsing -= 1
     if (this.numPlayersUsing < 0)
       this.numPlayersUsing = 0;
-    this.worldObj.addBlockEvent(this.xCoord, this.yCoord, this.zCoord, this.getBlockType(), 1, this.numPlayersUsing)
+    this.worldObj.addBlockEvent(this.pos, this.getBlockType(), 1, this.numPlayersUsing)
   }
+
   override def decrStackSize(slot: Int, qty: Int): ItemStack = {
     if (chestContents(slot) == null || chestContents(slot).getItem == null)
       null;
@@ -189,36 +191,59 @@ class TileChest(var meta: Int) extends TileEntity with IInventory {
     }
 
   }
-  override def getInventoryName: String = "container.sanguine_chest"
+
+  override def getName: String = "container.sanguine_chest"
+
   override def getInventoryStackLimit: Int = 64
+
   override def getSizeInventory: Int = actInvSize
+
   override def getStackInSlot(slot: Int): ItemStack = chestContents(slot)
-  override def getStackInSlotOnClosing(slot: Int): ItemStack = chestContents(slot)
-  override def hasCustomInventoryName: Boolean = false
+
   override def isItemValidForSlot(slot: Int, stack: ItemStack): Boolean = slot < actInvSize && slot >= 0
+
   override def isUseableByPlayer(player: EntityPlayer): Boolean = true
-  override def openInventory: Unit = {
+
+  override def openInventory(player: EntityPlayer): Unit = {
     this.numPlayersUsing += 1
-    this.worldObj.addBlockEvent(this.xCoord, this.yCoord, this.zCoord, this.getBlockType, 1, this.numPlayersUsing)
+    this.worldObj.addBlockEvent(this.pos, this.getBlockType, 1, this.numPlayersUsing)
   }
-  override def setInventorySlotContents(slot: Int, stack: ItemStack): Unit = { chestContents(slot) = stack; markDirty }
+
+  override def setInventorySlotContents(slot: Int, stack: ItemStack): Unit = {
+    chestContents(slot) = stack;
+    markDirty
+  }
+
+  override def removeStackFromSlot(index: Int): ItemStack = ???
+
+  override def clear(): Unit = ???
+
+  override def getFieldCount: Int = ???
+
+  override def getField(id: Int): Int = ???
+
+  override def setField(id: Int, value: Int): Unit = ???
+
+  override def getDisplayName: IChatComponent = null
+
+  override def hasCustomName: Boolean = false;
 }
 
-class ContainerChest(val player: InventoryPlayer, val chest: TileChest) extends Container {
+class ContainerChest(val player: EntityPlayer, val chest: TileChest) extends Container {
 
-  chest.openInventory
+  chest.openInventory(player)
   for (i <- 0 until maxRows)
     for (j <- 0 until maxCols)
       this.addSlotToContainer(new SlotChest(chest, i * maxCols + j, 12 + j * 18, 8 + i * 18))
 
   for (playerInvRow <- 0 until 3)
     for (playerInvCol <- 0 until 9)
-      addSlotToContainer(new Slot(player, playerInvCol + playerInvRow * 9 + 9, 39 + playerInvCol * 18, 174 + playerInvRow * 18));
+      addSlotToContainer(new Slot(player.inventory, playerInvCol + playerInvRow * 9 + 9, 39 + playerInvCol * 18, 174 + playerInvRow * 18));
 
   for (playerInvCol <- 0 until 9)
-    addSlotToContainer(new Slot(player, playerInvCol, 39 + playerInvCol * 18, 232));
+    addSlotToContainer(new Slot(player.inventory, playerInvCol, 39 + playerInvCol * 18, 232));
 
-  override def canInteractWith(player: EntityPlayer): Boolean = !SpellHelper.isFakePlayer(player.worldObj, player)
+  override def canInteractWith(player: EntityPlayer): Boolean = PlayerUtils.isFakePlayer(player)
 
   override def transferStackInSlot(player: EntityPlayer, slotID: Int): ItemStack = {
     var itemstack: ItemStack = null
@@ -247,7 +272,7 @@ class ContainerChest(val player: InventoryPlayer, val chest: TileChest) extends 
     itemstack
   }
 
-  override def onContainerClosed(player: EntityPlayer) = chest.closeInventory
+  override def onContainerClosed(player: EntityPlayer) = chest.closeInventory(player)
 
 }
 

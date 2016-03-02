@@ -1,5 +1,6 @@
 package io.github.alex_hawks.SanguineExtras.common.util;
 
+import WayofTime.bloodmagic.api.util.helper.PlayerHelper;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 
@@ -7,7 +8,7 @@ public class PlayerUtils
 {
     /**
      * @param player The player to take from
-     * @param is The item to take. Will only take 1 (ONE) item
+     * @param is     The item to take. Will only take 1 (ONE) item
      * @return
      */
     public static boolean takeItem(EntityPlayer player, ItemStack is)
@@ -29,7 +30,7 @@ public class PlayerUtils
             }
         }
         return false;
-    }    
+    }
 
     public static void putItem(EntityPlayer player, ItemStack... is2)
     {
@@ -42,5 +43,10 @@ public class PlayerUtils
                 player.dropPlayerItemWithRandomChoice(is, false);
             }
         }
+    }
+
+    public static boolean isFakePlayer(EntityPlayer p)
+    {
+        return !PlayerHelper.isFakePlayer(p);
     }
 }

@@ -1,37 +1,36 @@
 package io.github.alex_hawks.SanguineExtras.common.sigil_utils;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 
 public class UtilsMobNet
 {
     public static String getEntityName(ItemStack stack)
     {
-        if (stack.stackTagCompound != null && stack.stackTagCompound.hasKey("entityName"))
-            return stack.stackTagCompound.getString("entityName");
+        if (stack.getTagCompound() != null && stack.getTagCompound().hasKey("entityName"))
+            return stack.getTagCompound().getString("entityName");
         return null;
     }
-    
+
     @SuppressWarnings("unchecked")
     public static EntityLivingBase createCopiedEntity(ItemStack stack, World w)
     {
-        if (stack.stackTagCompound == null || !stack.stackTagCompound.hasKey("entityClass") || !stack.stackTagCompound.hasKey("entity"))
+        if (stack.getTagCompound() == null || !stack.getTagCompound().hasKey("entityClass") || !stack.getTagCompound().hasKey("entity"))
         {
             return null;
-        }
-        else
+        } else
         {
             try
             {
-                Class<? extends EntityLivingBase> clazz = (Class<? extends EntityLivingBase>) Class.forName(stack.stackTagCompound.getString("entityClass"));
+                Class<? extends EntityLivingBase> clazz = (Class<? extends EntityLivingBase>) Class.forName(stack.getTagCompound().getString("entityClass"));
                 Constructor<? extends EntityLivingBase> constructor = clazz.getConstructor(World.class);
-                
+
                 EntityLivingBase newmob = constructor.newInstance(w);
-                newmob.readFromNBT(stack.stackTagCompound.getCompoundTag("entity"));
+                newmob.readFromNBT(stack.getTagCompound().getCompoundTag("entity"));
                 return newmob;
             } catch (ClassNotFoundException e)
             {
@@ -62,17 +61,16 @@ public class UtilsMobNet
     @SuppressWarnings("unchecked")
     public static EntityLivingBase createNewEntity(ItemStack stack, World w)
     {
-        if (stack.stackTagCompound == null || !stack.stackTagCompound.hasKey("entityClass") || !stack.stackTagCompound.hasKey("entity"))
+        if (stack.getTagCompound() == null || !stack.getTagCompound().hasKey("entityClass") || !stack.getTagCompound().hasKey("entity"))
         {
             return null;
-        }
-        else
+        } else
         {
             try
             {
-                Class<? extends EntityLivingBase> clazz = (Class<? extends EntityLivingBase>) Class.forName(stack.stackTagCompound.getString("entityClass"));
+                Class<? extends EntityLivingBase> clazz = (Class<? extends EntityLivingBase>) Class.forName(stack.getTagCompound().getString("entityClass"));
                 Constructor<? extends EntityLivingBase> constructor = clazz.getConstructor(World.class);
-                
+
                 EntityLivingBase newmob = constructor.newInstance(w);
                 return newmob;
             } catch (ClassNotFoundException e)

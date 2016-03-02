@@ -1,23 +1,31 @@
 package io.github.alex_hawks.SanguineExtras.common.sigils;
 
-import static io.github.alex_hawks.SanguineExtras.common.package$.MODULE$;
-import static io.github.alex_hawks.SanguineExtras.common.util.LangUtils.translate;
+import WayofTime.bloodmagic.api.Constants;
+import WayofTime.bloodmagic.api.iface.ISigil;
+import WayofTime.bloodmagic.api.util.helper.NBTHelper;
+import WayofTime.bloodmagic.api.util.helper.PlayerHelper;
+import WayofTime.bloodmagic.item.ItemBindable;
+import WayofTime.bloodmagic.util.helper.TextHelper;
+import com.google.common.base.Strings;
 import io.github.alex_hawks.SanguineExtras.common.sigil_utils.UtilsRebuilding;
 import io.github.alex_hawks.SanguineExtras.common.util.SanguineExtrasCreativeTab;
 import io.github.alex_hawks.util.Vector3;
-
-import java.util.List;
-
 import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
-import WayofTime.alchemicalWizardry.api.items.interfaces.IBindable;
-import WayofTime.alchemicalWizardry.common.items.EnergyItems;
 
-public class ItemRebuilding extends Item implements IBindable
+import java.util.List;
+import java.util.UUID;
+
+import static io.github.alex_hawks.SanguineExtras.common.package$.MODULE$;
+import static io.github.alex_hawks.SanguineExtras.common.util.LangUtils.translate;
+
+public class ItemRebuilding extends ItemBindable implements ISigil
 {
     public ItemRebuilding()
     {
@@ -25,94 +33,72 @@ public class ItemRebuilding extends Item implements IBindable
         this.maxStackSize = 1;
         setCreativeTab(SanguineExtrasCreativeTab.Instance);
         this.setUnlocalizedName("sigilRebuilding");
-        this.setTextureName("SanguineExtras:sigilRebuilding");
+        this.setRegistryName("sigilRebuilding");
+    }
+
+    @Override
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    public void addInformation(ItemStack stack, EntityPlayer par2EntityPlayer, List tooltip, boolean par4)
+    {
+        tooltip.add(MODULE$.loreFormat() + translate("pun.se.sigil.rebuilding"));
+        tooltip.add("");
+
+        NBTHelper.checkNBT(stack);
+
+        if (!Strings.isNullOrEmpty(stack.getTagCompound().getString(Constants.NBT.OWNER_UUID)))
+            tooltip.add(TextHelper.localizeEffect("tooltip.BloodMagic.currentOwner", PlayerHelper.getUsernameFromStack(stack)));
+
+        IBlockState s = getNewBlock(stack);
+        boolean b = getNewBlock(stack) == null;
+        ItemStack is = b ? null : new ItemStack(s.getBlock(), 1, s.getBlock().getMetaFromState(s));
+
+        tooltip.add("");
+        tooltip.add(translate(b ? "tooltip.se.rebuilding.block.null" : "tooltip.se.rebuilding.block").replace("%s", b ? "" : is.getDisplayName()));
+        tooltip.add(translate(b ? "tooltip.se.rebuilding.meta.null" : "tooltip.se.rebuilding.meta").replace("%s", "" + (b ? "" : is.getMetadata())));
     }
     
     @Override
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    public void addInformation(ItemStack stack, EntityPlayer par2EntityPlayer, List par3List, boolean par4)
-    {
-        par3List.add(MODULE$.loreFormat() + translate("pun.se.sigil.rebuilding"));
-        par3List.add("");
-
-        if (stack.stackTagCompound != null && stack.stackTagCompound.hasKey("ownerName"))
-            par3List.add(translate("tooltip.se.owner").replace("%s", stack.stackTagCompound.getString("ownerName")));
-        else
-            par3List.add(translate("tooltip.se.owner.null"));
-
-        ItemStack is = new ItemStack(getNewBlock(stack), 1, getNewMeta(stack));
-        boolean b = getNewBlock(stack) == null;
-
-        par3List.add("");
-        par3List.add(translate(b ? "tooltip.se.rebuilding.block.null" : "tooltip.se.rebuilding.block").replace("%s", b ? "" : is.getDisplayName()));
-        par3List.add(translate(b ? "tooltip.se.rebuilding.meta.null" : "tooltip.se.rebuilding.meta").replace("%s", "" + (b ? "" : getNewMeta(stack))));
-    }
-
-    @Override
-    public boolean onItemUse(ItemStack stack, EntityPlayer player, World w, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
+    public boolean onItemUse(ItemStack stack, EntityPlayer player, World w, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ)
     {
         if (w.isRemote)
             return true;
-        EnergyItems.checkAndSetItemOwner(stack, player);
 
         if (player.isSneaking())
         {
-            if (stack.stackTagCompound == null)
-                stack.stackTagCompound = new NBTTagCompound();
+            if (stack.getTagCompound() == null)
+                stack.setTagCompound(new NBTTagCompound());
 
-            Block b = w.getBlock(x, y, z);
-            NBTTagCompound tag = stack.getTagCompound();
-
-            NBTTagCompound blockTag = new NBTTagCompound();
-            blockTag.setString("blockId", Block.blockRegistry.getNameForObject(b));
-            blockTag.setInteger("meta", w.getBlockMetadata(x, y, z));
-            tag.setTag("newBlock", blockTag);
-            stack.setTagCompound(tag);
+            IBlockState b = w.getBlockState(pos);
+            stack.getTagCompound().setInteger("state", Block.getStateId(b));
             return true;
-        }
-        else 
+        } else
         {
-            String sigilOwner = stack.stackTagCompound.getString("ownerName");
-            List<Vector3> toReplace = UtilsRebuilding.find(x, y, z, w);
+            List<Vector3> toReplace = UtilsRebuilding.find(pos, w);
             if (getNewBlock(stack) != null)
-                UtilsRebuilding.doReplace(player, sigilOwner, toReplace, w, w.getBlock(x, y, z), w.getBlockMetadata(x, y, z), getNewBlock(stack), getNewMeta(stack));
+                UtilsRebuilding.doReplace(player, UUID.fromString(getBindableOwner(stack)), toReplace, w, w.getBlockState(pos), getNewBlock(stack));
             return true;
         }
     }
-    
+
     @Override
-    public boolean onBlockStartBreak(ItemStack stack, int x, int y, int z, EntityPlayer player)
+    public boolean onBlockStartBreak(ItemStack stack, BlockPos pos, EntityPlayer player)
     {
         World w = player.worldObj;
         if (w.isRemote)
             return true;
 
-        EnergyItems.checkAndSetItemOwner(stack, player);
-        
-        String sigilOwner = stack.stackTagCompound.getString("ownerName");
-        Vector3[] toReplace = new Vector3[] { new Vector3(x, y, z) };
+        Vector3[] toReplace = new Vector3[]{new Vector3(pos)};
         if (getNewBlock(stack) != null)
-            UtilsRebuilding.doReplace(player, sigilOwner, toReplace, w, w.getBlock(x, y, z), w.getBlockMetadata(x, y, z), getNewBlock(stack), getNewMeta(stack));
+            UtilsRebuilding.doReplace(player, UUID.fromString(getBindableOwner(stack)), toReplace, w, w.getBlockState(pos), getNewBlock(stack));
         return true;
     }
 
-    private static Block getNewBlock(ItemStack stack)
+    private static IBlockState getNewBlock(ItemStack stack)
     {
-        if (stack.stackTagCompound != null && stack.stackTagCompound.hasKey("newBlock"))
+        if (stack.getTagCompound() != null && stack.getTagCompound().hasKey("state"))
         {
-            NBTTagCompound blockTag = stack.stackTagCompound.getCompoundTag("newBlock");
-            return (Block) Block.blockRegistry.getObject(blockTag.getString("blockId"));
+            return Block.getStateById(stack.getTagCompound().getInteger("state"));
         }
         return null;
-    }
-
-    private static int getNewMeta(ItemStack stack)
-    {
-        if (stack.stackTagCompound != null && stack.stackTagCompound.hasKey("newBlock"))
-        {
-            NBTTagCompound blockTag = stack.stackTagCompound.getCompoundTag("newBlock");
-            return blockTag.getInteger("meta");
-        }
-        return 0;
     }
 }

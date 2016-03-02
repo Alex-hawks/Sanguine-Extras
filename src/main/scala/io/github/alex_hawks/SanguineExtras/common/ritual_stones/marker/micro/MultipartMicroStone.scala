@@ -1,6 +1,6 @@
 package io.github.alex_hawks.SanguineExtras.common.ritual_stones.marker.micro
 
-import WayofTime.bloodmagic.api.ritual.{EnumRuneType, IRitualStone}
+import WayofTime.bloodmagic.api.ritual.{CapabilityRuneType, EnumRuneType, IRitualStone}
 import WayofTime.bloodmagic.item.ItemInscriptionTool
 import io.github.alex_hawks.SanguineExtras.common.ritual_stones.marker.micro.MultipartStone._
 import mcmultipart.multipart.Multipart
@@ -14,25 +14,25 @@ import net.minecraft.util.EnumFacing
 import net.minecraftforge.common.capabilities.{Capability, CapabilityInject}
 
 object MultipartStone {
-  @CapabilityInject(IRitualStone.Tile)
+  @CapabilityInject(classOf[IRitualStone.Tile])
   var CAPABILITY_RUNE_TYPE: Capability[IRitualStone.Tile] = null
 }
 
 class MultipartStone extends Multipart {
-  val runeType: IRitualStone.Tile = CAPABILITY_RUNE_TYPE.getDefaultInstance
+  val runeType: IRitualStone.Tile = new CapabilityRuneType.RuneTypeWrapper
 
   override def hasCapability(capability: Capability[_], facing: EnumFacing): Boolean = {
     if (capability == CAPABILITY_RUNE_TYPE)
       return true
     else
-      return super.hasCapability(capability[_], facing)
+      return super.hasCapability(capability, facing)
   }
 
   override def getCapability[T](capability: Capability[T], facing: EnumFacing): T = {
     if (capability == CAPABILITY_RUNE_TYPE)
       return runeType.asInstanceOf[T]
     else
-      return super.getCapability(capability[_], facing)
+      return super.getCapability(capability, facing)
   }
 
   override def getMaterial: Material = Material.rock
@@ -48,7 +48,7 @@ class MultipartStone extends Multipart {
   }
 
   override def writeToNBT(tag: NBTTagCompound) = {
-    tag.setByte("runeType", runeType.getRuneType())
+    tag.setByte("runeType", runeType.getRuneType.ordinal.toByte)
   }
 
   override def readFromNBT(tag: NBTTagCompound) = {
@@ -56,14 +56,18 @@ class MultipartStone extends Multipart {
   }
 
   override def writeUpdatePacket(buf: PacketBuffer) = {
-    buf.writeByte(runeType.getRuneType())
+    buf.writeByte(runeType.getRuneType.ordinal.toByte)
   }
 
   override def readUpdatePacket(buf: PacketBuffer) = {
-    runeType.setRuneType(EnumRuneType.byMetadata(buf.readByte()))
+    runeType.setRuneType(EnumRuneType.byMetadata(buf.readByte))
   }
 
   override def getModelPath: String = {
     return null
+  }
+
+  override def getType: String = {
+    return "sanguineExtras:MicroRitualStone"
   }
 }

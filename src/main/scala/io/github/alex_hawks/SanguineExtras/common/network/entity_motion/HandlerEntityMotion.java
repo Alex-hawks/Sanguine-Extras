@@ -3,13 +3,13 @@ package io.github.alex_hawks.SanguineExtras.common.network.entity_motion;
 import net.minecraft.entity.Entity;
 import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
-import cpw.mods.fml.common.network.simpleimpl.IMessage;
-import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
-import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
+import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
-public class HandlerEntityMotion implements IMessageHandler<MsgEntityMotion, IMessage> 
+public class HandlerEntityMotion implements IMessageHandler<MsgEntityMotion, IMessage>
 {
-    
+
     @Override
     public IMessage onMessage(MsgEntityMotion msg, MessageContext ctx)
     {
@@ -29,5 +29,5 @@ public class HandlerEntityMotion implements IMessageHandler<MsgEntityMotion, IMe
         }
         return null;
     }
-    
+
 }
