@@ -29,6 +29,13 @@ item.sigilRebuilding.name=Sigil of Rebuilding
 
 ##	Multipart Localizations
 item.microRitualStone.name=Micro Ritual Stone
+item.microRitualStone.blank.name=Warded Blank Ritual Stone
+item.microRitualStone.water.name=Warded Water Ritual Stone
+item.microRitualStone.fire.name=Warded Fire Ritual Stone
+item.microRitualStone.earth.name=Warded Earth Ritual Stone
+item.microRitualStone.air.name=Warded Air Ritual Stone
+item.microRitualStone.dusk.name=Warded Dusk Ritual Stone
+item.microRitualStone.dawn.name=Warded Dawn Ritual Stone
 
 ##  Tooltip Localizations
 tooltip.se.destruction.currentlength=Current Length: %s

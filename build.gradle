@@ -59,6 +59,8 @@ repositories {
 
 dependencies {
 	compile 'org.scala-lang:scala-library:2.11.1'
+	compile 'org.jetbrains:annotations:15.0'
+	
     deobfCompile "mezz.jei:jei_${mc_version}:${jei_version}"
 
     compile "mcp.mobius.waila:Waila:${waila_version}_1.8.8:dev"

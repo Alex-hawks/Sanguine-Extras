@@ -39,6 +39,12 @@ public class BlockWardedMasterStone extends BlockContainer
     }
 
     @Override
+    public int getRenderType()
+    {
+        return 3;
+    }
+
+    @Override
     public void onBlockHarvested(World world, BlockPos pos, IBlockState state, EntityPlayer player)
     {
         TileEntity tile = world.getTileEntity(pos);

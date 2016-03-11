@@ -12,7 +12,7 @@ import io.github.alex_hawks.SanguineExtras.common.sigil_utils.UtilsBuilding;
 import io.github.alex_hawks.SanguineExtras.common.util.BloodUtils;
 import io.github.alex_hawks.SanguineExtras.common.util.PlayerUtils;
 import io.github.alex_hawks.SanguineExtras.common.util.SanguineExtrasCreativeTab;
-import io.github.alex_hawks.util.Vector3;
+import io.github.alex_hawks.util.minecraft.common.Vector3;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
@@ -73,12 +73,13 @@ public class ItemBuilding extends ItemBindable implements ISigil
             e = new PlaceEvent(s, t, player);
             if (!MinecraftForge.EVENT_BUS.post(e))
             {
-
-                if (BloodUtils.drainSoulNetworkWithDamage(UUID.fromString(this.getBindableOwner(stack)), player, SanguineExtras.rebuildSigilCost)
-                        && PlayerUtils.takeItem(player, new ItemStack(b, 1, b.getMetaFromState(w.getBlockState(pos)))))
-                {
-                    w.setBlockState(v.toPos(), t, 0x3);
-                }
+                String str = this.getBindableOwner(stack);
+                if(str != null && !str.isEmpty())
+                    if (BloodUtils.drainSoulNetworkWithDamage(UUID.fromString(this.getBindableOwner(stack)), player, SanguineExtras.rebuildSigilCost)
+                            && PlayerUtils.takeItem(player, new ItemStack(b, 1, b.getMetaFromState(w.getBlockState(pos)))))
+                    {
+                        w.setBlockState(v.toPos(), t, 0x3);
+                    }
             }
         }
 

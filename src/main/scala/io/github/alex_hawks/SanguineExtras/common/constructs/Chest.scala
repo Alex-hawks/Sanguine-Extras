@@ -2,8 +2,9 @@ package io.github.alex_hawks.SanguineExtras.common
 package constructs
 
 import io.github.alex_hawks.SanguineExtras.common.constructs.Chest._
-import io.github.alex_hawks.SanguineExtras.common.util.WorldUtils.dropItem
 import io.github.alex_hawks.SanguineExtras.common.util.{PlayerUtils, SanguineExtrasCreativeTab}
+import io.github.alex_hawks.util.minecraft.common.WorldUtils
+import io.github.alex_hawks.util.minecraft.common.WorldUtils.dropItem
 import net.minecraft.block.BlockContainer
 import net.minecraft.block.material.Material
 import net.minecraft.block.state.IBlockState
@@ -15,13 +16,15 @@ import net.minecraft.network.play.INetHandlerPlayClient
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity
 import net.minecraft.network.{NetworkManager, Packet}
 import net.minecraft.tileentity.TileEntity
-import net.minecraft.util.{BlockPos, EnumFacing, IChatComponent, ResourceLocation}
+import net.minecraft.util._
 import net.minecraft.world.World
 
 object Chest {
-  val maxChestSize = 108
   val maxRows = 9
   val maxCols = 12
+  val maxChestSize = maxRows * maxCols
+  val maxTier = 4
+  val slotsPerTier = 18
 
   val textureLocGui = new ResourceLocation(Constants.MetaData.MOD_ID.toLowerCase, "textures/gui/chest.png")
   val heightChange = 0.000625f
@@ -31,7 +34,7 @@ object Chest {
   val lidMotion = 1f / 10f
 }
 
-class BlockChest extends BlockContainer(Material.rock) {
+object BlockChest extends BlockContainer(Material.rock) {
 
   this.setRegistryName(Constants.MetaData.MOD_ID, "sanguineChest");
   this.setUnlocalizedName("sanguineChest")
@@ -60,7 +63,7 @@ class BlockChest extends BlockContainer(Material.rock) {
   }
 }
 
-class TileChest(var meta: Int) extends TileEntity with IInventory {
+class TileChest(var tier: Int) extends TileEntity with IInventory with ITickable  {
   val chestContents = new Array[ItemStack](Chest.maxChestSize);
 
   // the Chest Levitates and slowly rotates
@@ -76,7 +79,7 @@ class TileChest(var meta: Int) extends TileEntity with IInventory {
   def this() = this(0)
 
   // Begin calculations
-  def actInvSize = (meta + 2) * 18
+  def actInvSize = (tier + 2) * slotsPerTier
 
   // Begin TileEntity overrides
   def update = {
@@ -137,7 +140,7 @@ class TileChest(var meta: Int) extends TileEntity with IInventory {
     tag.setFloat("rotation", rotation)
     tag.setFloat("height", height)
     tag.setFloat("motion", motion)
-    tag.setInteger("tier", meta)
+    tag.setInteger("tier", tier)
     tag
   }
 
@@ -155,7 +158,7 @@ class TileChest(var meta: Int) extends TileEntity with IInventory {
     rotation = tag.getFloat("rotation")
     height = tag.getFloat("height")
     motion = tag.getFloat("motion")
-    meta = tag.getInteger("tier")
+    tier = tag.getInteger("tier")
     tag
   }
 
@@ -214,15 +217,22 @@ class TileChest(var meta: Int) extends TileEntity with IInventory {
     markDirty
   }
 
-  override def removeStackFromSlot(index: Int): ItemStack = ???
+  override def removeStackFromSlot(index: Int): ItemStack = {
+    if (index > -1 && index < maxChestSize && chestContents(index) != null) {
+      val s = chestContents(index)
+      chestContents(index) = null
+      s
+    } else
+      null
+  }
 
-  override def clear(): Unit = ???
+  override def clear(): Unit = for (x <- 0 until chestContents.length) chestContents(x) = null
 
-  override def getFieldCount: Int = ???
+  override def getFieldCount: Int = 0
 
-  override def getField(id: Int): Int = ???
+  override def getField(id: Int): Int = 0
 
-  override def setField(id: Int, value: Int): Unit = ???
+  override def setField(id: Int, value: Int): Unit = {}
 
   override def getDisplayName: IChatComponent = null
 
@@ -247,7 +257,7 @@ class ContainerChest(val player: EntityPlayer, val chest: TileChest) extends Con
 
   override def transferStackInSlot(player: EntityPlayer, slotID: Int): ItemStack = {
     var itemstack: ItemStack = null
-    var slot = this.inventorySlots.get(slotID).asInstanceOf[Slot]
+    val slot = this.inventorySlots.get(slotID)
 
     if (slot != null && slot.getHasStack()) {
       val itemstack1 = slot.getStack();
@@ -273,7 +283,6 @@ class ContainerChest(val player: EntityPlayer, val chest: TileChest) extends Con
   }
 
   override def onContainerClosed(player: EntityPlayer) = chest.closeInventory(player)
-
 }
 
 class SlotChest(val inv: TileChest, index: Int, x: Int, y: Int) extends Slot(inv, index, x, y) {

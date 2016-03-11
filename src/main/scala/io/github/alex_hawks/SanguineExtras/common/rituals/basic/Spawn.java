@@ -113,7 +113,7 @@ public class Spawn extends Ritual
                 if (ent instanceof IBossDisplayData && !SanguineExtras.spawnableBossMobs)
                     return;
 
-                if (BloodUtils.drainSoulNetworkWithNausea(UUID.fromString(stone.getOwner()), (int) (ent.getMaxHealth() + ent.getMaxHealth() - ent.getHealth()) * cost * (ent instanceof IBossDisplayData ? 10 : 1)))
+                if (BloodUtils.drainSoulNetworkWithNausea(UUID.fromString(stone.getOwner()), (int) (ent.getMaxHealth() + ent.getMaxHealth() - ent.getHealth()) * cost * (ent instanceof IBossDisplayData ? 10 : 1), null))
                 {
 //                    this.canDrainReagent(stone, ReagentRegistry.terraeReagent, Drain.terrae, true);
 //                    this.canDrainReagent(stone, ReagentRegistry.orbisTerraeReagent, Drain.orbisTerrae, true);

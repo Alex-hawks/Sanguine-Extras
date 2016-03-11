@@ -37,6 +37,7 @@ public class ItemMobNet extends ItemBindable
         setCreativeTab(SanguineExtrasCreativeTab.Instance);
         this.setUnlocalizedName("sigilMobNet");
         this.setRegistryName("sigilMobNet");
+        this.setHasSubtypes(true);
     }
 
     @Override

@@ -6,6 +6,7 @@ import io.github.alex_hawks.SanguineExtras.common.network.chat_handler.HandlerDi
 import io.github.alex_hawks.SanguineExtras.common.network.chat_handler.MsgDisplayChat;
 import io.github.alex_hawks.SanguineExtras.common.network.entity_motion.HandlerEntityMotion;
 import io.github.alex_hawks.SanguineExtras.common.network.entity_motion.MsgEntityMotion;
+import io.github.alex_hawks.SanguineExtras.common.ritual_stones.marker.micro.MultipartStone;
 import io.github.alex_hawks.SanguineExtras.common.ritual_stones.marker.warded.WRSHandler;
 import io.github.alex_hawks.SanguineExtras.common.ritual_stones.master.advanced.AMRSHandler;
 import io.github.alex_hawks.SanguineExtras.common.ritual_stones.master.warded.WMRSHandler;
@@ -54,13 +55,16 @@ public class SanguineExtras
     {
         config = new Configuration(e.getSuggestedConfigurationFile());
         readConfig();
+
+        Items.initItems();
+        Blocks.initBlocks();
+
+        proxy.registerClientStuff();
     }
 
     @Mod.EventHandler
     public static void init(FMLInitializationEvent e)
     {
-        ModItems.initItems();
-        ModBlocks.initBlocks();
         RitualRegistry.registerRitual(new Spawn(), "SE001Spawner", spawnLpPerHealth >= 0 && spawnMaxEntities > 0);
         //Rituals.registerRitual("SE002TEST", 1, 0, new TestInteractableRitual(), "Superior Ritual of Testing");
 
@@ -72,10 +76,9 @@ public class SanguineExtras
         networkWrapper.registerMessage(HandlerDisplayChat.class, MsgDisplayChat.class, 0, Side.CLIENT);
         networkWrapper.registerMessage(HandlerEntityMotion.class, MsgEntityMotion.class, 1, Side.CLIENT);
 
-
         if (Loader.isModLoaded("mcmultipart"))
         {
-            MultipartRegistry.registerPartFactory(new MultipartFactory(), "sanguineExtras:MicroRitualStone");
+            MultipartRegistry.registerPartFactory(new MultipartFactory(), MultipartStone.NAME());
         }
     }
 
@@ -85,7 +88,6 @@ public class SanguineExtras
         Interdiction.addToPushConditional(IEntityOwnable.class, new PushHandlerTamable());
         //Interdiction.addToPushConditional(EnergyBlastProjectile.class, new PushHandlerEnergyBlastProjectile());
         Recipe.register();
-        proxy.registerClientStuff();
         NetworkRegistry.INSTANCE.registerGuiHandler(INSTANCE, proxy);
     }
 
@@ -102,7 +104,7 @@ public class SanguineExtras
         trappableBossMobs = config2.getBoolean("Trappable Boss Mobs", Configuration.CATEGORY_GENERAL, true, "Set to \"true\" if you want to be able to trap boss mobs at 10 times the LP cost");
         spawnableBossMobs = config2.getBoolean("Spawnable Boss Mobs", Configuration.CATEGORY_GENERAL, false, "Set to \"true\" if you want to be able to spawn boss mobs at 10 times the LP cost");
         spawnLpPerHealth = config2.getInt("Base Spawner LP Cost Per Health", Configuration.CATEGORY_GENERAL, 150, 118, 15000, "This is the lowest that the cost can go. If you don't use reagents, it drains double to spawn one mob, and this is per half heart that the mob has at max, plus what health it is missing as well");
-        spawnMaxEntities = config2.getInt("Max Entities in Spawner", Configuration.CATEGORY_GENERAL, 20, 1, 50, "The maximum number of entities inside the spawner's area of effect, before it gives up on spawning more. It only counts what it is currenly spawning. Divide by 10 if the mob in question is a boss");
+        spawnMaxEntities = config2.getInt("Max Entities in Spawner", Configuration.CATEGORY_GENERAL, 20, 0, 50, "The maximum number of entities inside the spawner's area of effect, before it gives up on spawning more. It only counts what it is currenly spawning. Divide by 10 if the mob in question is a boss. Set to 0 to disable the ritual.");
         interdictionRange = config2.getFloat("Interdiction Range", Configuration.CATEGORY_GENERAL, 5.0f, 0.5f, 10.0f, "Entities will be pushed away from you if they are closer than this many blocks, calculated using pythagorean theorem");
         opsCanBreakWardedBlocks = config2.getBoolean("Ops can break warded blocks", Configuration.CATEGORY_GENERAL, false, "set this to true if you want ops to be able to break the warded blocks when most others can't.");
 

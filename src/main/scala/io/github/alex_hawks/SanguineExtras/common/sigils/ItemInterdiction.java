@@ -37,6 +37,7 @@ public class ItemInterdiction extends ItemBindable
         setCreativeTab(SanguineExtrasCreativeTab.Instance);
         this.setUnlocalizedName("sigilInterdiction");
         this.setRegistryName("sigilInterdiction");
+        this.setHasSubtypes(true);
     }
 
     @Override

@@ -1,11 +1,10 @@
-package io.github.alex_hawks.SanguineExtras.client.handler
+package io.github.alex_hawks.SanguineExtras.client.util
 
 import WayofTime.bloodmagic.api.ritual.{IMasterRitualStone, RitualComponent}
 import WayofTime.bloodmagic.item.ItemRitualDiviner
 import WayofTime.bloodmagic.registry.ModBlocks
-import io.github.alex_hawks.SanguineExtras.client.util.Render
 import io.github.alex_hawks.SanguineExtras.common.util.BloodUtils
-import io.github.alex_hawks.util.Vector3
+import io.github.alex_hawks.util.minecraft.common.Vector3
 import net.minecraft.client.Minecraft
 import net.minecraft.client.entity.EntityPlayerSP
 import net.minecraft.tileentity.TileEntity

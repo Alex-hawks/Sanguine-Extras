@@ -1,4 +1,4 @@
-package io.github.alex_hawks.util
+package io.github.alex_hawks.util.minecraft.common
 
 import net.minecraft.util.{BlockPos, EnumFacing}
 

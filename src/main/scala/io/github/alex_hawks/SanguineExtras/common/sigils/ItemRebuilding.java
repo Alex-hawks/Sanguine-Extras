@@ -9,7 +9,7 @@ import WayofTime.bloodmagic.util.helper.TextHelper;
 import com.google.common.base.Strings;
 import io.github.alex_hawks.SanguineExtras.common.sigil_utils.UtilsRebuilding;
 import io.github.alex_hawks.SanguineExtras.common.util.SanguineExtrasCreativeTab;
-import io.github.alex_hawks.util.Vector3;
+import io.github.alex_hawks.util.minecraft.common.Vector3;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;

@@ -4,7 +4,6 @@ import WayofTime.bloodmagic.api.ritual.EnumRuneType;
 import WayofTime.bloodmagic.api.ritual.IRitualStone;
 import WayofTime.bloodmagic.block.BlockRitualStone;
 import WayofTime.bloodmagic.block.base.BlockStringContainer;
-import WayofTime.bloodmagic.registry.ModBlocks;
 import io.github.alex_hawks.SanguineExtras.common.Constants;
 import io.github.alex_hawks.SanguineExtras.common.util.SanguineExtrasCreativeTab;
 import net.minecraft.block.material.Material;
@@ -20,7 +19,7 @@ public class BlockWardedRitualStone extends BlockStringContainer implements IRit
     public BlockWardedRitualStone()
     {
         super(Material.iron, names);
-        this.setRegistryName(Constants.MetaData.MOD_ID, "WardedRitualStone");
+        this.setRegistryName(Constants.MetaData.MOD_ID, "wardedRitualStone");
         setCreativeTab(SanguineExtrasCreativeTab.Instance);
 
         setUnlocalizedName(Constants.MetaData.MOD_ID + ".ritualStone.");

@@ -1,0 +1,35 @@
+{
+  "forge_marker": 1,
+  "defaults": {
+    "model": "sanguineextras:chest"
+  },
+  "variants": {
+    "type": {
+      "0": {
+        "textures": {
+          "all": "sanguineextras:model/chest0"
+        }
+      },
+      "1": {
+        "textures": {
+          "all": "sanguineextras:model/chest0"
+        }
+      },
+      "2": {
+        "textures": {
+          "all": "sanguineextras:model/chest0"
+        }
+      },
+      "3": {
+        "textures": {
+          "all": "sanguineextras:model/chest0"
+        }
+      },
+      "4": {
+        "textures": {
+          "all": "sanguineextras:model/chest0"
+        }
+      }
+    }
+  }
+}

@@ -1,4 +1,4 @@
-package io.github.alex_hawks.SanguineExtras.common.util;
+package io.github.alex_hawks.util.minecraft.common;
 
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.item.ItemStack;

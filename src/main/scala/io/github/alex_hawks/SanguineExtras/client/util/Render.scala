@@ -1,6 +1,6 @@
 package io.github.alex_hawks.SanguineExtras.client.util
 
-import io.github.alex_hawks.util.Vector3
+import io.github.alex_hawks.util.minecraft.common.Vector3
 import net.minecraft.block.state.IBlockState
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats

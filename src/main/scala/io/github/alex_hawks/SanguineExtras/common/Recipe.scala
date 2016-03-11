@@ -7,10 +7,11 @@ import WayofTime.bloodmagic.api.registry.{AltarRecipeRegistry, OrbRegistry}
 import WayofTime.bloodmagic.registry.ModBlocks._
 import WayofTime.bloodmagic.registry.ModItems._
 import net.minecraft.block.Block
-import net.minecraft.init.Items
+import net.minecraft.init.{Items => MCItems}
 import net.minecraft.item.{Item, ItemStack}
 import net.minecraftforge.fml.common.Loader
 import net.minecraftforge.fml.common.registry.GameRegistry
+import io.github.alex_hawks.SanguineExtras.common.{Items => ModItems, Blocks => ModBlocks}
 
 object Recipe {
   def register {
@@ -20,13 +21,13 @@ object Recipe {
   }
 
   def registerCrafting {
-    GameRegistry.addRecipe(new ShapedBloodOrbRecipe(s(ModItems.SigilDestruction, 0), "!@#", "$$$", "$%$", c("!"), Items.wooden_shovel, c("@"), Items.wooden_pickaxe, c("#"), Items.wooden_axe, c("$"), Slate(0), c("%"), OrbRegistry.getOrbStack(orbWeak)))
-    GameRegistry.addRecipe(new ShapedBloodOrbRecipe(s(ModItems.SigilDestruction, 1), "!@#", "$^$", "$%$", c("!"), Items.stone_shovel, c("@"), Items.stone_pickaxe, c("#"), Items.stone_axe, c("$"), Slate(1), c("%"), OrbRegistry.getOrbStack(orbApprentice), c("^"), s(ModItems.SigilDestruction, 0)))
-    GameRegistry.addRecipe(new ShapedBloodOrbRecipe(s(ModItems.SigilDestruction, 2), "!@#", "$^$", "$%$", c("!"), Items.iron_shovel, c("@"), Items.iron_shovel, c("#"), Items.iron_axe, c("$"), Slate(2), c("%"), OrbRegistry.getOrbStack(orbMagician), c("^"), s(ModItems.SigilDestruction, 1)))
-    GameRegistry.addRecipe(new ShapedBloodOrbRecipe(s(ModItems.SigilDestruction, 3), "!@#", "$^$", "$%$", c("!"), Items.diamond_shovel, c("@"), Items.diamond_pickaxe, c("#"), Items.diamond_axe, c("$"), Slate(3), c("%"), OrbRegistry.getOrbStack(orbMaster), c("^"), s(ModItems.SigilDestruction, 2)))
+    GameRegistry.addRecipe(new ShapedBloodOrbRecipe(s(ModItems.SigilDestruction, 0), "!@#", "$$$", "$%$", c("!"), MCItems.wooden_shovel, c("@"), MCItems.wooden_pickaxe, c("#"), MCItems.wooden_axe, c("$"), Slate(0), c("%"), OrbRegistry.getOrbStack(orbWeak)))
+    GameRegistry.addRecipe(new ShapedBloodOrbRecipe(s(ModItems.SigilDestruction, 1), "!@#", "$^$", "$%$", c("!"), MCItems.stone_shovel, c("@"), MCItems.stone_pickaxe, c("#"), MCItems.stone_axe, c("$"), Slate(1), c("%"), OrbRegistry.getOrbStack(orbApprentice), c("^"), s(ModItems.SigilDestruction, 0)))
+    GameRegistry.addRecipe(new ShapedBloodOrbRecipe(s(ModItems.SigilDestruction, 2), "!@#", "$^$", "$%$", c("!"), MCItems.iron_shovel, c("@"), MCItems.iron_shovel, c("#"), MCItems.iron_axe, c("$"), Slate(2), c("%"), OrbRegistry.getOrbStack(orbMagician), c("^"), s(ModItems.SigilDestruction, 1)))
+    GameRegistry.addRecipe(new ShapedBloodOrbRecipe(s(ModItems.SigilDestruction, 3), "!@#", "$^$", "$%$", c("!"), MCItems.diamond_shovel, c("@"), MCItems.diamond_pickaxe, c("#"), MCItems.diamond_axe, c("$"), Slate(3), c("%"), OrbRegistry.getOrbStack(orbMaster), c("^"), s(ModItems.SigilDestruction, 2)))
     GameRegistry.addRecipe(new ShapedBloodOrbRecipe(s(ModItems.SigilDestruction, 4), "!@#", "$^$", "$%$", c("!"), boundShovel, c("@"), boundPickaxe, c("#"), boundAxe, c("$"), s(bloodShard, 1), c("%"), OrbRegistry.getOrbStack(orbArchmage), c("^"), s(ModItems.SigilDestruction, 3)))
     GameRegistry.addRecipe(new ShapedBloodOrbRecipe(s(ModItems.SigilDestruction, 5), "!@#", "$^$", "$%$", c("!"), boundShovel, c("@"), boundPickaxe, c("#"), boundAxe, c("$"), s(bloodShard, 1), c("%"), OrbRegistry.getOrbStack(orbTranscendent), c("^"), s(ModItems.SigilDestruction, 4)))
-    GameRegistry.addRecipe(new ShapedBloodOrbRecipe(s(ModItems.SigilMobNet), "!!!", "!@!", "!#!", c("!"), Slate(1), c("@"), Items.ender_pearl, c("#"), OrbRegistry.getOrbStack(orbMagician)))
+    GameRegistry.addRecipe(new ShapedBloodOrbRecipe(s(ModItems.SigilMobNet), "!!!", "!@!", "!#!", c("!"), Slate(1), c("@"), MCItems.ender_pearl, c("#"), OrbRegistry.getOrbStack(orbMagician)))
 
     GameRegistry.addRecipe(new ShapedBloodOrbRecipe(s(ModBlocks.WardedRitualStone, 4), "!@!", "@#@", "!@!", c("!"), Slate(1), c("@"), ritualStone, c("#"), OrbRegistry.getOrbStack(orbMaster)))
     GameRegistry.addRecipe(new ShapedBloodOrbRecipe(s(ModBlocks.WardedMRS), "!@!", "@#@", "!@!", c("!"), Slate(3), c("@"), OrbRegistry.getOrbStack(orbMaster), c("#"), ritualController))

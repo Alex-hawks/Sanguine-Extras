@@ -10,39 +10,44 @@ import WayofTime.bloodmagic.api.util.helper.PlayerHelper;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
 
 public class BloodUtils
 {
-    public static boolean drainSoulNetwork(UUID player, int amount)
+    public static boolean drainSoulNetwork(UUID player, int amount, EntityPlayer user)
     {
-        return NetworkHelper.getSoulNetwork(player.toString()).syphon(amount) >= amount;
+        if (user == null)
+            return NetworkHelper.getSoulNetwork(player.toString()).syphon(amount) >= amount;
+        else
+            return user.capabilities.isCreativeMode ? true : NetworkHelper.getSoulNetwork(player.toString()).syphon(amount) >= amount;
     }
 
-    public static boolean drainSoulNetworkWithNausea(UUID player, int amount)
+    public static boolean drainSoulNetworkWithNausea(UUID player, int amount, EntityPlayer user)
     {
+        if (user != null && user.capabilities.isCreativeMode)
+            return true;
+
         boolean b = NetworkHelper.getSoulNetwork(player.toString()).syphon(amount) >= amount;
 
         if (!b)
         {
             EntityPlayer owner = PlayerHelper.getPlayerFromUUID(player);
             if (owner != null)
-            {
                 owner.addPotionEffect(new PotionEffect(Potion.confusion.getId(), 99));
-            }
         }
 
         return b;
     }
 
-    public static boolean drainSoulNetworkWithDamage(UUID owner, EntityPlayer player, int amount)
+    public static boolean drainSoulNetworkWithDamage(UUID owner, @NotNull EntityPlayer player, int amount)
     {
+        if (player.capabilities.isCreativeMode)
+            return true;
         if (player.worldObj.isRemote)
-        {
             return false;
-        }
 
         SoulNetwork n = NetworkHelper.getSoulNetwork(owner.toString());
 

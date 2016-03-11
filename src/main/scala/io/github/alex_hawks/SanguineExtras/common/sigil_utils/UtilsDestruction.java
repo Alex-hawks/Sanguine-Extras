@@ -1,7 +1,7 @@
 package io.github.alex_hawks.SanguineExtras.common.sigil_utils;
 
 import io.github.alex_hawks.SanguineExtras.common.util.BloodUtils;
-import io.github.alex_hawks.util.Vector3;
+import io.github.alex_hawks.util.minecraft.common.Vector3;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.item.EntityXPOrb;
 import net.minecraft.entity.player.EntityPlayer;
@@ -92,7 +92,7 @@ public class UtilsDestruction
 
             if (!MinecraftForge.EVENT_BUS.post(e))
             {
-                if (BloodUtils.drainSoulNetwork(sigilOwner, ++blocks))
+                if (BloodUtils.drainSoulNetwork(sigilOwner, ++blocks, p))
                 {
                     List<ItemStack> drops = b.getBlock().getDrops(w, v.toPos(), b, 0);
                     w.setBlockToAir(v.toPos());

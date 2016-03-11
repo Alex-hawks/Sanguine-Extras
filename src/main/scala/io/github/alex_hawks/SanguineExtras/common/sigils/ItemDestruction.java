@@ -9,7 +9,7 @@ import com.google.common.base.Strings;
 import io.github.alex_hawks.SanguineExtras.common.sigil_utils.UtilsDestruction;
 import io.github.alex_hawks.SanguineExtras.common.util.BloodUtils;
 import io.github.alex_hawks.SanguineExtras.common.util.SanguineExtrasCreativeTab;
-import io.github.alex_hawks.util.Vector3;
+import io.github.alex_hawks.util.minecraft.common.Vector3;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -35,6 +35,7 @@ public class ItemDestruction extends ItemBindable
         setCreativeTab(SanguineExtrasCreativeTab.Instance);
         this.setUnlocalizedName("sigilDestruction");
         this.setRegistryName("sigilDestruction");
+        this.setHasSubtypes(true);
     }
 
     @Override

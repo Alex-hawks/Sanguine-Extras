@@ -9,7 +9,7 @@ import net.minecraft.network.PacketBuffer
 
 class MultipartFactory extends IAdvancedPartFactory {
   override def createPart(name: String, buf: PacketBuffer): IMultipart = name match {
-    case "sanguineExtras:MicroRitualStone" => {
+    case MultipartStone.NAME => {
       val stone: MultipartStone = new MultipartStone
       stone.runeType.setRuneType(EnumRuneType.byMetadata(buf.readByte()))
       stone
@@ -17,7 +17,7 @@ class MultipartFactory extends IAdvancedPartFactory {
   }
 
   override def createPart(name: String, tag: NBTTagCompound): IMultipart = name match {
-    case "sanguineExtras:MicroRitualStone" => {
+    case MultipartStone.NAME => {
       val stone: MultipartStone = new MultipartStone
       stone.runeType.setRuneType(EnumRuneType.byMetadata(tag.getByte("runeType")))
       stone

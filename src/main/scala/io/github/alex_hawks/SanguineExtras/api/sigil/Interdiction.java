@@ -49,10 +49,7 @@ public class Interdiction
         try
         {
             addToPushAllow(Class.forName(name));
-        } catch (ClassNotFoundException e)
-        {
-            e.printStackTrace();
-        }
+        } catch (ClassNotFoundException e) { }
     }
 
     public static void addToPushConditional(String name, IPushCondition handler)
@@ -60,21 +57,15 @@ public class Interdiction
         try
         {
             addToPushConditional(Class.forName(name), handler);
-        } catch (ClassNotFoundException e)
-        {
-            e.printStackTrace();
-        }
+        } catch (ClassNotFoundException e) { }
     }
 
     public static void addToPushDeny(String name)
     {
         try
         {
-            addToPushAllow(Class.forName(name));
-        } catch (ClassNotFoundException e)
-        {
-            e.printStackTrace();
-        }
+            addToPushDeny(Class.forName(name));
+        } catch (ClassNotFoundException e) { }
     }
 
     public static boolean isPushAllowed(Entity e, EntityPlayer pushedBy)

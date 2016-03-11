@@ -1,6 +1,5 @@
 package io.github.alex_hawks.SanguineExtras.client.constructs
 
-import io.github.alex_hawks.SanguineExtras.client.constructs.RenderChest._
 import io.github.alex_hawks.SanguineExtras.common.constructs.Chest.textureLocGui
 import io.github.alex_hawks.SanguineExtras.common.constructs.{ContainerChest, TileChest}
 import net.minecraft.client.gui.inventory.GuiContainer
@@ -10,7 +9,7 @@ import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.util.ResourceLocation
 import org.lwjgl.opengl.GL11
 
-object RenderChest {
+object RenderChest extends {
   val size = 0.35f
   val model = new ModelChest
   val chestpng0 = new ResourceLocation("sanguineextras:textures/model/chest0.png")
@@ -24,12 +23,8 @@ object RenderChest {
   //  TODO make my chest texture
   val chestpngVanilla = new ResourceLocation("textures/entity/chest/normal.png")
   val pixel = 0.0625f
-}
-
-class RenderChest extends TileEntitySpecialRenderer[TileChest] {
-
-  override def renderTileEntityAt(te: TileChest, X: Double, Y: Double, Z: Double, partialTickTime: Float, destroyStage: Int) = {
-    val ch = te.asInstanceOf[TileChest]
+} with TileEntitySpecialRenderer[TileChest] {
+  override def renderTileEntityAt(ch: TileChest, X: Double, Y: Double, Z: Double, partialTickTime: Float, destroyStage: Int) = {
 
     GL11.glPushMatrix
     GL11.glTranslated(X + 0.5, Y + 0.625 + ch.height, Z + 0.5)
@@ -50,7 +45,7 @@ class RenderChest extends TileEntitySpecialRenderer[TileChest] {
     val minZ = z - size
     val maxZ = z + size
 
-    this.bindTexture(te.getBlockMetadata match {
+    bindTexture(ch.getBlockMetadata match {
       case 0 => chestpng0
       case 1 => chestpng0
       case 2 => chestpng0
