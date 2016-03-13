@@ -68,3 +68,10 @@ pun.se.sigil.destruction=Do you want to build a Mineshaft?
 pun.se.sigil.interdiction=Get away from me!
 pun.se.sigil.mobnet=What is it really like inside?
 pun.se.sigil.rebuilding=Let's take this, and replace it with that.
+
+
+##  Rituals
+ritual.SanguineExtras.spawn=Ritual of Re-creation
+ritual.SanguineExtras.test=Superior Ritual of Testing
+ritual.SanguineExtras.forge=Sanguine Forge
+

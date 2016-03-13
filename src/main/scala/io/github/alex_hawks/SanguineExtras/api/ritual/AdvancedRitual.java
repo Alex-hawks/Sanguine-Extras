@@ -2,12 +2,20 @@ package io.github.alex_hawks.SanguineExtras.api.ritual;
 
 import WayofTime.bloodmagic.api.ritual.IMasterRitualStone;
 import WayofTime.bloodmagic.api.ritual.Ritual;
+import WayofTime.bloodmagic.api.ritual.RitualRenderer;
+import lombok.RequiredArgsConstructor;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 
-public abstract class InteractableRitualEffect extends Ritual
+
+public abstract class AdvancedRitual extends Ritual
 {
-    public InteractableRitualEffect(String name, int crystalLevel, int activationCost, String unlocalizedName)
+    public AdvancedRitual(String name, int crystalLevel, int activationCost, RitualRenderer renderer, String unlocalizedName)
+    {
+        super(name, crystalLevel, activationCost, renderer, unlocalizedName);
+    }
+
+    public AdvancedRitual(String name, int crystalLevel, int activationCost, String unlocalizedName)
     {
         super(name, crystalLevel, activationCost, unlocalizedName);
     }
@@ -22,10 +30,7 @@ public abstract class InteractableRitualEffect extends Ritual
         return false;
     }
 
-    public void onCollideWith(IAdvancedMasterRitualStone mrs, Entity ent)
-    {
-
-    }
+    public void onCollideWith(IAdvancedMasterRitualStone mrs, Entity ent) { }
 
     @Override
     public final boolean activateRitual(IMasterRitualStone ritualStone, EntityPlayer player, String owner)
@@ -33,8 +38,5 @@ public abstract class InteractableRitualEffect extends Ritual
         return ritualStone instanceof IAdvancedMasterRitualStone && start((IAdvancedMasterRitualStone) ritualStone, player, owner);
     }
 
-    public boolean start(IAdvancedMasterRitualStone masterRitualStone, EntityPlayer player, String owner)
-    {
-        return true;
-    }
+    public boolean start(IAdvancedMasterRitualStone masterRitualStone, EntityPlayer player, String owner) { return true; }
 }

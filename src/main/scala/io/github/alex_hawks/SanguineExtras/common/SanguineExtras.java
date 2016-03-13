@@ -11,6 +11,8 @@ import io.github.alex_hawks.SanguineExtras.common.ritual_stones.marker.warded.WR
 import io.github.alex_hawks.SanguineExtras.common.ritual_stones.master.advanced.AMRSHandler;
 import io.github.alex_hawks.SanguineExtras.common.ritual_stones.master.warded.WMRSHandler;
 import io.github.alex_hawks.SanguineExtras.common.rituals.basic.Spawn;
+import io.github.alex_hawks.SanguineExtras.common.rituals.advanced.Forge;
+import io.github.alex_hawks.SanguineExtras.common.rituals.advanced.Test;
 import io.github.alex_hawks.SanguineExtras.common.sigil_utils.interdiction.PushHandlerTamable;
 import io.github.alex_hawks.SanguineExtras.common.util.MultipartFactory;
 import mcmultipart.multipart.MultipartRegistry;
@@ -65,8 +67,9 @@ public class SanguineExtras
     @Mod.EventHandler
     public static void init(FMLInitializationEvent e)
     {
-        RitualRegistry.registerRitual(new Spawn(), "SE001Spawner", spawnLpPerHealth >= 0 && spawnMaxEntities > 0);
-        //Rituals.registerRitual("SE002TEST", 1, 0, new TestInteractableRitual(), "Superior Ritual of Testing");
+        RitualRegistry.registerRitual(new Spawn(), Spawn.name, spawnLpPerHealth >= 0 && spawnMaxEntities > 0);
+        RitualRegistry.registerRitual(new Test(), Test.name, true);
+        RitualRegistry.registerRitual(new Forge(), Forge.name(), true);
 
         MinecraftForge.EVENT_BUS.register(new AMRSHandler());
         MinecraftForge.EVENT_BUS.register(new WMRSHandler());

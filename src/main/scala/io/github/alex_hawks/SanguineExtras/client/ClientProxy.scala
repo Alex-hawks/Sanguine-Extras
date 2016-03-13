@@ -6,12 +6,11 @@ import io.github.alex_hawks.SanguineExtras.client.constructs.{GuiChest, RenderCh
 import io.github.alex_hawks.SanguineExtras.client.sigil_utils.UtilsBuilding
 import io.github.alex_hawks.SanguineExtras.common.{CommonProxy, Constants}
 import io.github.alex_hawks.SanguineExtras.common.constructs.{BlockChest, TileChest, Chest}
-import io.github.alex_hawks.util.minecraft.client.MetaMesh
 import net.minecraft.client.renderer.ItemMeshDefinition
 import net.minecraft.client.resources.model.ModelResourceLocation
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.item.{ItemStack, Item}
-import net.minecraft.util.{ResourceLocation, BlockPos}
+import net.minecraft.util.BlockPos
 import net.minecraft.world.World
 import net.minecraftforge.client.model.ModelLoader
 import net.minecraftforge.common.MinecraftForge

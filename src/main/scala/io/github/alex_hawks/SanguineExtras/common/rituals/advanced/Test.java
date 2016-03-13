@@ -1,21 +1,23 @@
-package io.github.alex_hawks.SanguineExtras.common.rituals.interactable;
+package io.github.alex_hawks.SanguineExtras.common.rituals.advanced;
 
 import WayofTime.bloodmagic.api.ritual.EnumRuneType;
 import WayofTime.bloodmagic.api.ritual.IMasterRitualStone;
 import WayofTime.bloodmagic.api.ritual.Ritual;
 import WayofTime.bloodmagic.api.ritual.RitualComponent;
 import io.github.alex_hawks.SanguineExtras.api.ritual.IAdvancedMasterRitualStone;
-import io.github.alex_hawks.SanguineExtras.api.ritual.InteractableRitualEffect;
+import io.github.alex_hawks.SanguineExtras.api.ritual.AdvancedRitual;
 import io.github.alex_hawks.SanguineExtras.common.Constants;
+import net.minecraft.entity.Entity;
 
 import java.util.ArrayList;
 
-public class Test extends InteractableRitualEffect
+public class Test extends AdvancedRitual
 {
+    public static final String name = "SE002TEST";
 
     public Test()
     {
-        super("SE002Test", 0, 100, "ritual." + Constants.MetaData.MOD_ID + ".test");
+        super(name, 0, 100, "ritual." + Constants.MetaData.MOD_ID + ".test");
     }
 
     @Override
@@ -29,7 +31,7 @@ public class Test extends InteractableRitualEffect
     {
         ArrayList<RitualComponent> ls = new ArrayList<RitualComponent>();
 
-        this.addRune(ls, 0, 1, 0, EnumRuneType.AIR);
+        this.addRune(ls, 0, -1, 0, EnumRuneType.AIR);
 
         return ls;
     }
@@ -52,6 +54,12 @@ public class Test extends InteractableRitualEffect
     {
         System.out.println("Left Click");
         return true;
+    }
+
+    @Override
+    public void onCollideWith(IAdvancedMasterRitualStone mrs, Entity ent)
+    {
+        System.out.println("A " + ent.getName() + " collided with the stone");
     }
 
     @Override

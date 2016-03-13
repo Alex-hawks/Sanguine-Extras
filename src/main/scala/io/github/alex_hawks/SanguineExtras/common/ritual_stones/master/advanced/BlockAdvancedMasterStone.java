@@ -13,6 +13,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.Explosion;
@@ -23,6 +24,8 @@ import net.minecraft.world.World;
  */
 public class BlockAdvancedMasterStone extends BlockContainer
 {
+    public static final double SMALL_NUMBER = 0.00000000000001;
+
 
     public BlockAdvancedMasterStone()
     {
@@ -92,16 +95,14 @@ public class BlockAdvancedMasterStone extends BlockContainer
     }
 
     @Override
-    public void onEntityCollidedWithBlock(World w, BlockPos pos, Entity ent)
+    public void onEntityCollidedWithBlock(World w, BlockPos pos, IBlockState state, Entity ent)
     {
         TileEntity te = w.getTileEntity(pos);
         if (te instanceof TEAdvancedMasterStone)
-        {
             AMRSHandler.onCollide((TEAdvancedMasterStone) te, ent);
-        } else
-        {
-            System.out.println("Please give the following stacktrace to the creator of the mod");
-            ((TEAdvancedMasterStone) te).isActive();    // yes. if this code is reached, it will always throw either a NPE or a ClassCastException. It should never be reached though...
-        }
+    }
+
+    public AxisAlignedBB getCollisionBoundingBox(World world, BlockPos pos, IBlockState state) {
+        return new AxisAlignedBB(SMALL_NUMBER, SMALL_NUMBER, SMALL_NUMBER, 16 - SMALL_NUMBER, 16 - SMALL_NUMBER, 16 - SMALL_NUMBER);
     }
 }

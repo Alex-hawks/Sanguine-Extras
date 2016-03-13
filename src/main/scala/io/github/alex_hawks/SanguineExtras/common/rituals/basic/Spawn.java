@@ -26,9 +26,11 @@ import static WayofTime.bloodmagic.api.ritual.EnumRuneType.*;
 
 public class Spawn extends Ritual
 {
+    public static final String name = "SE001Spawner";
+
     public Spawn()
     {
-        super("SE001Spawner", 2, 250000, "ritual." + Constants.MetaData.MOD_ID + ".spawnRitual");
+        super(name, 2, 250000, "ritual." + Constants.MetaData.MOD_ID + ".spawn");
     }
 
     public static final class Drain

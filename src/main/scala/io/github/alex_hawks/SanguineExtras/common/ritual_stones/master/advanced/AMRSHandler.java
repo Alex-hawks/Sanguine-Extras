@@ -1,7 +1,8 @@
 package io.github.alex_hawks.SanguineExtras.common.ritual_stones.master.advanced;
 
 import WayofTime.bloodmagic.api.ritual.Ritual;
-import io.github.alex_hawks.SanguineExtras.api.ritual.InteractableRitualEffect;
+import io.github.alex_hawks.SanguineExtras.api.ritual.AdvancedRitual;
+import io.github.alex_hawks.SanguineExtras.api.ritual.IAdvancedMasterRitualStone;
 import net.minecraft.entity.Entity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
@@ -15,28 +16,28 @@ public class AMRSHandler
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onPlayerClick(PlayerInteractEvent e)
     {
-        if (e.useBlock != Event.Result.ALLOW)
+        if (e.useBlock == Event.Result.DENY || e.world.isRemote)
             return;
         TileEntity te = e.world.getTileEntity(e.pos);
 
-        if (!(te instanceof TEAdvancedMasterStone))
+        if (!(te instanceof IAdvancedMasterRitualStone))
             return;
 
-        Ritual ritual = ((TEAdvancedMasterStone) te).getCurrentRitual();
+        Ritual ritual = ((IAdvancedMasterRitualStone) te).getCurrentRitual();
 
         if (ritual == null)
             return;
 
-        if (ritual instanceof InteractableRitualEffect)
+        if (ritual instanceof AdvancedRitual)
         {
             if (e.action == Action.LEFT_CLICK_BLOCK)
-                ((InteractableRitualEffect) ritual).onLeftClick((TEAdvancedMasterStone) te);
+                ((AdvancedRitual) ritual).onLeftClick((IAdvancedMasterRitualStone) te);
             if (e.action == Action.RIGHT_CLICK_BLOCK)
-                ((InteractableRitualEffect) ritual).onRightClick((TEAdvancedMasterStone) te);
+                ((AdvancedRitual) ritual).onRightClick((IAdvancedMasterRitualStone) te);
         }
     }
 
-    public static void onCollide(TEAdvancedMasterStone mrs, Entity ent)
+    public static void onCollide(IAdvancedMasterRitualStone mrs, Entity ent)
     {
         if (mrs == null)
             return;
@@ -46,9 +47,9 @@ public class AMRSHandler
         if (ritual == null)
             return;
 
-        if (ritual instanceof InteractableRitualEffect)
+        if (ritual instanceof AdvancedRitual)
         {
-            ((InteractableRitualEffect) ritual).onCollideWith(mrs, ent);
+            ((AdvancedRitual) ritual).onCollideWith(mrs, ent);
         }
     }
 }
