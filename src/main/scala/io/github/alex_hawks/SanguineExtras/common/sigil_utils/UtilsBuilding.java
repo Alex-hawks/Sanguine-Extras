@@ -6,9 +6,8 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.Set;
+import javax.annotation.Nonnull;
+import java.util.*;
 
 import static net.minecraft.util.EnumFacing.*;
 
@@ -17,9 +16,9 @@ public class UtilsBuilding
     static final int QUARTER_CIRCLE = 90;
     static final EnumFacing[] YAW_ROTATION = {SOUTH, WEST, NORTH, EAST};
 
-    public static Set<Vector3> getBlocksForBuild(World w, Vector3 v, EnumFacing d, EntityPlayer player, int limit)
+    public static Map<Integer, Set<Vector3>> getBlocksForBuild(World w, Vector3 v, EnumFacing d, EntityPlayer player, int limit)
     {
-        Set<Vector3> ls = new HashSet<Vector3>();
+        Set<Vector3> ls = new HashSet<>();
 
         IBlockState state = w.getBlockState(v.toPos());
 
@@ -50,9 +49,13 @@ public class UtilsBuilding
 
         Set<Vector3> buffer;
 
-        for (int i = 0; i < limit; i++)
+        Map<Integer, Set<Vector3>> m = new HashMap<>();
+        m.put(0, new HashSet<>(ls));
+
+        for (int i = 1; i <= limit; i++)
         {
-            buffer = new HashSet<Vector3>(ls);
+            buffer = new HashSet<>(ls);
+            m.put(i, new HashSet<>());
 
             for (Vector3 v3 : buffer)
             {
@@ -64,14 +67,16 @@ public class UtilsBuilding
                     if (origin.equals(state) && check.getBlock().isReplaceable(w, v3.shift(dir).toPos()))
                     {
                         ls.add(v3.shift(dir));
+                        m.get(i).add(v3.shift(dir));
+
                         if (ls.size() >= limit)
-                            return ls;
+                            return m;
                     }
                 }
             }
         }
 
-        return ls;
+        return m;
     }
 
     public static EnumFacing getDir(int i)

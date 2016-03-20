@@ -7,6 +7,7 @@ import WayofTime.bloodmagic.api.ritual.EnumRuneType._
 import WayofTime.bloodmagic.api.ritual.{IMasterRitualStone, Ritual, RitualComponent}
 import io.github.alex_hawks.SanguineExtras.api.ritual.{IAdvancedMasterRitualStone, AdvancedRitual}
 import io.github.alex_hawks.SanguineExtras.common.Constants
+import io.github.alex_hawks.SanguineExtras.common.rituals.CommonHelpers.ForgeCommon
 import io.github.alex_hawks.SanguineExtras.common.util.BloodUtils
 import io.github.alex_hawks.util.minecraft.common.Vector3
 import net.minecraft.entity.Entity
@@ -27,9 +28,10 @@ object Forge {
   val baseSmeltTime = 80
   val baseSmeltCost = 200
   val name = "SE003Forge"
+  val activationCost = 10000
 }
 
-class Forge extends AdvancedRitual(name, 0, 100, s"ritual.${Constants.MetaData.MOD_ID}.forge") {
+class Forge extends AdvancedRitual(name, 0, activationCost, s"ritual.${Constants.MetaData.MOD_ID}.forge") {
 
   private val inputs = new util.ArrayList[ItemStack]
   private val outputs = new util.ArrayList[ItemStack]

@@ -7,6 +7,7 @@ import WayofTime.bloodmagic.registry.ModItems;
 import WayofTime.bloodmagic.tile.TileMasterRitualStone;
 import WayofTime.bloodmagic.util.ChatUtil;
 import io.github.alex_hawks.SanguineExtras.common.util.SanguineExtrasCreativeTab;
+import io.github.alex_hawks.util.minecraft.common.Vector3;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -103,6 +104,6 @@ public class BlockAdvancedMasterStone extends BlockContainer
     }
 
     public AxisAlignedBB getCollisionBoundingBox(World world, BlockPos pos, IBlockState state) {
-        return new AxisAlignedBB(SMALL_NUMBER, SMALL_NUMBER, SMALL_NUMBER, 16 - SMALL_NUMBER, 16 - SMALL_NUMBER, 16 - SMALL_NUMBER);
+        return new Vector3(pos).shiftAABB(new AxisAlignedBB(SMALL_NUMBER, SMALL_NUMBER, SMALL_NUMBER, 16 - SMALL_NUMBER, 16 - SMALL_NUMBER, 16 - SMALL_NUMBER));
     }
 }

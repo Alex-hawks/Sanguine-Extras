@@ -1,6 +1,6 @@
 package io.github.alex_hawks.util.minecraft.common
 
-import net.minecraft.util.{BlockPos, EnumFacing}
+import net.minecraft.util.{AxisAlignedBB, BlockPos, EnumFacing}
 
 class Vector3(val x: Int, val y: Int, val z: Int) {
 
@@ -11,7 +11,7 @@ class Vector3(val x: Int, val y: Int, val z: Int) {
 
   def +(that: Vector3): Vector3 = new Vector3(this.x + that.x, this.y + that.y, this.z + that.z)
 
-  override def toString = s"V3(${x}},${y}},${z}})"
+  override def toString = s"V3(${x},${y},${z})"
 
   def canEqual(other: Any): Boolean = other.isInstanceOf[Vector3]
 
@@ -32,6 +32,11 @@ class Vector3(val x: Int, val y: Int, val z: Int) {
   def toPos: BlockPos = new BlockPos(this.x, this.y, this.z)
 
   def shift(dir: EnumFacing): Vector3 = this +(dir.getFrontOffsetX, dir.getFrontOffsetY, dir.getFrontOffsetZ)
+
+  def shiftAABB(aabb: AxisAlignedBB):AxisAlignedBB = {
+    import aabb._
+    new AxisAlignedBB(minX + x, minY + y, minZ + z, maxX + x, maxY + y, maxZ + z)
+  }
 
 
 }

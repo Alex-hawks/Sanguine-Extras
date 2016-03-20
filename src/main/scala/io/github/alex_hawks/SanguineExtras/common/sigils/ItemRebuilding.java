@@ -20,6 +20,8 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import static io.github.alex_hawks.SanguineExtras.common.package$.MODULE$;
@@ -73,7 +75,7 @@ public class ItemRebuilding extends ItemBindable implements ISigil
             return true;
         } else
         {
-            List<Vector3> toReplace = UtilsRebuilding.find(pos, w);
+            Map<Integer, Set<Vector3>> toReplace = UtilsRebuilding.find(pos, w);
             if (getNewBlock(stack) != null)
                 UtilsRebuilding.doReplace(player, UUID.fromString(getBindableOwner(stack)), toReplace, w, w.getBlockState(pos), getNewBlock(stack));
             return true;
@@ -87,9 +89,8 @@ public class ItemRebuilding extends ItemBindable implements ISigil
         if (w.isRemote)
             return true;
 
-        Vector3[] toReplace = new Vector3[]{new Vector3(pos)};
         if (getNewBlock(stack) != null)
-            UtilsRebuilding.doReplace(player, UUID.fromString(getBindableOwner(stack)), toReplace, w, w.getBlockState(pos), getNewBlock(stack));
+            UtilsRebuilding.doReplace(player, UUID.fromString(getBindableOwner(stack)), new Vector3(pos), w, w.getBlockState(pos), getNewBlock(stack));
         return true;
     }
 

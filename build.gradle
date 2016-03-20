@@ -20,6 +20,11 @@ apply plugin: 'net.minecraftforge.gradle.forge'
 apply plugin: 'scala'
 apply plugin: 'maven-publish'
 
+compileScala {
+    sourceCompatibility = '1.8'
+    targetCompatibility = '1.8'
+}
+
 
 def build_number = 'CUSTOM'
 
@@ -55,7 +60,18 @@ repositories {
         name "Baubles"
         artifactPattern "https://dl.dropboxusercontent.com/u/47135879/[module]-1.8.9-[revision]-deobf.[ext]"
     }
+    ivy {
+        name "Railcraft"
+        artifactPattern "https://dl.dropboxusercontent.com/u/38558957/Minecraft/[module]/[module]_[mcver]-[version]-api.[ext]"
+    }
 }
+
+sourceSets {
+    api  {
+    }
+}
+
+
 
 dependencies {
 	compile 'org.scala-lang:scala-library:2.11.1'
@@ -66,10 +82,11 @@ dependencies {
     compile "mcp.mobius.waila:Waila:${waila_version}_1.8.8:dev"
     compile name: "Thaumcraft", version: "${mc_version}-${thaumcraft_version}", ext: "jar"
     compile name: 'Baubles', version: "${baubles_version}", ext: 'jar'
+//    compile name: "Railcraft", version: "${railcraft_version}", ext: "jar", mcver: "${mc_version}"
 	
 	deobfCompile "MCMultiPart:MCMultiPart:${mcmp_version}:universal"
 	deobfCompile "com.wayoftime.bloodmagic:BloodMagic:${bm_version}"
-
+//    deobfCompile "net.sengir.forestry:forestry_${mc_version}:${forestry_version}"
 }
 
 minecraft {
@@ -155,6 +172,7 @@ javadoc {
 
 tasks.javadoc.dependsOn delombok
 tasks.build.dependsOn javadoc, javadocJar, apiJar
+tasks.compileScala.dependsOn compileApiScala
 
 tasks.withType(JavaCompile) { task ->
     task.options.encoding = 'UTF-8'

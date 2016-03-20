@@ -23,10 +23,11 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.BlockSnapshot;
 import net.minecraftforge.event.world.BlockEvent.PlaceEvent;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
 
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 import static io.github.alex_hawks.SanguineExtras.common.package$.MODULE$;
 import static io.github.alex_hawks.SanguineExtras.common.util.LangUtils.translate;
@@ -58,30 +59,49 @@ public class ItemBuilding extends ItemBindable implements ISigil
     @Override
     public boolean onItemUse(ItemStack stack, EntityPlayer player, World w, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ)
     {
-        Set<Vector3> ls = UtilsBuilding.getBlocksForBuild(w, new Vector3(pos), side, player, 9);
+        final Map<Integer, Set<Vector3>> map = UtilsBuilding.getBlocksForBuild(w, new Vector3(pos), side, player, 9);
 
-        PlaceEvent e;
-        Block b;
-        BlockSnapshot s;
-        IBlockState t;
-
-        for (Vector3 v : ls)
+        MinecraftForge.EVENT_BUS.register(new Object()
         {
-            t = w.getBlockState(pos);
-            s = new BlockSnapshot(w, v.toPos(), t);
-            b = t.getBlock();
-            e = new PlaceEvent(s, t, player);
-            if (!MinecraftForge.EVENT_BUS.post(e))
+            Iterator<Map.Entry<Integer, Set<Vector3>>> it = map.entrySet().iterator();
+            int ticks = 0;
+
+            PlaceEvent e;
+            Block b;
+            BlockSnapshot s;
+            IBlockState t;
+
+            @SubscribeEvent
+            public void onWorldTick(TickEvent.WorldTickEvent event)
             {
-                String str = this.getBindableOwner(stack);
-                if(str != null && !str.isEmpty())
-                    if (BloodUtils.drainSoulNetworkWithDamage(UUID.fromString(this.getBindableOwner(stack)), player, SanguineExtras.rebuildSigilCost)
-                            && PlayerUtils.takeItem(player, new ItemStack(b, 1, b.getMetaFromState(w.getBlockState(pos)))))
+                ticks++;
+                if (ticks % 20 == 0)
+                {
+                    for (Vector3 v : it.next().getValue())
                     {
-                        w.setBlockState(v.toPos(), t, 0x3);
+                        t = w.getBlockState(pos);
+                        s = new BlockSnapshot(w, v.toPos(), t);
+                        b = t.getBlock();
+                        e = new PlaceEvent(s, t, player);
+                        if (!MinecraftForge.EVENT_BUS.post(e))
+                        {
+                            String str = ItemBuilding.this.getBindableOwner(stack);
+                            if (str != null && !str.isEmpty())
+                            {
+                                if (BloodUtils.drainSoulNetworkWithDamage(UUID.fromString(ItemBuilding.this.getBindableOwner(stack)), player, SanguineExtras.rebuildSigilCost)
+                                        && PlayerUtils.takeItem(player, new ItemStack(b, 1, b.getMetaFromState(w.getBlockState(pos)))))
+                                {
+                                    w.setBlockState(v.toPos(), t, 0x3);
+                                }
+                            }
+                        }
                     }
+
+                    if (!it.hasNext())
+                        MinecraftForge.EVENT_BUS.unregister(this);
+                }
             }
-        }
+        });
 
         return true;
     }

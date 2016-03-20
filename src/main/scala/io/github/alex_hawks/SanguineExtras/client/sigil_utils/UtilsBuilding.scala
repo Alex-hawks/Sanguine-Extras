@@ -1,6 +1,6 @@
 package io.github.alex_hawks.SanguineExtras.client.sigil_utils
 
-import java.util.Set
+import java.util.{Map => Jmap, Set => Jset}
 
 import io.github.alex_hawks.SanguineExtras.client.util.Render
 import io.github.alex_hawks.SanguineExtras.common.Constants
@@ -32,7 +32,7 @@ class UtilsBuilding {
       val b: IBlockState = w.getBlockState(mc.objectMouseOver.getBlockPos)
       if (b == null || b.getBlock.equals(Blocks.air))
         return
-      val ls: Set[Vector3] = ServerUtils.getBlocksForBuild(w, new Vector3(mc.objectMouseOver.getBlockPos), mc.objectMouseOver.sideHit, p, Constants.HardLimits.BUILDERS_SIGIL_COUNT)
+      val ls: Jmap[Integer, Jset[Vector3]] = ServerUtils.getBlocksForBuild(w, new Vector3(mc.objectMouseOver.getBlockPos), mc.objectMouseOver.sideHit, p, Constants.HardLimits.BUILDERS_SIGIL_COUNT)
 
       val (px, py, pz) = (p.lastTickPosX + (p.posX - p.lastTickPosX) * e.partialTicks,
         p.lastTickPosY + (p.posY - p.lastTickPosY) * e.partialTicks,
@@ -40,11 +40,13 @@ class UtilsBuilding {
 
       Minecraft.getMinecraft.renderEngine.bindTexture(TextureMap.locationBlocksTexture);
 
-      for (v <- JavaConversions.asScalaSet[Vector3](ls)) {
+      for (e <- JavaConversions.asScalaSet[Jmap.Entry[Integer, Jset[Vector3]]](ls.entrySet())) {
+        for (v <- JavaConversions.asScalaSet[Vector3](e.getValue)) {
 
-        val min = (v.x - px, v.y - py, v.z - pz)
+          val min = (v.x - px, v.y - py, v.z - pz)
 
-        Render.drawFakeBlock(b, min, w, new Vector3(mc.objectMouseOver.getBlockPos))
+          Render.drawFakeBlock(b, min, w, new Vector3(mc.objectMouseOver.getBlockPos))
+        }
       }
     }
   }
