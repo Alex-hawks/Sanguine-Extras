@@ -8,6 +8,9 @@ public class Constants
         public static final String NAME = "Sanguine Utilities";
 
         public static final String DESCRIPTION = "Blood Pact: How far are you willing to go for convenience?";
+
+        public static final String BAUBLES_ID = "Baubles";
+        public static final String MCMP_ID = "mcmultipart";
     }
 
     public static final class HardLimits

@@ -1,5 +1,5 @@
 {
-  "parent":"sanguineextras:blocks/WardedMasterStone",
+  "parent":"sanguineextras:WardedMasterStone",
   "display": {
     "thirdperson": {
       "rotation": [ 10, -45, 170 ],

@@ -6,11 +6,14 @@ import WayofTime.bloodmagic.block.BlockRitualStone;
 import WayofTime.bloodmagic.block.base.BlockStringContainer;
 import io.github.alex_hawks.SanguineExtras.common.Constants;
 import io.github.alex_hawks.SanguineExtras.common.util.SanguineExtrasCreativeTab;
+import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+
+import java.util.Locale;
 
 public class BlockWardedRitualStone extends BlockStringContainer implements IRitualStone
 {
@@ -18,14 +21,14 @@ public class BlockWardedRitualStone extends BlockStringContainer implements IRit
 
     public BlockWardedRitualStone()
     {
-        super(Material.iron, names);
-        this.setRegistryName(Constants.MetaData.MOD_ID, "wardedRitualStone");
+        super(Material.IRON, names);
+        this.setRegistryName(Constants.MetaData.MOD_ID.toLowerCase(Locale.ROOT), "wardedRitualStone");
         setCreativeTab(SanguineExtrasCreativeTab.Instance);
 
         setUnlocalizedName(Constants.MetaData.MOD_ID + ".ritualStone.");
-        setStepSound(soundTypeStone);
+        setSoundType(SoundType.STONE);
         setHardness(2.0F);
-        setResistance(5.0F);
+        setResistance(-1.0F);
         setHarvestLevel("pickaxe", 2);
     }
 

@@ -4,8 +4,8 @@ import java.util.{Map => Jmap, Set => Jset}
 
 import io.github.alex_hawks.SanguineExtras.client.util.Render
 import io.github.alex_hawks.SanguineExtras.common.Constants
-import io.github.alex_hawks.SanguineExtras.common.sigil_utils.{UtilsBuilding => ServerUtils}
-import io.github.alex_hawks.SanguineExtras.common.sigils.ItemBuilding
+import io.github.alex_hawks.SanguineExtras.common.util.sigils.{UtilsBuilding => ServerUtils}
+import io.github.alex_hawks.SanguineExtras.common.items.sigils.ItemBuilding
 import io.github.alex_hawks.util.minecraft.common.Vector3
 import net.minecraft.block.state.IBlockState
 import net.minecraft.client.Minecraft
@@ -30,15 +30,15 @@ class UtilsBuilding {
     if (p.inventory.getCurrentItem != null && p.inventory.getCurrentItem.getItem.isInstanceOf[ItemBuilding]) {
 
       val b: IBlockState = w.getBlockState(mc.objectMouseOver.getBlockPos)
-      if (b == null || b.getBlock.equals(Blocks.air))
+      if (b == null || b.getBlock.equals(Blocks.AIR))
         return
       val ls: Jmap[Integer, Jset[Vector3]] = ServerUtils.getBlocksForBuild(w, new Vector3(mc.objectMouseOver.getBlockPos), mc.objectMouseOver.sideHit, p, Constants.HardLimits.BUILDERS_SIGIL_COUNT)
 
-      val (px, py, pz) = (p.lastTickPosX + (p.posX - p.lastTickPosX) * e.partialTicks,
-        p.lastTickPosY + (p.posY - p.lastTickPosY) * e.partialTicks,
-        p.lastTickPosZ + (p.posZ - p.lastTickPosZ) * e.partialTicks)
+      val (px, py, pz) = (p.lastTickPosX + (p.posX - p.lastTickPosX) * e.getPartialTicks,
+        p.lastTickPosY + (p.posY - p.lastTickPosY) * e.getPartialTicks,
+        p.lastTickPosZ + (p.posZ - p.lastTickPosZ) * e.getPartialTicks)
 
-      Minecraft.getMinecraft.renderEngine.bindTexture(TextureMap.locationBlocksTexture);
+      Minecraft.getMinecraft.renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
 
       for (e <- JavaConversions.asScalaSet[Jmap.Entry[Integer, Jset[Vector3]]](ls.entrySet())) {
         for (v <- JavaConversions.asScalaSet[Vector3](e.getValue)) {

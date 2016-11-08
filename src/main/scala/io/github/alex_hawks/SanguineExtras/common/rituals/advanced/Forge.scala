@@ -7,7 +7,6 @@ import WayofTime.bloodmagic.api.ritual.EnumRuneType._
 import WayofTime.bloodmagic.api.ritual.{IMasterRitualStone, Ritual, RitualComponent}
 import io.github.alex_hawks.SanguineExtras.api.ritual.{IAdvancedMasterRitualStone, AdvancedRitual}
 import io.github.alex_hawks.SanguineExtras.common.Constants
-import io.github.alex_hawks.SanguineExtras.common.rituals.CommonHelpers.ForgeCommon
 import io.github.alex_hawks.SanguineExtras.common.util.BloodUtils
 import io.github.alex_hawks.util.minecraft.common.Vector3
 import net.minecraft.entity.Entity
@@ -16,7 +15,8 @@ import net.minecraft.inventory.IInventory
 import net.minecraft.item.ItemStack
 import net.minecraft.item.crafting.FurnaceRecipes
 import net.minecraft.nbt.{NBTTagList, NBTTagCompound}
-import net.minecraft.util.{EnumFacing, AxisAlignedBB, BlockPos}
+import net.minecraft.util.math.{AxisAlignedBB, BlockPos}
+import net.minecraft.util.EnumFacing
 import Forge._
 import net.minecraft.util.EnumFacing._
 import net.minecraftforge.oredict.OreDictionary

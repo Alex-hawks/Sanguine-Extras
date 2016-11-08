@@ -2,8 +2,7 @@ package io.github.alex_hawks.SanguineExtras.common.ritual_stones.master.warded;
 
 import WayofTime.bloodmagic.api.ritual.Ritual;
 import WayofTime.bloodmagic.api.ritual.RitualComponent;
-import io.github.alex_hawks.SanguineExtras.common.SanguineExtras;
-import io.github.alex_hawks.SanguineExtras.common.network.chat_handler.MsgDisplayChat;
+import WayofTime.bloodmagic.util.ChatUtil;
 import io.github.alex_hawks.SanguineExtras.common.ritual_stones.marker.warded.TEWardedRitualStone;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -18,9 +17,9 @@ public class WMRSHandler
     @SubscribeEvent
     public void onBlockBreak(BlockEvent.BreakEvent e)
     {
-        if (e.state.getBlock() instanceof BlockWardedMasterStone)
+        if (e.getState().getBlock() instanceof BlockWardedMasterStone)
         {
-            TileEntity te = e.world.getTileEntity(e.pos);
+            TileEntity te = e.getWorld().getTileEntity(e.getPos());
 
             if (te instanceof TEWardedMasterStone)
             {
@@ -29,7 +28,7 @@ public class WMRSHandler
                     e.setCanceled(true);
 
                     if (e.getPlayer() instanceof EntityPlayerMP)
-                        SanguineExtras.networkWrapper.sendTo(new MsgDisplayChat("msg.se.fail.mine.RitualStone.warding"), (EntityPlayerMP) e.getPlayer());
+                        ChatUtil.sendNoSpamUnloc(e.getPlayer(), "msg.se.fail.mine.RitualStone.warding");
                 }
             }
         }

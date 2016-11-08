@@ -1,4 +1,4 @@
-package io.github.alex_hawks.SanguineExtras.common.sigil_utils;
+package io.github.alex_hawks.SanguineExtras.common.util.sigils;
 
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.ItemStack;

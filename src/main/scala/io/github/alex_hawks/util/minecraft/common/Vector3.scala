@@ -1,6 +1,7 @@
 package io.github.alex_hawks.util.minecraft.common
 
-import net.minecraft.util.{AxisAlignedBB, BlockPos, EnumFacing}
+import net.minecraft.util.EnumFacing
+import net.minecraft.util.math.{AxisAlignedBB, BlockPos}
 
 class Vector3(val x: Int, val y: Int, val z: Int) {
 

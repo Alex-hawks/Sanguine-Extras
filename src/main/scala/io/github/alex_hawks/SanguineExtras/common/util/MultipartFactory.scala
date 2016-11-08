@@ -6,9 +6,10 @@ import mcmultipart.multipart.IMultipart
 import mcmultipart.multipart.IPartFactory.IAdvancedPartFactory
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.network.PacketBuffer
+import net.minecraft.util.ResourceLocation
 
 class MultipartFactory extends IAdvancedPartFactory {
-  override def createPart(name: String, buf: PacketBuffer): IMultipart = name match {
+  override def createPart(name: ResourceLocation, buf: PacketBuffer): IMultipart = name match {
     case MultipartStone.NAME => {
       val stone: MultipartStone = new MultipartStone
       stone.runeType.setRuneType(EnumRuneType.byMetadata(buf.readByte()))
@@ -16,7 +17,7 @@ class MultipartFactory extends IAdvancedPartFactory {
     }
   }
 
-  override def createPart(name: String, tag: NBTTagCompound): IMultipart = name match {
+  override def createPart(name: ResourceLocation, tag: NBTTagCompound): IMultipart = name match {
     case MultipartStone.NAME => {
       val stone: MultipartStone = new MultipartStone
       stone.runeType.setRuneType(EnumRuneType.byMetadata(tag.getByte("runeType")))

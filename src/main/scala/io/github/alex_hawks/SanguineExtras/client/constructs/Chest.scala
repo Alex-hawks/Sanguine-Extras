@@ -1,7 +1,7 @@
 package io.github.alex_hawks.SanguineExtras.client.constructs
 
 import io.github.alex_hawks.SanguineExtras.common.constructs.Chest.textureLocGui
-import io.github.alex_hawks.SanguineExtras.common.constructs.{ContainerChest, TileChest}
+import io.github.alex_hawks.SanguineExtras.common.constructs.{Chest, ContainerChest, TileChest}
 import net.minecraft.client.gui.inventory.GuiContainer
 import net.minecraft.client.model.ModelChest
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer
@@ -71,9 +71,18 @@ class GuiChest(val player: EntityPlayer, val chest: TileChest) extends GuiContai
   override def drawGuiContainerBackgroundLayer(opacity: Float, x: Int, y: Int) = {
     GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 
+    val (xx, xy) = (240, 0)
+
     this.mc.getTextureManager.bindTexture(textureLocGui)
 
     val (xStart, yStart) = ((width - xSize) / 2, (height - ySize) / 2)
-    this.drawTexturedModalRect(xStart, yStart, 0, 0, xSize, ySize);
+    this.drawTexturedModalRect(xStart, yStart, 0, 0, xSize, ySize)
+
+    val slotsForTier = chest.actInvSize
+
+    for (y <- 0 until Chest.maxRows)
+      for (x <- 0 until Chest.maxCols)
+        if (y * 12 + x >=  slotsForTier)
+          this.drawTexturedModalRect(xStart + x * 18 + 12, yStart + y * 18 + 8, xx, xy, 16, 16)
   }
 } 

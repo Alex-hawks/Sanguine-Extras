@@ -6,7 +6,6 @@ import io.github.alex_hawks.SanguineExtras.api.ritual.IAdvancedMasterRitualStone
 import net.minecraft.entity.Entity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent.Action;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -14,11 +13,11 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 public class AMRSHandler
 {
     @SubscribeEvent(priority = EventPriority.LOWEST)
-    public void onPlayerClick(PlayerInteractEvent e)
+    public void onPlayerLeftClick(PlayerInteractEvent.LeftClickBlock e)
     {
-        if (e.useBlock == Event.Result.DENY || e.world.isRemote)
+        if (e.getResult() == Event.Result.DENY || e.getWorld().isRemote)
             return;
-        TileEntity te = e.world.getTileEntity(e.pos);
+        TileEntity te = e.getWorld().getTileEntity(e.getPos());
 
         if (!(te instanceof IAdvancedMasterRitualStone))
             return;
@@ -30,10 +29,28 @@ public class AMRSHandler
 
         if (ritual instanceof AdvancedRitual)
         {
-            if (e.action == Action.LEFT_CLICK_BLOCK)
-                ((AdvancedRitual) ritual).onLeftClick((IAdvancedMasterRitualStone) te);
-            if (e.action == Action.RIGHT_CLICK_BLOCK)
-                ((AdvancedRitual) ritual).onRightClick((IAdvancedMasterRitualStone) te);
+            ((AdvancedRitual) ritual).onLeftClick((IAdvancedMasterRitualStone) te, e.getHand());
+        }
+    }
+
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public void onPlayerRightClick(PlayerInteractEvent.RightClickBlock e)
+    {
+        if (e.getResult() == Event.Result.DENY || e.getWorld().isRemote)
+            return;
+        TileEntity te = e.getWorld().getTileEntity(e.getPos());
+
+        if (!(te instanceof IAdvancedMasterRitualStone))
+            return;
+
+        Ritual ritual = ((IAdvancedMasterRitualStone) te).getCurrentRitual();
+
+        if (ritual == null)
+            return;
+
+        if (ritual instanceof AdvancedRitual)
+        {
+            ((AdvancedRitual) ritual).onRightClick((IAdvancedMasterRitualStone) te, e.getHand());
         }
     }
 

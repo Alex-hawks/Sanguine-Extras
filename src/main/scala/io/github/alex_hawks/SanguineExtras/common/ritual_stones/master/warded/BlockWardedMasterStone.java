@@ -15,8 +15,9 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.World;
 
@@ -30,18 +31,12 @@ public class BlockWardedMasterStone extends BlockContainer
 
     public BlockWardedMasterStone()
     {
-        super(Material.iron);
+        super(Material.IRON);
         setHardness(2.0F);
         setResistance(5.0F);
         setCreativeTab(SanguineExtrasCreativeTab.Instance);
         this.setRegistryName("wardedMasterStone");
         this.setUnlocalizedName("wardedMasterStone");
-    }
-
-    @Override
-    public int getRenderType()
-    {
-        return 3;
     }
 
     @Override
@@ -63,7 +58,8 @@ public class BlockWardedMasterStone extends BlockContainer
             ((TileMasterRitualStone) tile).stopRitual(Ritual.BreakType.EXPLOSION);
     }
 
-    public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumFacing side, float hitX, float hitY, float hitZ)
+    @Override
+    public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ)
     {
         if (!(world.getTileEntity(pos) instanceof TEWardedMasterStone))
             return true;
@@ -80,13 +76,13 @@ public class BlockWardedMasterStone extends BlockContainer
 
         if (tile instanceof TileMasterRitualStone && stoneOwner.equals(player.getPersistentID()))
         {
-            if (player.getHeldItem() != null && player.getHeldItem().getItem() == ModItems.activationCrystal)
+            if (heldItem != null && heldItem.getItem() == ModItems.ACTIVATION_CRYSTAL)
             {
                 String key = RitualHelper.getValidRitual(world, pos);
                 EnumFacing direction = RitualHelper.getDirectionOfRitual(world, pos, key);
                 if (!key.isEmpty() && direction != null && RitualHelper.checkValidRitual(world, pos, key, direction))
                 {
-                    if (tile.activateRitual(player.getHeldItem(), player, RitualRegistry.getRitualForId(key)))
+                    if (tile.activateRitual(heldItem, player, RitualRegistry.getRitualForId(key)))
                     {
                         tile.setDirection(direction);
                     }
@@ -111,7 +107,7 @@ public class BlockWardedMasterStone extends BlockContainer
     {
         TEWardedMasterStone tileEntity = (TEWardedMasterStone) w.getTileEntity(pos);
 
-        if (player instanceof EntityPlayer && !PlayerUtils.isFakePlayer((EntityPlayer) player))
+        if (player instanceof EntityPlayer && !PlayerUtils.isNotFakePlayer((EntityPlayer) player))
             tileEntity.setBlockOwner(player.getPersistentID());
     }
 }

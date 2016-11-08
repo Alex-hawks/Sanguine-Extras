@@ -3,7 +3,6 @@ package io.github.alex_hawks.SanguineExtras.common.ritual_stones.marker.warded;
 import io.github.alex_hawks.SanguineExtras.common.SanguineExtras;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
@@ -25,7 +24,7 @@ public class TEWardedRitualStone extends TileEntity
     }
 
     @Override
-    public void writeToNBT(NBTTagCompound tag)
+    public NBTTagCompound writeToNBT(NBTTagCompound tag)
     {
         super.writeToNBT(tag);
         if (blockOwner != null)
@@ -33,6 +32,8 @@ public class TEWardedRitualStone extends TileEntity
             tag.setLong("OwnerMost", blockOwner.getMostSignificantBits());
             tag.setLong("OwnerLeast", blockOwner.getLeastSignificantBits());
         }
+
+        return tag;
     }
 
     @Override
@@ -52,7 +53,7 @@ public class TEWardedRitualStone extends TileEntity
         if (player.getPersistentID().equals(blockOwner))
             return true;
         if (FMLCommonHandler.instance().getSide() == Side.SERVER)
-            if (MinecraftServer.getServer().getConfigurationManager().canSendCommands(player.getGameProfile()) && SanguineExtras.opsCanBreakWardedBlocks)
+            if (player.canCommandSenderUseCommand(2, "") && SanguineExtras.opsCanBreakWardedBlocks)
                 return true;
         return false;
     }

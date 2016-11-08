@@ -6,7 +6,6 @@ import io.github.alex_hawks.SanguineExtras.common.SanguineExtras;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 
@@ -35,26 +34,28 @@ public class TEWardedMasterStone extends TileMasterRitualStone
         if (this.getOwner().equals(""))
             return true;
         if (FMLCommonHandler.instance().getSide() == Side.SERVER)
-            if (MinecraftServer.getServer().getConfigurationManager().canSendCommands(player.getGameProfile()) && SanguineExtras.opsCanBreakWardedBlocks)
+            if (player.canCommandSenderUseCommand(2, "") && SanguineExtras.opsCanBreakWardedBlocks)
                 return true;
         return false;
     }
 
     @Override
-    public void writeToNBT(NBTTagCompound tag)
+    public NBTTagCompound serialize(NBTTagCompound tag)
     {
-        super.writeToNBT(tag);
+        super.serialize(tag);
         if (blockOwner != null)
         {
             tag.setLong("OwnerMost", blockOwner.getMostSignificantBits());
             tag.setLong("OwnerLeast", blockOwner.getLeastSignificantBits());
         }
+
+        return tag;
     }
 
     @Override
-    public void readFromNBT(NBTTagCompound tag)
+    public void deserialize(NBTTagCompound tag)
     {
-        super.readFromNBT(tag);
+        super.deserialize(tag);
         if (tag.hasKey("OwnerMost") && tag.hasKey("OwnerLeast"))
         {
             this.blockOwner = new UUID(tag.getLong("OwnerMost"), tag.getLong("OwnerLeast"));

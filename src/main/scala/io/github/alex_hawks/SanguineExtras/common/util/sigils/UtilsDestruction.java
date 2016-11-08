@@ -1,22 +1,20 @@
-package io.github.alex_hawks.SanguineExtras.common.sigil_utils;
+package io.github.alex_hawks.SanguineExtras.common.util.sigils;
 
 import io.github.alex_hawks.SanguineExtras.common.util.BloodUtils;
+import io.github.alex_hawks.SanguineExtras.common.util.PlayerUtils;
 import io.github.alex_hawks.util.minecraft.common.Vector3;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.item.EntityXPOrb;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.BlockEvent.BreakEvent;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
-
-import static io.github.alex_hawks.SanguineExtras.common.util.PlayerUtils.putItem;
 
 public class UtilsDestruction
 {
@@ -69,13 +67,14 @@ public class UtilsDestruction
         return toReturn;
     }
 
-    public static void doDrops(EntityPlayer p, UUID sigilOwner, List<Vector3> list, World w)
+    public static void doDrops(EntityPlayer p, String sigilOwner, List<Vector3> list, World w)
     {
         doDrops(p, sigilOwner, list.toArray(new Vector3[0]), w);
     }
 
-    public static void doDrops(EntityPlayer p, UUID sigilOwner, Vector3[] list, World w)
+    public static void doDrops(EntityPlayer p, String sigilOwner, Vector3[] list, World w)
     {
+        PlayerUtils.startOrb(p);
         int blocks = 0;
 
         for (Vector3 v : list)
@@ -85,7 +84,7 @@ public class UtilsDestruction
 
             IBlockState b = w.getBlockState(v.toPos());
 
-            if (b.getBlock().getBlockHardness(w, v.toPos()) < 0 || b.getBlock().isAir(w, v.toPos()))
+            if (b.getBlockHardness(w, v.toPos()) < 0 || b.getBlock().isAir(b, w, v.toPos()))
                 continue;
 
             BreakEvent e = new BreakEvent(w, v.toPos(), b, p);
@@ -99,12 +98,13 @@ public class UtilsDestruction
 
                     for (ItemStack drop : drops)
                     {
-                        putItem(p, drop);
+                        PlayerUtils.addToOrb(p, drop);
                         if (e.getExpToDrop() > 0)
                             w.spawnEntityInWorld(new EntityXPOrb(w, p.posX, p.posY, p.posZ, e.getExpToDrop()));
                     }
                 }
             }
         }
+        PlayerUtils.finishOrb(p);
     }
 }

@@ -2,6 +2,7 @@
 ##  Creative Tab
 itemGroup.tabSanguineExtras=Sanguine Extras
 
+
 ##  Block Localizations
 tile.advancedMasterStone.name=Advanced Master Ritual Stone
 tile.wardedMasterStone.name=Warded Master Ritual Stone
@@ -15,6 +16,7 @@ tile.SanguineExtras.ritualStone.dusk.name=Warded Dusk Ritual Stone
 tile.SanguineExtras.ritualStone.dawn.name=Warded Dawn Ritual Stone
 tile.sanguineChest.name=Sanguine Chest
 
+
 ##  Item Localizations
 item.sigilBuilding.name=Sigil of Building
 item.sigilDestruction.tier0.name=Sigil of Destruction: Tier 1
@@ -26,16 +28,31 @@ item.sigilDestruction.tier5.name=Sigil of Destruction: Tier 6
 item.sigilInterdiction.name=Interdiction Sigil
 item.sigilMobNet.name=Sigil of Entrapment
 item.sigilRebuilding.name=Sigil of Rebuilding
+item.dropOrb.name=Hypercondensed Mining Rubble
+
+item.baubleLiquidSummoner.0.name=Water Amulet
+item.baubleLiquidSummoner.1.name=Lava Amulet
+item.baubleLiquidSummoner.2.name=Life Essence Amulet
+
+item.baubleStoneSummoner.0.name=Cobblestone Charm
+item.baubleStoneSummoner.1.name=Stone Charm
+item.baubleStoneSummoner.2.name=Netherrack Charm
+item.baubleStoneSummoner.3.name=Obsidian Charm
+item.baubleStoneSummoner.4.name=Sand Charm
+
+item.baubleFeatheredKnife.name=Charm of the Feathered Knife
+
 
 ##	Multipart Localizations
 item.microRitualStone.name=Micro Ritual Stone
-item.microRitualStone.blank.name=Warded Blank Ritual Stone
-item.microRitualStone.water.name=Warded Water Ritual Stone
-item.microRitualStone.fire.name=Warded Fire Ritual Stone
-item.microRitualStone.earth.name=Warded Earth Ritual Stone
-item.microRitualStone.air.name=Warded Air Ritual Stone
-item.microRitualStone.dusk.name=Warded Dusk Ritual Stone
-item.microRitualStone.dawn.name=Warded Dawn Ritual Stone
+item.microRitualStone.blank.name=Micro Blank Ritual Stone
+item.microRitualStone.water.name=Micro Water Ritual Stone
+item.microRitualStone.fire.name=Micro Fire Ritual Stone
+item.microRitualStone.earth.name=Micro Earth Ritual Stone
+item.microRitualStone.air.name=Micro Air Ritual Stone
+item.microRitualStone.dusk.name=Micro Dusk Ritual Stone
+item.microRitualStone.dawn.name=Micro Dawn Ritual Stone
+
 
 ##  Tooltip Localizations
 tooltip.se.destruction.currentlength=Current Length: %s
@@ -44,7 +61,6 @@ tooltip.se.destruction.maximumlength=Maximum Length: %s
 tooltip.se.mobnet.mob=Current Mob: %s
 tooltip.se.mobnet.mob.null=Current Mob: None
 
-tooltip.se.owner=Current owner: %s
 tooltip.se.owner.null=Current owner: No-one
 
 tooltip.se.sigil.active=Activated
@@ -55,11 +71,17 @@ tooltip.se.rebuilding.block.null=New Block: None set
 tooltip.se.rebuilding.meta=Metadata: %s
 tooltip.se.rebuilding.meta.null=Metadata: None set
 
+#   This .numbers trick should work for any, not just the ones provided
+tooltip.se.dropOrb.contains=Contains %s stacks of items
+tooltip.se.dropOrb.contains.0=This Orb is empty. This is a bug
+tooltip.se.dropOrb.contains.1=Contains 1 stack of items
+
 
 ##  Chat MSG Localizations
 msg.se.fail.mine.RitualStone.warding=The block falls like any other, but strangely rematerializes where it was before.
 msg.se.fail.sigil.mobnet.full=You somehow feel that you should try emptying the sigil first
 msg.se.fail.sigil.mobnet.boss=You somehow feel that this enemy is too powerful to capture
+msg.se.fail.sigil.mobnet.boss=Gods like you don't need to use this to move or spawn mobs
 
 
 ##  Pun Localizations

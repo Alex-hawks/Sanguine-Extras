@@ -1,4 +1,4 @@
-package io.github.alex_hawks.SanguineExtras.common.sigil_utils.interdiction;
+package io.github.alex_hawks.SanguineExtras.common.util.sigils.interdiction;
 
 import io.github.alex_hawks.SanguineExtras.api.sigil.IPushCondition;
 import net.minecraft.entity.Entity;

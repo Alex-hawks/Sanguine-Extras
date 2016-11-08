@@ -43,7 +43,7 @@ public class MsgEntityMotion implements IMessage
     @Override
     public void toBytes(ByteBuf buf)
     {
-        buf.writeInt(e.worldObj.provider.getDimensionId());
+        buf.writeInt(e.worldObj.provider.getDimension());
         buf.writeInt(e.getEntityId());
         buf.writeDouble(e.motionX);
         buf.writeDouble(e.motionY);

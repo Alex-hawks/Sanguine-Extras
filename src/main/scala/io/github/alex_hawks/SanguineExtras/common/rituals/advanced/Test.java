@@ -8,6 +8,7 @@ import io.github.alex_hawks.SanguineExtras.api.ritual.IAdvancedMasterRitualStone
 import io.github.alex_hawks.SanguineExtras.api.ritual.AdvancedRitual;
 import io.github.alex_hawks.SanguineExtras.common.Constants;
 import net.minecraft.entity.Entity;
+import net.minecraft.util.EnumHand;
 
 import java.util.ArrayList;
 
@@ -31,7 +32,7 @@ public class Test extends AdvancedRitual
     {
         ArrayList<RitualComponent> ls = new ArrayList<RitualComponent>();
 
-        this.addRune(ls, 0, -1, 0, EnumRuneType.AIR);
+        this.addRune(ls, 0, -1, 0, EnumRuneType.BLANK);
 
         return ls;
     }
@@ -43,14 +44,14 @@ public class Test extends AdvancedRitual
     }
 
     @Override
-    public boolean onRightClick(IAdvancedMasterRitualStone mrs)
+    public boolean onRightClick(IAdvancedMasterRitualStone mrs, EnumHand hand)
     {
         System.out.println("Right Click");
         return true;
     }
 
     @Override
-    public boolean onLeftClick(IAdvancedMasterRitualStone mrs)
+    public boolean onLeftClick(IAdvancedMasterRitualStone mrs, EnumHand hand)
     {
         System.out.println("Left Click");
         return true;

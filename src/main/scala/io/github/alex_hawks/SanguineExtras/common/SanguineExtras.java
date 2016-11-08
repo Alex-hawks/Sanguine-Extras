@@ -1,20 +1,21 @@
 package io.github.alex_hawks.SanguineExtras.common;
 
+import WayofTime.bloodmagic.BloodMagic;
 import WayofTime.bloodmagic.api.registry.RitualRegistry;
 import io.github.alex_hawks.SanguineExtras.api.sigil.Interdiction;
-import io.github.alex_hawks.SanguineExtras.common.network.chat_handler.HandlerDisplayChat;
-import io.github.alex_hawks.SanguineExtras.common.network.chat_handler.MsgDisplayChat;
+import io.github.alex_hawks.SanguineExtras.common.items.baubles.LiquidSummonHandler$;
+import io.github.alex_hawks.SanguineExtras.common.items.baubles.StoneSummonHandler$;
 import io.github.alex_hawks.SanguineExtras.common.network.entity_motion.HandlerEntityMotion;
 import io.github.alex_hawks.SanguineExtras.common.network.entity_motion.MsgEntityMotion;
 import io.github.alex_hawks.SanguineExtras.common.ritual_stones.marker.micro.MultipartStone;
 import io.github.alex_hawks.SanguineExtras.common.ritual_stones.marker.warded.WRSHandler;
 import io.github.alex_hawks.SanguineExtras.common.ritual_stones.master.advanced.AMRSHandler;
 import io.github.alex_hawks.SanguineExtras.common.ritual_stones.master.warded.WMRSHandler;
-import io.github.alex_hawks.SanguineExtras.common.rituals.basic.Spawn;
 import io.github.alex_hawks.SanguineExtras.common.rituals.advanced.Forge;
 import io.github.alex_hawks.SanguineExtras.common.rituals.advanced.Test;
-import io.github.alex_hawks.SanguineExtras.common.sigil_utils.interdiction.PushHandlerTamable;
+import io.github.alex_hawks.SanguineExtras.common.rituals.basic.Spawn;
 import io.github.alex_hawks.SanguineExtras.common.util.MultipartFactory;
+import io.github.alex_hawks.SanguineExtras.common.util.sigils.interdiction.PushHandlerTamable;
 import mcmultipart.multipart.MultipartRegistry;
 import net.minecraft.entity.IEntityOwnable;
 import net.minecraftforge.common.MinecraftForge;
@@ -68,7 +69,7 @@ public class SanguineExtras
     public static void init(FMLInitializationEvent e)
     {
         RitualRegistry.registerRitual(new Spawn(), Spawn.name, spawnLpPerHealth >= 0 && spawnMaxEntities > 0);
-        RitualRegistry.registerRitual(new Test(), Test.name, true);
+        RitualRegistry.registerRitual(new Test(), Test.name, BloodMagic.isDev());
         RitualRegistry.registerRitual(new Forge(), Forge.name(), true);
 
         MinecraftForge.EVENT_BUS.register(new AMRSHandler());
@@ -76,12 +77,16 @@ public class SanguineExtras
         MinecraftForge.EVENT_BUS.register(new WRSHandler());
 
         networkWrapper = NetworkRegistry.INSTANCE.newSimpleChannel(Constants.MetaData.MOD_ID);
-        networkWrapper.registerMessage(HandlerDisplayChat.class, MsgDisplayChat.class, 0, Side.CLIENT);
         networkWrapper.registerMessage(HandlerEntityMotion.class, MsgEntityMotion.class, 1, Side.CLIENT);
 
-        if (Loader.isModLoaded("mcmultipart"))
+        if (Loader.isModLoaded(Constants.MetaData.MCMP_ID))
         {
-            MultipartRegistry.registerPartFactory(new MultipartFactory(), MultipartStone.NAME());
+            MultipartRegistry.registerPartFactory(new MultipartFactory(), MultipartStone.NAME().toString());
+        }
+        if (Loader.isModLoaded(Constants.MetaData.BAUBLES_ID))
+        {
+            MinecraftForge.EVENT_BUS.register(LiquidSummonHandler$.MODULE$);
+            MinecraftForge.EVENT_BUS.register(StoneSummonHandler$.MODULE$);
         }
     }
 

@@ -2,7 +2,6 @@ package io.github.alex_hawks.util.minecraft.common;
 
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 
 import java.util.Random;
@@ -24,7 +23,7 @@ public class WorldUtils
 
             if (item.hasTagCompound())
             {
-                entityItem.getEntityItem().setTagCompound((NBTTagCompound) item.getTagCompound().copy());
+                entityItem.getEntityItem().setTagCompound(item.getTagCompound().copy());
             }
 
             float factor = 0.05F;

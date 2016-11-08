@@ -1,4 +1,4 @@
-package io.github.alex_hawks.SanguineExtras.common.sigil_utils;
+package io.github.alex_hawks.SanguineExtras.common.util.sigils;
 
 import io.github.alex_hawks.util.minecraft.common.Vector3;
 import net.minecraft.block.state.IBlockState;
@@ -6,7 +6,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 
-import javax.annotation.Nonnull;
 import java.util.*;
 
 import static net.minecraft.util.EnumFacing.*;

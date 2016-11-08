@@ -8,21 +8,22 @@ import mcmultipart.MCMultiPartMod
 import mcmultipart.multipart.Multipart
 import mcmultipart.raytrace.PartMOP
 import net.minecraft.block.material.Material
-import net.minecraft.block.properties.{PropertyEnum, IProperty}
-import net.minecraft.block.state.{BlockState, IBlockState}
+import net.minecraft.block.properties.{IProperty, PropertyEnum}
+import net.minecraft.block.state.{BlockStateContainer, IBlockState}
 import net.minecraft.entity.Entity
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.network.PacketBuffer
-import net.minecraft.util.{EnumWorldBlockLayer, AxisAlignedBB, EnumFacing}
+import net.minecraft.util.math.AxisAlignedBB
+import net.minecraft.util.{ResourceLocation, BlockRenderLayer, EnumFacing, EnumHand}
 import net.minecraftforge.common.capabilities.{Capability, CapabilityInject}
-import net.minecraftforge.common.property.{IUnlistedProperty, ExtendedBlockState}
+import net.minecraftforge.common.property.{ExtendedBlockState, IUnlistedProperty}
 
 import scala.collection.mutable.ArrayBuffer
 
 object MultipartStone {
-  val NAME = Constants.MetaData.MOD_ID + ":" + "microRitualStone"
+  val NAME = new ResourceLocation(Constants.MetaData.MOD_ID, "microRitualStone")
 
   @CapabilityInject(classOf[IRitualStone.Tile])
   var CAPABILITY_RUNE_TYPE: Capability[IRitualStone.Tile] = null
@@ -58,20 +59,20 @@ class MultipartStone extends Multipart {
       return super.getCapability(capability, facing)
   }
 
-  override def getMaterial: Material = Material.rock
+  override def getMaterial: Material = Material.ROCK
 
   override def getHardness(hit: PartMOP): Float = 2.0F
 
-  override def onActivated(player: EntityPlayer, stack: ItemStack, hit: PartMOP): Boolean = {
+  override def onActivated(player: EntityPlayer, hand: EnumHand, stack: ItemStack, hit: PartMOP): Boolean = {
     if (stack != null && stack.getItem.isInstanceOf[ItemInscriptionTool]) {
       this.runeType.setRuneType(stack.getItem.asInstanceOf[ItemInscriptionTool].getType(stack))
       return true;
     }
-    return super.onActivated(player, stack, hit)
+    return super.onActivated(player, hand, stack, hit)
   }
 
   override def writeToNBT(tag: NBTTagCompound) = {
-    tag.setByte("runeType", runeType.getRuneType.ordinal.toByte)
+    tag.setByte("runeType", runeType.getRuneType.ordinal.toByte); tag
   }
 
   override def readFromNBT(tag: NBTTagCompound) = {
@@ -86,15 +87,15 @@ class MultipartStone extends Multipart {
     runeType.setRuneType(EnumRuneType.byMetadata(buf.readByte))
   }
 
-  override def getModelPath: String = {
+  override def getModelPath: ResourceLocation = {
     NAME
   }
 
-  override def canRenderInLayer(layer: EnumWorldBlockLayer): Boolean = {
-    layer == EnumWorldBlockLayer.CUTOUT
+  override def canRenderInLayer(layer: BlockRenderLayer): Boolean = {
+    layer == BlockRenderLayer.CUTOUT
   }
 
-  override def getType: String = {
+  override def getType: ResourceLocation = {
     NAME
   }
 
@@ -107,7 +108,7 @@ class MultipartStone extends Multipart {
       list.add(box)
   }
 
-  override def createBlockState: BlockState = { MULTIPART_STATE }
+  override def createBlockState: BlockStateContainer = { MULTIPART_STATE }
 
   override def getExtendedState(state: IBlockState): IBlockState = {
     state.withProperty(PROPERTY_RUNE_TYPE, runeType.getRuneType)

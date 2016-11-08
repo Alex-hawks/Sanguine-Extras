@@ -7,16 +7,15 @@ import WayofTime.bloodmagic.api.ritual.RitualComponent;
 import io.github.alex_hawks.SanguineExtras.api.sigil.MobNet;
 import io.github.alex_hawks.SanguineExtras.common.Constants;
 import io.github.alex_hawks.SanguineExtras.common.SanguineExtras;
-import io.github.alex_hawks.SanguineExtras.common.sigil_utils.UtilsMobNet;
-import io.github.alex_hawks.SanguineExtras.common.sigils.ItemMobNet;
+import io.github.alex_hawks.SanguineExtras.common.util.sigils.UtilsMobNet;
+import io.github.alex_hawks.SanguineExtras.common.items.sigils.ItemMobNet;
 import io.github.alex_hawks.SanguineExtras.common.util.BloodUtils;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.boss.IBossDisplayData;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 import java.util.ArrayList;
@@ -107,15 +106,15 @@ public class Spawn extends Ritual
                 if (MobNet.isSpawnBlacklisted(ent.getClass()))
                     return;
 
-                if (w.getEntitiesWithinAABB(ent.getClass(), new AxisAlignedBB(pos.add(-2, -4, -2), pos.add(2, 0, 2))).size() > (ent instanceof IBossDisplayData ? SanguineExtras.spawnMaxEntities / 10 : SanguineExtras.spawnMaxEntities))
+                if (w.getEntitiesWithinAABB(ent.getClass(), new AxisAlignedBB(pos.add(-2, -4, -2), pos.add(2, 0, 2))).size() > (ent.isNonBoss() ? SanguineExtras.spawnMaxEntities : SanguineExtras.spawnMaxEntities / 10))
                 {
                     return;
                 }
 
-                if (ent instanceof IBossDisplayData && !SanguineExtras.spawnableBossMobs)
+                if (ent.isNonBoss() || SanguineExtras.spawnableBossMobs)
                     return;
 
-                if (BloodUtils.drainSoulNetworkWithNausea(UUID.fromString(stone.getOwner()), (int) (ent.getMaxHealth() + ent.getMaxHealth() - ent.getHealth()) * cost * (ent instanceof IBossDisplayData ? 10 : 1), null))
+                if (BloodUtils.drainSoulNetworkWithNausea(UUID.fromString(stone.getOwner()), (int) (ent.getMaxHealth() + ent.getMaxHealth() - ent.getHealth()) * cost * (ent.isNonBoss() ? 1 : 10), null))
                 {
 //                    this.canDrainReagent(stone, ReagentRegistry.terraeReagent, Drain.terrae, true);
 //                    this.canDrainReagent(stone, ReagentRegistry.orbisTerraeReagent, Drain.orbisTerrae, true);

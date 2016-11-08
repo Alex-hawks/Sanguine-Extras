@@ -1,7 +1,7 @@
 package io.github.alex_hawks.SanguineExtras
 
-import net.minecraft.util.EnumChatFormatting
+import com.mojang.realmsclient.gui.ChatFormatting
 
 package object common {
-  def loreFormat: String = EnumChatFormatting.DARK_PURPLE.toString() + EnumChatFormatting.BOLD.toString()
+  def loreFormat: String = ChatFormatting.DARK_PURPLE.toString() + ChatFormatting.BOLD.toString()
 }

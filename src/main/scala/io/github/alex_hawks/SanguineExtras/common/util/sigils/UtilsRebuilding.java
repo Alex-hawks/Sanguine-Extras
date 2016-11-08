@@ -1,17 +1,15 @@
-package io.github.alex_hawks.SanguineExtras.common.sigil_utils;
+package io.github.alex_hawks.SanguineExtras.common.util.sigils;
 
 import io.github.alex_hawks.SanguineExtras.common.SanguineExtras;
 import io.github.alex_hawks.SanguineExtras.common.util.BloodUtils;
-import io.github.alex_hawks.SanguineExtras.common.util.PlayerUtils;
 import io.github.alex_hawks.util.minecraft.common.Vector3;
 import lombok.NonNull;
-import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.item.EntityXPOrb;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.BlockSnapshot;
@@ -19,11 +17,10 @@ import net.minecraftforge.event.world.BlockEvent.BreakEvent;
 import net.minecraftforge.event.world.BlockEvent.PlaceEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
-import thaumcraft.client.lib.UtilsFX;
 
 import java.util.*;
 
-import static io.github.alex_hawks.SanguineExtras.common.util.PlayerUtils.putItem;
+import static io.github.alex_hawks.SanguineExtras.common.util.PlayerUtils.putItemWithDrop;
 import static io.github.alex_hawks.SanguineExtras.common.util.PlayerUtils.takeItem;
 
 public class UtilsRebuilding
@@ -49,7 +46,7 @@ public class UtilsRebuilding
             p = pos.add(d.getFrontOffsetX(), d.getFrontOffsetY(), d.getFrontOffsetZ());
             b = world.getBlockState(p);
 
-            if (!b.getBlock().getMaterial().isSolid())
+            if (!b.getMaterial().isSolid())
             {
                 airBlocks.add(new Vector3(p));
             }
@@ -73,7 +70,7 @@ public class UtilsRebuilding
                     p = pos.add(d.getFrontOffsetX(), d.getFrontOffsetY(), d.getFrontOffsetZ());
                     b = world.getBlockState(p);
 
-                    if (b.getBlock().getMaterial().isSolid() && b.equals(original))
+                    if (b.getMaterial().isSolid() && b.equals(original))
                     {
                         solidBlocks.add(new Vector3(p));
                         set.add(new Vector3(p));
@@ -90,7 +87,7 @@ public class UtilsRebuilding
                     p = pos.add(d.getFrontOffsetX(), d.getFrontOffsetY(), d.getFrontOffsetZ());
                     b = world.getBlockState(p);
 
-                    if (!b.getBlock().getMaterial().isSolid())
+                    if (!b.getMaterial().isSolid())
                     {
                         airBlocks.add(new Vector3(p));
                     }
@@ -125,7 +122,7 @@ public class UtilsRebuilding
         return find(coords.toPos(), w);
     }
 
-    public static void doReplace(EntityPlayer player, UUID sigilOwner, Vector3 ls, World w, IBlockState oldBlock, IBlockState newBlock)
+    public static void doReplace(EntityPlayer player, String sigilOwner, Vector3 ls, World w, IBlockState oldBlock, IBlockState newBlock)
     {
         Map<Integer, Set<Vector3>> tmp = new HashMap<>();
         tmp.put(0, new HashSet<>());
@@ -133,7 +130,7 @@ public class UtilsRebuilding
         doReplace(player, sigilOwner, tmp, w, oldBlock, newBlock);
     }
 
-    public static void doReplace(@NonNull EntityPlayer player, UUID sigilOwner, @NonNull final Map<Integer, Set<Vector3>> map, World w, IBlockState oldBlock, IBlockState newBlock)
+    public static void doReplace(@NonNull EntityPlayer player, String sigilOwner, @NonNull final Map<Integer, Set<Vector3>> map, World w, IBlockState oldBlock, IBlockState newBlock)
     {
         MinecraftForge.EVENT_BUS.register(new Object()
         {
@@ -163,7 +160,7 @@ public class UtilsRebuilding
                                 {
                                     if (BloodUtils.drainSoulNetwork(sigilOwner, SanguineExtras.rebuildSigilCost, player) && takeItem(player, new ItemStack(newBlock.getBlock(), 1, newBlock.getBlock().getMetaFromState(newBlock))))
                                     {
-                                        putItem(player, oldBlock.getBlock().getDrops(w, v.toPos(), oldBlock, 0).toArray(new ItemStack[0]));
+                                        putItemWithDrop(player, oldBlock.getBlock().getDrops(w, v.toPos(), oldBlock, 0).toArray(new ItemStack[0]));
                                         w.setBlockState(v.toPos(), newBlock, 0x3);
 
                                         if (e.getExpToDrop() > 0)

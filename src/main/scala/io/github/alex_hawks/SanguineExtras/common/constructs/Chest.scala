@@ -1,9 +1,11 @@
 package io.github.alex_hawks.SanguineExtras.common
 package constructs
 
+import java.util.Locale
+import javax.annotation.Nullable
+
 import io.github.alex_hawks.SanguineExtras.common.constructs.Chest._
 import io.github.alex_hawks.SanguineExtras.common.util.{PlayerUtils, SanguineExtrasCreativeTab}
-import io.github.alex_hawks.util.minecraft.common.WorldUtils
 import io.github.alex_hawks.util.minecraft.common.WorldUtils.dropItem
 import net.minecraft.block.BlockContainer
 import net.minecraft.block.material.Material
@@ -12,11 +14,12 @@ import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.inventory.{Container, IInventory, Slot}
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
-import net.minecraft.network.play.INetHandlerPlayClient
-import net.minecraft.network.play.server.S35PacketUpdateTileEntity
+import net.minecraft.network.play.server.SPacketUpdateTileEntity
 import net.minecraft.network.{NetworkManager, Packet}
 import net.minecraft.tileentity.TileEntity
 import net.minecraft.util._
+import net.minecraft.util.math.BlockPos
+import net.minecraft.util.text.ITextComponent
 import net.minecraft.world.World
 
 object Chest {
@@ -34,22 +37,20 @@ object Chest {
   val lidMotion = 1f / 10f
 }
 
-object BlockChest extends BlockContainer(Material.rock) {
+object BlockChest extends BlockContainer(Material.ROCK) {
 
-  this.setRegistryName(Constants.MetaData.MOD_ID, "sanguineChest");
+  this.setRegistryName(Constants.MetaData.MOD_ID.toLowerCase(Locale.ROOT), "sanguineChest");
   this.setUnlocalizedName("sanguineChest")
   setCreativeTab(SanguineExtrasCreativeTab.Instance);
 
-  override def getRenderType = -1
-
   override def createNewTileEntity(world: World, meta: Int) = new TileChest(meta)
 
-  override def isOpaqueCube: Boolean = false
+  override def isOpaqueCube(state: IBlockState): Boolean = false
 
-  override def isBlockNormalCube: Boolean = false
+  override def isBlockNormalCube(state: IBlockState): Boolean = false
 
-  override def onBlockActivated(w: World, pos: BlockPos, state: IBlockState, player: EntityPlayer, side: EnumFacing, hitX: Float, hitY: Float, hitZ: Float) = {
-    player.openGui(SanguineExtras.INSTANCE, 0, w, pos.getX, pos.getY, pos.getZ)
+  override def onBlockActivated(w: World, pos: BlockPos, st: IBlockState, p: EntityPlayer, h: EnumHand, @Nullable item: ItemStack, s: EnumFacing, x: Float, y: Float, z: Float) = {
+    p.openGui(SanguineExtras.INSTANCE, 0, w, pos.getX, pos.getY, pos.getZ)
     true
   }
 
@@ -97,7 +98,7 @@ class TileChest(var tier: Int) extends TileEntity with IInventory with ITickable
 
     height += Math.min(motion, maxHeightChange)
 
-    worldObj.markBlockForUpdate(pos)
+    worldObj.markBlockRangeForRenderUpdate(pos, pos)
 
     if (lidMoving) {
       if (numPlayersUsing > 0) {
@@ -162,12 +163,12 @@ class TileChest(var tier: Int) extends TileEntity with IInventory with ITickable
     tag
   }
 
-  override def getDescriptionPacket: Packet[INetHandlerPlayClient] = {
+  override def getUpdatePacket: SPacketUpdateTileEntity = {
     val tag = writeSyncData(new NBTTagCompound)
-    new S35PacketUpdateTileEntity(this.pos, 1, tag)
+    new SPacketUpdateTileEntity(this.pos, 1, tag)
   }
 
-  override def onDataPacket(net: NetworkManager, pkt: S35PacketUpdateTileEntity) = {
+  override def onDataPacket(net: NetworkManager, pkt: SPacketUpdateTileEntity) = {
     readSyncData(pkt.getNbtCompound)
   }
 
@@ -234,7 +235,7 @@ class TileChest(var tier: Int) extends TileEntity with IInventory with ITickable
 
   override def setField(id: Int, value: Int): Unit = {}
 
-  override def getDisplayName: IChatComponent = null
+  override def getDisplayName: ITextComponent = null
 
   override def hasCustomName: Boolean = false;
 }
@@ -253,7 +254,7 @@ class ContainerChest(val player: EntityPlayer, val chest: TileChest) extends Con
   for (playerInvCol <- 0 until 9)
     addSlotToContainer(new Slot(player.inventory, playerInvCol, 39 + playerInvCol * 18, 232));
 
-  override def canInteractWith(player: EntityPlayer): Boolean = PlayerUtils.isFakePlayer(player)
+  override def canInteractWith(player: EntityPlayer): Boolean = PlayerUtils.isNotFakePlayer(player)
 
   override def transferStackInSlot(player: EntityPlayer, slotID: Int): ItemStack = {
     var itemstack: ItemStack = null
