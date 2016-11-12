@@ -27,10 +27,10 @@ public class UtilsRebuilding
 {
     public static Map<Integer, Set<Vector3>> find(BlockPos pos, World world)
     {
-        List<Vector3> solidBlocks = new ArrayList<Vector3>();
-        List<Vector3> airBlocks = new ArrayList<Vector3>();
-        List<Vector3> currentSolidBlocks = new ArrayList<Vector3>();
-        List<Vector3> currentairBlocks = new ArrayList<Vector3>();
+        List<Vector3> solidBlocks = new ArrayList<>();
+        List<Vector3> airBlocks = new ArrayList<>();
+        List<Vector3> currentSolidBlocks = new ArrayList<>();
+        List<Vector3> currentAirBlocks = new ArrayList<>();
 
         Map<Integer, Set<Vector3>> toReturn = new HashMap<>();
 
@@ -40,15 +40,16 @@ public class UtilsRebuilding
         solidBlocks.add(new Vector3(pos));
         toReturn.put(0, new HashSet<>(solidBlocks));
 
-        BlockPos p;
+        Vector3 p;
+
         for (EnumFacing d : EnumFacing.values())
         {
-            p = pos.add(d.getFrontOffsetX(), d.getFrontOffsetY(), d.getFrontOffsetZ());
-            b = world.getBlockState(p);
+            p = new Vector3(pos).shift(d);
+            b = world.getBlockState(p.toPos());
 
             if (!b.getMaterial().isSolid())
             {
-                airBlocks.add(new Vector3(p));
+                airBlocks.add(p);
             }
         }
 
@@ -60,43 +61,80 @@ public class UtilsRebuilding
             //  Going to do this properly
             currentSolidBlocks.clear();
             currentSolidBlocks.addAll(solidBlocks);
-            currentairBlocks.clear();
-            currentairBlocks.addAll(airBlocks);
+            currentAirBlocks.clear();
+            currentAirBlocks.addAll(airBlocks);
 
             for (Vector3 v : currentSolidBlocks)
             {
                 for (EnumFacing d : EnumFacing.values())
                 {
-                    p = pos.add(d.getFrontOffsetX(), d.getFrontOffsetY(), d.getFrontOffsetZ());
-                    b = world.getBlockState(p);
+                    p = v.shift(d);
+                    b = world.getBlockState(p.toPos());
 
                     if (b.getMaterial().isSolid() && b.equals(original))
                     {
-                        solidBlocks.add(new Vector3(p));
-                        set.add(new Vector3(p));
-                    } else
+                        D2:
+                        for (EnumFacing d2 : EnumFacing.values())
+                        {
+                            if (!world.getBlockState(p.shift(d2).toPos()).getMaterial().isSolid())
+                            {
+                                solidBlocks.add(p);
+                                set.add(p);
+                                break D2;
+                            }
+                        }
+                    } else if (!b.getMaterial().isSolid())
                     {
-                        airBlocks.add(new Vector3(p));
+                        airBlocks.add(p);
                     }
                 }
             }
-            for (Vector3 v : currentairBlocks)
+            for (Vector3 v : currentAirBlocks)
             {
                 for (EnumFacing d : EnumFacing.values())
                 {
-                    p = pos.add(d.getFrontOffsetX(), d.getFrontOffsetY(), d.getFrontOffsetZ());
-                    b = world.getBlockState(p);
+                    p = v.shift(d);
+                    b = world.getBlockState(p.toPos());
 
                     if (!b.getMaterial().isSolid())
                     {
-                        airBlocks.add(new Vector3(p));
+                        airBlocks.add(p);
                     }
                 }
             }
         }
-//
+
 //        Vector3 vec3;
-//        block:
+//        boolean flag;
+//        for (Vector3 v : solidBlocks)
+//        {
+//            flag = false;
+//            block:
+//            for (EnumFacing d : EnumFacing.values())
+//            {
+//                vec3 = v.shift(d);
+//
+//                for (Vector3 air : airBlocks)
+//                {
+//                    if (air.equals(vec3))
+//                    {
+////                        System.out.println(world.getBlockState(v.toPos()).getBlock().getUnlocalizedName() + " is next to " + world.getBlockState(vec3.toPos()).getBlock().getUnlocalizedName());
+//                        flag = true;
+//                        break block;
+//                    }
+//                }
+//            }
+//            if (!flag)
+//            {
+//                for (Set<Vector3> set : toReturn.values())
+//                {
+//                    set.remove(v);
+//                }
+////                System.out.println("Removed: " + v.toString());
+//            }
+//        }
+
+
 //        for (Vector3 v : currentSolidBlocks)
 //        {
 //            for (EnumFacing d : EnumFacing.values())
@@ -117,7 +155,7 @@ public class UtilsRebuilding
         return toReturn;
     }
 
-    public static Map<Integer, Set<Vector3>> find(Vector3 coords, World w)
+    public static Map<Integer, Set<Vector3>> find(Vector3 coords, World w, EnumFacing side)
     {
         return find(coords.toPos(), w);
     }
@@ -132,6 +170,7 @@ public class UtilsRebuilding
 
     public static void doReplace(@NonNull EntityPlayer player, String sigilOwner, @NonNull final Map<Integer, Set<Vector3>> map, World w, IBlockState oldBlock, IBlockState newBlock)
     {
+        ItemStack stack = player.inventory.getCurrentItem();
         MinecraftForge.EVENT_BUS.register(new Object()
         {
             Iterator<Map.Entry<Integer, Set<Vector3>>> it = map.entrySet().iterator();
@@ -153,12 +192,12 @@ public class UtilsRebuilding
                         {
                             e = new BreakEvent(w, v.toPos(), oldBlock, player);
                             s = new BlockSnapshot(w, v.toPos(), newBlock);
-                            e2 = new PlaceEvent(s, newBlock, player);
+                            e2 = new PlaceEvent(s, newBlock, player, null);
                             if (!MinecraftForge.EVENT_BUS.post(e))
                             {
                                 if (!MinecraftForge.EVENT_BUS.post(e2))
                                 {
-                                    if (BloodUtils.drainSoulNetwork(sigilOwner, SanguineExtras.rebuildSigilCost, player) && takeItem(player, new ItemStack(newBlock.getBlock(), 1, newBlock.getBlock().getMetaFromState(newBlock))))
+                                    if (BloodUtils.drainSoulNetwork(sigilOwner, SanguineExtras.rebuildSigilCost, player) && takeItem(player, new ItemStack(newBlock.getBlock(), 1, newBlock.getBlock().getMetaFromState(newBlock)), stack))
                                     {
                                         putItemWithDrop(player, oldBlock.getBlock().getDrops(w, v.toPos(), oldBlock, 0).toArray(new ItemStack[0]));
                                         w.setBlockState(v.toPos(), newBlock, 0x3);

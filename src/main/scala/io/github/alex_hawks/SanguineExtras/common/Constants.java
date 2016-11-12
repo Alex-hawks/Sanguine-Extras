@@ -1,5 +1,7 @@
 package io.github.alex_hawks.SanguineExtras.common;
 
+import net.minecraftforge.fml.common.Loader;
+
 public class Constants
 {
     public static final class MetaData
@@ -11,10 +13,16 @@ public class Constants
 
         public static final String BAUBLES_ID = "Baubles";
         public static final String MCMP_ID = "mcmultipart";
+        public static final String BOTANIA_ID = "Botania";
     }
 
     public static final class HardLimits
     {
         public static final int BUILDERS_SIGIL_COUNT = 9;
+    }
+
+    public static final class Loaded
+    {
+        public static final boolean BOTANIA = Loader.isModLoaded(MetaData.BOTANIA_ID);
     }
 }

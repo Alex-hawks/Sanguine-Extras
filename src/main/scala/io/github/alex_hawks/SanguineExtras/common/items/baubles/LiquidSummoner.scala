@@ -4,22 +4,26 @@ import javax.annotation.Nonnull
 
 import WayofTime.bloodmagic.api.util.helper.{PlayerHelper, NBTHelper}
 import WayofTime.bloodmagic.block.BlockLifeEssence
-import WayofTime.bloodmagic.registry.ModRituals
+import WayofTime.bloodmagic.registry.{ModBlocks, ModRituals}
 import WayofTime.bloodmagic.util.helper.TextHelper
 import baubles.api.BaubleType
 import com.google.common.base.Strings
+import io.github.alex_hawks.SanguineExtras.common.Constants
 import io.github.alex_hawks.SanguineExtras.common.util.{SanguineExtrasCreativeTab, BloodUtils, PlayerUtils, Bauble}
+import net.minecraft.block.Block
 import net.minecraft.creativetab.CreativeTabs
 import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.init.Items
+import net.minecraft.init.{Blocks, Items}
 import net.minecraft.item.{Item, ItemStack}
 import net.minecraftforge.common.ForgeModContainer
 import net.minecraftforge.event.entity.player.PlayerInteractEvent
 import net.minecraftforge.fluids.{Fluid, FluidStack}
+import net.minecraftforge.fml.common.Optional
 import net.minecraftforge.fml.common.eventhandler.{SubscribeEvent, EventPriority}
 
 import LiquidConstants._
 import net.minecraftforge.fml.relauncher.{SideOnly, Side}
+import vazkii.botania.api.item.IBlockProvider
 
 object LiquidConstants {
   private val lp = {
@@ -37,11 +41,12 @@ object LiquidConstants {
     val empty = 0
     val water = ModRituals.waterRitual.getRefreshCost
     val lava = ModRituals.lavaRitual.getRefreshCost
-    val lifeEssence = 1000
+    val lifeEssence = Fluid.BUCKET_VOLUME
   }
 }
 
-object LiquidSummoner extends BaubleBase {
+@Optional.Interface(iface = "vazkii.botania.api.item.IBlockProvider", modid = "Botania", striprefs = true)
+object LiquidSummoner extends BaubleBase with IBlockProvider{
   this.maxStackSize = 1
   setCreativeTab(SanguineExtrasCreativeTab.Instance)
   this.setUnlocalizedName("baubleLiquidSummoner")
@@ -79,6 +84,20 @@ object LiquidSummoner extends BaubleBase {
     case 2 => costs.lifeEssence
     case _ => costs.empty
   }
+
+  override def getBlockCount(player: EntityPlayer, requester: ItemStack, thisStack: ItemStack, block: Block, i: Int): Int = (block, i, thisStack.getMetadata) match {
+    case (Blocks.WATER | Blocks.FLOWING_WATER, _, 0) => -1
+    case (Blocks.LAVA | Blocks.FLOWING_LAVA, _, 1) => -1
+    case (ModBlocks.LIFE_ESSENCE, _, 2) => -1
+    case _ => 0
+  }
+
+  override def provideBlock(player: EntityPlayer, requester: ItemStack, thisStack: ItemStack, block: Block, i: Int, b: Boolean): Boolean = {
+    val drain = getFillCost(thisStack)
+    if (!b)
+      return true
+    return BloodUtils.drainSoulNetworkWithDamage(BloodUtils.getOrBind(thisStack, player), player, drain)
+  }
 }
 object LiquidSummonHandler {
   val bauble = new ItemStack(LiquidSummoner)
@@ -91,7 +110,7 @@ object LiquidSummonHandler {
       val (has, stack)= Bauble.isWearing(e.getEntityPlayer, bauble, true)
 
       if(has && BloodUtils.drainSoulNetworkWithDamage(BloodUtils.getOrBind(stack, e.getEntityPlayer), e.getEntityPlayer, LiquidSummoner.getFillCost(stack))
-        && PlayerUtils.takeItem(e.getEntityPlayer, buckets.empty)) {
+        && PlayerUtils.takeItem(e.getEntityPlayer, buckets.empty, stack)) {
         PlayerUtils.putItemWithDrop(e.getEntityPlayer, LiquidSummoner.getFilledBucket(stack))
         e.setCanceled(true)
       }

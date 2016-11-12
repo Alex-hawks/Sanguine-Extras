@@ -78,7 +78,7 @@ class Forge extends AdvancedRitual(name, 0, activationCost, s"ritual.${Constants
       return true //neither filter exists
     import filter._
     for (i <- 0 until getSizeInventory)
-      if (is.equals(getStackInSlot(i)))
+      if (is.isItemEqual(getStackInSlot(i)))
         return isWhiteList
     return !isWhiteList
   }
@@ -126,7 +126,7 @@ class Forge extends AdvancedRitual(name, 0, activationCost, s"ritual.${Constants
 
     for( x <- OreDictionary.getOreIDs(output)) {
       val ingot = OreDictionary.getOreName(x)
-      if (ingot.startsWith("ingot") && OreDictionary.doesOreNameExist(s"nugget${ingot.substring("ingot".length)}") && OreDictionary.getOres(ingot.substring("ingot".length)).size() > 0)
+      if (ingot.startsWith("ingot") && OreDictionary.doesOreNameExist(s"nugget${ingot.substring("ingot".length)}") && OreDictionary.getOres(s"nugget${ingot.substring("ingot".length)}").size() > 0)
         for(y <- 0 until mrs.getWorldObj.rand.nextInt(3 * output.stackSize) + 2 * output.stackSize)
           outputs.add(OreDictionary.getOres(ingot.substring("ingot".length)).get(0))
     }

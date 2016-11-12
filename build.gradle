@@ -62,6 +62,10 @@ repositories {
         name "Baubles"
         artifactPattern "https://dl.dropboxusercontent.com/u/47135879/[module]-1.10.2-[revision]-deobf.[ext]"
     }
+    ivy {
+        name "Botania"
+        artifactPattern "http://botaniamod.net/files/deobf/[module] [revision]-deobf.[ext]"
+    }
 }
 
 sourceSets {
@@ -79,6 +83,7 @@ dependencies {
 
 //    compile name: "Thaumcraft", version: "${mc_version}-${thaumcraft_version}", ext: "jar"
     compile name: 'Baubles', version: "${baubles_version}", ext: 'jar'
+    compile name: 'Botania', version: "${botania_version}", ext: 'jar'
 	
 	deobfCompile "MCMultiPart:MCMultiPart-experimental:${mcmp_version}:universal"
 	deobfCompile "com.wayoftime.bloodmagic:BloodMagic:${bm_version}"

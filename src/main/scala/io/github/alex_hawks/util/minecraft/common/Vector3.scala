@@ -7,7 +7,6 @@ class Vector3(val x: Int, val y: Int, val z: Int) {
 
   def this(pos: BlockPos) = this(pos.getX, pos.getY, pos.getZ)
 
-
   def +(w: (Int, Int, Int)): Vector3 = new Vector3(x + w._1, y + w._2, z + w._3)
 
   def +(that: Vector3): Vector3 = new Vector3(this.x + that.x, this.y + that.y, this.z + that.z)

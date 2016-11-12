@@ -3,20 +3,24 @@ package io.github.alex_hawks.SanguineExtras.common.items.baubles
 import javax.annotation.Nonnull
 
 import WayofTime.bloodmagic.api.util.helper.{PlayerHelper, NBTHelper}
-import WayofTime.bloodmagic.registry.ModRituals
+import WayofTime.bloodmagic.registry.{ModBlocks, ModRituals}
 import WayofTime.bloodmagic.util.helper.TextHelper
 import baubles.api.BaubleType
 import com.google.common.base.Strings
+import io.github.alex_hawks.SanguineExtras.common.Constants
 import io.github.alex_hawks.SanguineExtras.common.util.{PlayerUtils, BloodUtils, Bauble, SanguineExtrasCreativeTab}
+import net.minecraft.block.Block
 import net.minecraft.creativetab.CreativeTabs
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.init.Blocks
 import net.minecraft.item.{Item, ItemStack}
 import net.minecraft.util.EnumHand
 import net.minecraftforge.event.entity.player.PlayerInteractEvent
+import net.minecraftforge.fml.common.Optional
 import net.minecraftforge.fml.common.eventhandler.{EventPriority, SubscribeEvent}
 import net.minecraftforge.fml.relauncher.{Side, SideOnly}
 import StoneConstants._
+import vazkii.botania.api.item.IBlockProvider
 
 object StoneConstants {
   object stacks {
@@ -29,15 +33,16 @@ object StoneConstants {
   }
   object costs {
     val empty = 0
-    val cobble = 500
-    val stone = 500
-    val netherrack = 500
+    val cobble = ModRituals.lavaRitual.getRefreshCost
+    val stone = ModRituals.lavaRitual.getRefreshCost
+    val netherrack = ModRituals.lavaRitual.getRefreshCost
     val obsidian = ModRituals.lavaRitual.getRefreshCost * 64
-    val sand = 500
+    val sand = ModRituals.lavaRitual.getRefreshCost
   }
 }
 
-object StoneSummoner extends BaubleBase {
+@Optional.Interface(iface = "vazkii.botania.api.item.IBlockProvider", modid = "Botania", striprefs = true)
+object StoneSummoner extends BaubleBase with IBlockProvider {
   this.maxStackSize = 1
   setCreativeTab(SanguineExtrasCreativeTab.Instance)
   this.setUnlocalizedName("baubleStoneSummoner")
@@ -78,6 +83,28 @@ object StoneSummoner extends BaubleBase {
     case 3 => costs.obsidian
     case 4 => costs.sand
     case _ => costs.empty
+  }
+
+  override def getBlockCount(player: EntityPlayer, requester: ItemStack, thisStack: ItemStack, block: Block, i: Int): Int = (block, i, thisStack.getMetadata) match {
+    case (Blocks.COBBLESTONE, _, 0) => -1
+    case (Blocks.STONE, _, 1) => -1
+    case (Blocks.NETHERRACK, _, 2) => -1
+    case (Blocks.OBSIDIAN, _, 3) => -1
+    case (Blocks.SAND, _, 4) => -1
+    case _ => 0
+  }
+
+  override def provideBlock(player: EntityPlayer, requester: ItemStack, thisStack: ItemStack, block: Block, i: Int, b: Boolean): Boolean = {
+    var drain = getCost(thisStack)
+    if (drain % 64 == 0)
+      drain /= 64
+    else {
+      drain /= 64
+      drain += 1
+    }
+    if (!b)
+      return true
+    return BloodUtils.drainSoulNetworkWithDamage(BloodUtils.getOrBind(thisStack, player), player, drain)
   }
 }
 object StoneSummonHandler {

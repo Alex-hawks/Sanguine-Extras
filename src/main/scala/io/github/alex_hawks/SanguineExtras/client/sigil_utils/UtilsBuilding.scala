@@ -12,6 +12,7 @@ import net.minecraft.client.Minecraft
 import net.minecraft.client.entity.EntityPlayerSP
 import net.minecraft.client.renderer.texture.TextureMap
 import net.minecraft.init.Blocks
+import net.minecraft.util.math.RayTraceResult
 import net.minecraft.world.World
 import net.minecraftforge.client.event.RenderWorldLastEvent
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
@@ -29,6 +30,8 @@ class UtilsBuilding {
 
     if (p.inventory.getCurrentItem != null && p.inventory.getCurrentItem.getItem.isInstanceOf[ItemBuilding]) {
 
+      if (mc.objectMouseOver.typeOfHit != RayTraceResult.Type.BLOCK)
+        return
       val b: IBlockState = w.getBlockState(mc.objectMouseOver.getBlockPos)
       if (b == null || b.getBlock.equals(Blocks.AIR))
         return

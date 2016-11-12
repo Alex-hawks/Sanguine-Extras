@@ -64,6 +64,7 @@ public class ItemBuilding extends ItemBindable implements ISigil
     public EnumActionResult onItemUse(ItemStack stack, EntityPlayer player, World w, BlockPos pos, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
     {
         final Map<Integer, Set<Vector3>> map = UtilsBuilding.getBlocksForBuild(w, new Vector3(pos), side, player, 9);
+        final String owner = BloodUtils.getOrBind(stack, player);
 
         MinecraftForge.EVENT_BUS.register(new Object()
         {
@@ -86,14 +87,14 @@ public class ItemBuilding extends ItemBindable implements ISigil
                         t = w.getBlockState(pos);
                         s = new BlockSnapshot(w, v.toPos(), t);
                         b = t.getBlock();
-                        e = new PlaceEvent(s, t, player);
+                        e = new PlaceEvent(s, t, player, null);
                         if (!MinecraftForge.EVENT_BUS.post(e))
                         {
-                            String str = ItemBuilding.this.getOwnerUUID(stack);
+                            String str = owner;
                             if (str != null && !str.isEmpty())
                             {
                                 if (BloodUtils.drainSoulNetworkWithDamage(ItemBuilding.this.getOwnerUUID(stack), player, SanguineExtras.rebuildSigilCost)
-                                        && PlayerUtils.takeItem(player, new ItemStack(b, 1, b.getMetaFromState(w.getBlockState(pos)))))
+                                        && PlayerUtils.takeItem(player, new ItemStack(b, 1, b.getMetaFromState(w.getBlockState(pos))), stack))
                                 {
                                     w.setBlockState(v.toPos(), t, 0x3);
                                 }

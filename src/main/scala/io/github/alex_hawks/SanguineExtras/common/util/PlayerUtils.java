@@ -1,9 +1,12 @@
 package io.github.alex_hawks.SanguineExtras.common.util;
 
 import WayofTime.bloodmagic.api.util.helper.PlayerHelper;
+import io.github.alex_hawks.SanguineExtras.common.Constants;
 import io.github.alex_hawks.SanguineExtras.common.Items;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
+import vazkii.botania.api.item.IBlockProvider;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,7 +22,7 @@ public class PlayerUtils
      * @param is     The item to take. Will only take 1 (ONE) item
      * @return
      */
-    public static boolean takeItem(EntityPlayer player, ItemStack is)
+    public static boolean takeItemInv(EntityPlayer player, ItemStack is)
     {
         if (player.capabilities.isCreativeMode)
             return true;
@@ -37,6 +40,40 @@ public class PlayerUtils
                 return true;
             }
         }
+        return false;
+    }
+
+    /**
+     * WARNING: DOES NOT ENSURE BOTANIA IS LOADED, OR EVEN THAT ITS API EXISTS
+     */
+    public static boolean takeItemBotania(EntityPlayer player, ItemStack is, ItemStack requester)
+    {
+        if (is.getItem() instanceof ItemBlock)
+        {
+            ItemStack is2;
+            for (int i = 0; i < player.inventory.mainInventory.length; i++)
+            {
+                is2 = player.inventory.mainInventory[i];
+                if (is2.getItem() instanceof IBlockProvider)
+                {
+                    IBlockProvider prov = (IBlockProvider) is2.getItem();
+                    if (prov.provideBlock(player, requester, is2, ((ItemBlock) is.getItem()).getBlock(), is.getMetadata(), false))
+                    {
+                        prov.provideBlock(player, requester, is2, ((ItemBlock) is.getItem()).getBlock(), is.getMetadata(), true);
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    public static boolean takeItem(EntityPlayer player, ItemStack is, ItemStack requester)
+    {
+        if (takeItemInv(player, is))
+            return true;
+        else if (Constants.Loaded.BOTANIA && takeItemBotania(player, is, requester))
+            return true;
         return false;
     }
 
@@ -73,7 +110,7 @@ public class PlayerUtils
             {
                 if (stack.getMaxStackSize() == stack.stackSize)
                     continue;
-                if (stack.isItemEqual(is) && ItemStack.areItemStackTagsEqual(stack,is))
+                if (stack.isItemEqual(is) && ItemStack.areItemStackTagsEqual(stack, is))
                 {
                     int space = stack.getMaxStackSize() - stack.stackSize;
 
@@ -82,8 +119,7 @@ public class PlayerUtils
                         stack.stackSize += is.stackSize;
                         is.stackSize = 0;
                         break;
-                    }
-                    else
+                    } else
                     {
                         stack.stackSize = stack.getMaxStackSize();
                         is.stackSize -= space;
@@ -92,7 +128,7 @@ public class PlayerUtils
                 }
             }
 
-            if(is.stackSize > 0)
+            if (is.stackSize > 0)
                 orb.get(player).add(is);
         }
     }
