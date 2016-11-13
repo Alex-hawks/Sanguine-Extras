@@ -76,7 +76,8 @@ public class BlockAdvancedMasterStone extends BlockContainer
                 {
                     ((TileMasterRitualStone) tile).setDirection(direction);
                 }
-            } else
+            }
+            else
             {
                 ChatUtil.sendNoSpamUnloc(player, "chat.BloodMagic.ritual.notValid");
             }
@@ -99,7 +100,8 @@ public class BlockAdvancedMasterStone extends BlockContainer
             AMRSHandler.onCollide((TEAdvancedMasterStone) te, ent);
     }
 
-    public AxisAlignedBB getCollisionBoundingBox(World world, BlockPos pos, IBlockState state) {
+    public AxisAlignedBB getCollisionBoundingBox(World world, BlockPos pos, IBlockState state)
+    {
         return new Vector3(pos).shiftAABB(new AxisAlignedBB(SMALL_NUMBER, SMALL_NUMBER, SMALL_NUMBER, 16 - SMALL_NUMBER, 16 - SMALL_NUMBER, 16 - SMALL_NUMBER));
     }
 }

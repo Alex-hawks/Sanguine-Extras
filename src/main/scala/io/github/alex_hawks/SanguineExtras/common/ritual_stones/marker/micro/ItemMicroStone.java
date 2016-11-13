@@ -40,7 +40,8 @@ public class ItemMicroStone extends ItemMultiPart
     }
 
     @Override
-    public SoundType getPlacementSound(ItemStack stack) {
+    public SoundType getPlacementSound(ItemStack stack)
+    {
 
         return SoundType.STONE;
     }

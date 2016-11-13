@@ -13,6 +13,7 @@ import io.github.alex_hawks.SanguineExtras.common.ritual_stones.master.advanced.
 import io.github.alex_hawks.SanguineExtras.common.ritual_stones.master.warded.WMRSHandler;
 import io.github.alex_hawks.SanguineExtras.common.rituals.advanced.Forge;
 import io.github.alex_hawks.SanguineExtras.common.rituals.advanced.Test;
+import io.github.alex_hawks.SanguineExtras.common.rituals.basic.ApiaryOverclock;
 import io.github.alex_hawks.SanguineExtras.common.rituals.basic.Spawn;
 import io.github.alex_hawks.SanguineExtras.common.util.MultipartFactory;
 import io.github.alex_hawks.SanguineExtras.common.util.sigils.interdiction.PushHandlerTamable;
@@ -20,7 +21,6 @@ import mcmultipart.multipart.MultipartRegistry;
 import net.minecraft.entity.IEntityOwnable;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
-import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -30,7 +30,8 @@ import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.relauncher.Side;
 
-@Mod(dependencies = "after:BloodMagic", modid = Constants.MetaData.MOD_ID, name = Constants.MetaData.NAME, useMetadata = false, modLanguage = "java")
+@SuppressWarnings("unused")
+@Mod(dependencies = "required-after:BloodMagic", modid = Constants.MetaData.MOD_ID, name = Constants.MetaData.NAME, useMetadata = false, modLanguage = "java")
 //modLanguage is the language this file is in
 public class SanguineExtras
 {
@@ -71,6 +72,7 @@ public class SanguineExtras
         RitualRegistry.registerRitual(new Spawn(), Spawn.name, spawnLpPerHealth >= 0 && spawnMaxEntities > 0);
         RitualRegistry.registerRitual(new Test(), Test.name, BloodMagic.isDev());
         RitualRegistry.registerRitual(new Forge(), Forge.name(), true);
+        RitualRegistry.registerRitual(new ApiaryOverclock(), ApiaryOverclock.name(), Constants.Loaded.FORESTRY);
 
         MinecraftForge.EVENT_BUS.register(new AMRSHandler());
         MinecraftForge.EVENT_BUS.register(new WMRSHandler());
@@ -79,11 +81,11 @@ public class SanguineExtras
         networkWrapper = NetworkRegistry.INSTANCE.newSimpleChannel(Constants.MetaData.MOD_ID);
         networkWrapper.registerMessage(HandlerEntityMotion.class, MsgEntityMotion.class, 1, Side.CLIENT);
 
-        if (Loader.isModLoaded(Constants.MetaData.MCMP_ID))
+        if (Constants.Loaded.MCMP)
         {
             MultipartRegistry.registerPartFactory(new MultipartFactory(), MultipartStone.NAME().toString());
         }
-        if (Loader.isModLoaded(Constants.MetaData.BAUBLES_ID))
+        if (Constants.Loaded.BAUBLES)
         {
             MinecraftForge.EVENT_BUS.register(LiquidSummonHandler$.MODULE$);
             MinecraftForge.EVENT_BUS.register(StoneSummonHandler$.MODULE$);

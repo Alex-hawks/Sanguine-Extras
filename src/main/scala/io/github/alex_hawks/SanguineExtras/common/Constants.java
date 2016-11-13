@@ -14,6 +14,7 @@ public class Constants
         public static final String BAUBLES_ID = "Baubles";
         public static final String MCMP_ID = "mcmultipart";
         public static final String BOTANIA_ID = "Botania";
+        public static final String FORESTRY_ID = "forestry";
     }
 
     public static final class HardLimits
@@ -23,6 +24,9 @@ public class Constants
 
     public static final class Loaded
     {
+        public static final boolean BAUBLES = Loader.isModLoaded(MetaData.BAUBLES_ID);
         public static final boolean BOTANIA = Loader.isModLoaded(MetaData.BOTANIA_ID);
+        public static final boolean FORESTRY = Loader.isModLoaded(MetaData.FORESTRY_ID);
+        public static final boolean MCMP = Loader.isModLoaded(MetaData.MCMP_ID);
     }
 }

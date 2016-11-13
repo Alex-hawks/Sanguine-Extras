@@ -5,14 +5,14 @@ import net.minecraft.block.state.IBlockState
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.block.model.IBakedModel
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
-import net.minecraft.client.renderer.{VertexBuffer, BlockRendererDispatcher, GlStateManager, Tessellator}
+import net.minecraft.client.renderer.{BlockRendererDispatcher, GlStateManager, Tessellator, VertexBuffer}
 import net.minecraft.world.World
 
 object Render {
 
   /**
-   * Render code stole from [[net.minecraft.client.renderer.entity.RenderFallingBlock#doRender]]
-   */
+    * Render code stole from [[net.minecraft.client.renderer.entity.RenderFallingBlock#doRender]]
+    */
   def drawFakeBlock(state: IBlockState, min: (Double, Double, Double), w: World, v: Vector3) = {
     val (x, y, z) = min
     GlStateManager.pushMatrix

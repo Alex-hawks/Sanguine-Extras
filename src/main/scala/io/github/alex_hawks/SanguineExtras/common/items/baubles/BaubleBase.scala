@@ -1,12 +1,13 @@
 package io.github.alex_hawks.SanguineExtras.common.items.baubles
 
 import WayofTime.bloodmagic.api.impl.ItemBindable
-import baubles.api.{IBauble, BaublesApi}
+import baubles.api.{BaublesApi, IBauble}
 import io.github.alex_hawks.SanguineExtras.common.util.PlayerUtils
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.item.ItemStack
-import net.minecraft.util.{EnumActionResult, ActionResult, EnumHand}
+import net.minecraft.util.{ActionResult, EnumActionResult, EnumHand}
 import net.minecraft.world.World
+
 import scala.util.control.Breaks._
 
 trait BaubleBase extends ItemBindable with IBauble {
@@ -16,13 +17,13 @@ trait BaubleBase extends ItemBindable with IBauble {
     * and modified to suit my use case by myself (Alex_hawks)
     */
   override def onItemRightClick(stack: ItemStack, w: World, player: EntityPlayer, hand: EnumHand): ActionResult[ItemStack] = {
-    if(PlayerUtils.isNotFakePlayer(player))
+    if (PlayerUtils.isNotFakePlayer(player))
       return ActionResult.newResult(EnumActionResult.FAIL, stack)
 
     val toEquip = stack.copy
     toEquip.stackSize = 1
 
-    if(canEquip(toEquip, player)) {
+    if (canEquip(toEquip, player)) {
       val baubles = BaublesApi.getBaublesHandler(player)
       breakable {
         for (i <- 0 until baubles.getSlots) {

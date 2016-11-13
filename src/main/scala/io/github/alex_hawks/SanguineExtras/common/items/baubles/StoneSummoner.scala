@@ -2,13 +2,13 @@ package io.github.alex_hawks.SanguineExtras.common.items.baubles
 
 import javax.annotation.Nonnull
 
-import WayofTime.bloodmagic.api.util.helper.{PlayerHelper, NBTHelper}
-import WayofTime.bloodmagic.registry.{ModBlocks, ModRituals}
+import WayofTime.bloodmagic.api.util.helper.{NBTHelper, PlayerHelper}
+import WayofTime.bloodmagic.registry.ModRituals
 import WayofTime.bloodmagic.util.helper.TextHelper
 import baubles.api.BaubleType
 import com.google.common.base.Strings
-import io.github.alex_hawks.SanguineExtras.common.Constants
-import io.github.alex_hawks.SanguineExtras.common.util.{PlayerUtils, BloodUtils, Bauble, SanguineExtrasCreativeTab}
+import io.github.alex_hawks.SanguineExtras.common.items.baubles.StoneConstants._
+import io.github.alex_hawks.SanguineExtras.common.util.{Bauble, BloodUtils, PlayerUtils, SanguineExtrasCreativeTab}
 import net.minecraft.block.Block
 import net.minecraft.creativetab.CreativeTabs
 import net.minecraft.entity.player.EntityPlayer
@@ -19,18 +19,24 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent
 import net.minecraftforge.fml.common.Optional
 import net.minecraftforge.fml.common.eventhandler.{EventPriority, SubscribeEvent}
 import net.minecraftforge.fml.relauncher.{Side, SideOnly}
-import StoneConstants._
 import vazkii.botania.api.item.IBlockProvider
 
 object StoneConstants {
+
   object stacks {
     def empty = null
+
     def cobble = new ItemStack(Blocks.COBBLESTONE, 64)
+
     def stone = new ItemStack(Blocks.STONE, 64)
+
     def netherrack = new ItemStack(Blocks.NETHERRACK, 64)
+
     def obsidian = new ItemStack(Blocks.OBSIDIAN, 64)
+
     def sand = new ItemStack(Blocks.SAND, 64)
   }
+
   object costs {
     val empty = 0
     val cobble = ModRituals.lavaRitual.getRefreshCost
@@ -39,6 +45,7 @@ object StoneConstants {
     val obsidian = ModRituals.lavaRitual.getRefreshCost * 64
     val sand = ModRituals.lavaRitual.getRefreshCost
   }
+
 }
 
 @Optional.Interface(iface = "vazkii.botania.api.item.IBlockProvider", modid = "Botania", striprefs = true)
@@ -63,7 +70,7 @@ object StoneSummoner extends BaubleBase with IBlockProvider {
 
   @SideOnly(Side.CLIENT)
   override def getSubItems(item: Item, tab: CreativeTabs, items: java.util.List[ItemStack]) {
-    for(i <- 0 until 5)
+    for (i <- 0 until 5)
       items.add(new ItemStack(item, 1, i))
   }
 
@@ -107,6 +114,7 @@ object StoneSummoner extends BaubleBase with IBlockProvider {
     return BloodUtils.drainSoulNetworkWithDamage(BloodUtils.getOrBind(thisStack, player), player, drain)
   }
 }
+
 object StoneSummonHandler {
   val bauble = new ItemStack(StoneSummoner)
 
@@ -115,10 +123,10 @@ object StoneSummonHandler {
     if (e.getWorld.isRemote)
       return;
     if (e.getEntityPlayer.isSneaking && e.getItemStack == null) {
-      val (has, stack)= Bauble.isWearing(e.getEntityPlayer, bauble, true)
+      val (has, stack) = Bauble.isWearing(e.getEntityPlayer, bauble, true)
 
-      if(has && BloodUtils.drainSoulNetwork(BloodUtils.getOrBind(stack, e.getEntityPlayer), StoneSummoner.getCost(stack), e.getEntityPlayer)
-        && e.getHand == EnumHand.MAIN_HAND ) {
+      if (has && BloodUtils.drainSoulNetwork(BloodUtils.getOrBind(stack, e.getEntityPlayer), StoneSummoner.getCost(stack), e.getEntityPlayer)
+        && e.getHand == EnumHand.MAIN_HAND) {
         PlayerUtils.putItemWithDrop(e.getEntityPlayer, StoneSummoner.getStacks(stack))
         e.setCanceled(true)
       }

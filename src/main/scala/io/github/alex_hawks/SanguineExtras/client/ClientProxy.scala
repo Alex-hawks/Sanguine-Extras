@@ -48,7 +48,7 @@ class ClientProxy extends CommonProxy {
     V2.registerRender(SigilMobNet, 0, "empty")
     V2.registerRender(SigilMobNet, 1, "full")
     V2.registerRender(DropOrb, "normal")
-//    registerOneTexture(SigilDestruction)
+    //    registerOneTexture(SigilDestruction)
 
     V2.registerRender(WardedMRS, "normal")
     V2.registerRender(AdvancedMRS, "normal")

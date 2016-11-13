@@ -30,7 +30,9 @@ public abstract class AdvancedRitual extends Ritual
         return false;
     }
 
-    public void onCollideWith(IAdvancedMasterRitualStone mrs, Entity ent) { }
+    public void onCollideWith(IAdvancedMasterRitualStone mrs, Entity ent)
+    {
+    }
 
     @Override
     public final boolean activateRitual(IMasterRitualStone ritualStone, EntityPlayer player, String owner)
@@ -38,5 +40,8 @@ public abstract class AdvancedRitual extends Ritual
         return ritualStone instanceof IAdvancedMasterRitualStone && start((IAdvancedMasterRitualStone) ritualStone, player, owner);
     }
 
-    public boolean start(IAdvancedMasterRitualStone masterRitualStone, EntityPlayer player, String owner) { return true; }
+    public boolean start(IAdvancedMasterRitualStone masterRitualStone, EntityPlayer player, String owner)
+    {
+        return true;
+    }
 }

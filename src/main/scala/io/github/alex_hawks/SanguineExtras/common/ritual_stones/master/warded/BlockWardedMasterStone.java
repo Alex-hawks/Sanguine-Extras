@@ -86,7 +86,8 @@ public class BlockWardedMasterStone extends BlockContainer
                     {
                         tile.setDirection(direction);
                     }
-                } else
+                }
+                else
                 {
                     ChatUtil.sendNoSpamUnloc(player, "chat.BloodMagic.ritual.notValid");
                 }

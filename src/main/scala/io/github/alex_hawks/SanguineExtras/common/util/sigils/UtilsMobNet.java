@@ -22,7 +22,8 @@ public class UtilsMobNet
         if (stack.getTagCompound() == null || !stack.getTagCompound().hasKey("entityClass") || !stack.getTagCompound().hasKey("entity"))
         {
             return null;
-        } else
+        }
+        else
         {
             try
             {
@@ -64,7 +65,8 @@ public class UtilsMobNet
         if (stack.getTagCompound() == null || !stack.getTagCompound().hasKey("entityClass") || !stack.getTagCompound().hasKey("entity"))
         {
             return null;
-        } else
+        }
+        else
         {
             try
             {

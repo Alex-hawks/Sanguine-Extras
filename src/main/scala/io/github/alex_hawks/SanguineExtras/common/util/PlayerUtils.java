@@ -119,7 +119,8 @@ public class PlayerUtils
                         stack.stackSize += is.stackSize;
                         is.stackSize = 0;
                         break;
-                    } else
+                    }
+                    else
                     {
                         stack.stackSize = stack.getMaxStackSize();
                         is.stackSize -= space;

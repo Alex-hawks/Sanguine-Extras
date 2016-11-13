@@ -5,8 +5,10 @@ import java.util.UUID
 
 import WayofTime.bloodmagic.api.ritual.EnumRuneType._
 import WayofTime.bloodmagic.api.ritual.{IMasterRitualStone, Ritual, RitualComponent}
-import io.github.alex_hawks.SanguineExtras.api.ritual.{IAdvancedMasterRitualStone, AdvancedRitual}
+import io.github.alex_hawks.SanguineExtras.api.ritual.{AdvancedRitual, IAdvancedMasterRitualStone}
 import io.github.alex_hawks.SanguineExtras.common.Constants
+import io.github.alex_hawks.SanguineExtras.common.rituals.advanced.Forge._
+import io.github.alex_hawks.SanguineExtras.common.rituals.advanced.Forge.recipes.{getSmeltingExperience => getXp, getSmeltingResult => get}
 import io.github.alex_hawks.SanguineExtras.common.util.BloodUtils
 import io.github.alex_hawks.util.minecraft.common.Vector3
 import net.minecraft.entity.Entity
@@ -14,14 +16,11 @@ import net.minecraft.entity.item.EntityItem
 import net.minecraft.inventory.IInventory
 import net.minecraft.item.ItemStack
 import net.minecraft.item.crafting.FurnaceRecipes
-import net.minecraft.nbt.{NBTTagList, NBTTagCompound}
-import net.minecraft.util.math.{AxisAlignedBB, BlockPos}
+import net.minecraft.nbt.{NBTTagCompound, NBTTagList}
 import net.minecraft.util.EnumFacing
-import Forge._
 import net.minecraft.util.EnumFacing._
+import net.minecraft.util.math.{AxisAlignedBB, BlockPos}
 import net.minecraftforge.oredict.OreDictionary
-import recipes.{getSmeltingResult => get}
-import recipes.{getSmeltingExperience => getXp}
 
 object Forge {
   val recipes = FurnaceRecipes.instance
@@ -42,10 +41,10 @@ class Forge extends AdvancedRitual(name, 0, activationCost, s"ritual.${Constants
   override def getRefreshTime = 1
 
   override def onCollideWith(mrs: IAdvancedMasterRitualStone, entity: Entity): Unit = {
-    if (verifyBounds(entity, mrs.getBlockPos) && entity.isInstanceOf[EntityItem]) { // has the item? been thrown on top?
+    if (verifyBounds(entity, mrs.getBlockPos) && entity.isInstanceOf[EntityItem]) {
+      // has the item? been thrown on top?
       val ent = entity.asInstanceOf[EntityItem]
       val is = ent.getEntityItem
-      println(s"${is.getItem} smelts into ${get(is)}, but filter says ${isValidInFilter(is, mrs)}")
       if (isValidInFilter(is, mrs) && get(is) != null) // it smelts, and matches the filter
         inputs.add(is)
       else
@@ -59,7 +58,7 @@ class Forge extends AdvancedRitual(name, 0, activationCost, s"ritual.${Constants
     new AxisAlignedBB(s.getX, s.getY, s.getZ, s.getX + 1, s.getY + 2, s.getZ + 1).isVecInside(ent.getPositionVector)
   }
 
-  def getInputFilter(mrs: IAdvancedMasterRitualStone): (Boolean, IInventory)= {
+  def getInputFilter(mrs: IAdvancedMasterRitualStone): (Boolean, IInventory) = {
     val white = new Vector3(mrs.getBlockPos).shift(mrs.getDirection)
     val black = new Vector3(mrs.getBlockPos).shift(mrs.getDirection.getOpposite)
     if (mrs.getWorldObj.getTileEntity(white.toPos).isInstanceOf[IInventory])
@@ -117,17 +116,17 @@ class Forge extends AdvancedRitual(name, 0, activationCost, s"ritual.${Constants
     }
   }
 
-  def nuggets(mrs: IMasterRitualStone, output:ItemStack): Unit = {
-    for(y <- OreDictionary.getOreIDs(inputs.get(0))) {
+  def nuggets(mrs: IMasterRitualStone, output: ItemStack): Unit = {
+    for (y <- OreDictionary.getOreIDs(inputs.get(0))) {
       val ore = OreDictionary.getOreName(y)
       if (ore.startsWith("dust"))
         return
     }
 
-    for( x <- OreDictionary.getOreIDs(output)) {
+    for (x <- OreDictionary.getOreIDs(output)) {
       val ingot = OreDictionary.getOreName(x)
       if (ingot.startsWith("ingot") && OreDictionary.doesOreNameExist(s"nugget${ingot.substring("ingot".length)}") && OreDictionary.getOres(s"nugget${ingot.substring("ingot".length)}").size() > 0)
-        for(y <- 0 until mrs.getWorldObj.rand.nextInt(3 * output.stackSize) + 2 * output.stackSize)
+        for (y <- 0 until mrs.getWorldObj.rand.nextInt(3 * output.stackSize) + 2 * output.stackSize)
           outputs.add(OreDictionary.getOres(ingot.substring("ingot".length)).get(0))
     }
   }
@@ -142,12 +141,12 @@ class Forge extends AdvancedRitual(name, 0, activationCost, s"ritual.${Constants
     //Pillars
     this.addCornerRunes(ls, 1, -2, FIRE)
     this.addCornerRunes(ls, 1, -1, FIRE)
-    this.addCornerRunes(ls, 1,  0, FIRE)
-    this.addCornerRunes(ls, 1,  1, FIRE)
-    this.addCornerRunes(ls, 1,  2, FIRE)
+    this.addCornerRunes(ls, 1, 0, FIRE)
+    this.addCornerRunes(ls, 1, 1, FIRE)
+    this.addCornerRunes(ls, 1, 2, FIRE)
 
     //Ritual Facing
-    this.addRune(ls, NORTH.getFrontOffsetX, 1, NORTH.getFrontOffsetZ  , DUSK)
+    this.addRune(ls, NORTH.getFrontOffsetX, 1, NORTH.getFrontOffsetZ, DUSK)
 
     //Others
     for (dir: EnumFacing <- Array[EnumFacing](EAST, SOUTH, WEST))
@@ -156,7 +155,7 @@ class Forge extends AdvancedRitual(name, 0, activationCost, s"ritual.${Constants
     return ls
   }
 
-  override def readFromNBT(tag:NBTTagCompound): Unit = {
+  override def readFromNBT(tag: NBTTagCompound): Unit = {
     if (tag.hasKey("inputs")) {
       val ls = tag.getTagList("inputs", tag.getId)
       for (x <- 0 until ls.tagCount)
@@ -186,7 +185,7 @@ class Forge extends AdvancedRitual(name, 0, activationCost, s"ritual.${Constants
     for (x <- 0 until inputs.size())
       inputTag.appendTag(inputs.get(x).writeToNBT(new NBTTagCompound))
 
-    for(x <- 0 until outputs.size())
+    for (x <- 0 until outputs.size())
       outputTag.appendTag(outputs.get(x).writeToNBT(new NBTTagCompound))
 
     tag.setTag("inputs", inputTag)

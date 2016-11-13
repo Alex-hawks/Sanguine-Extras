@@ -1,25 +1,25 @@
 package io.github.alex_hawks.SanguineExtras.common.items
 
 import WayofTime.bloodmagic.util.helper.TextHelper
-import io.github.alex_hawks.SanguineExtras.common.util.{SanguineExtrasCreativeTab, PlayerUtils}
+import io.github.alex_hawks.SanguineExtras.common.util.PlayerUtils
 import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.item.{ItemStack, Item}
+import net.minecraft.item.{Item, ItemStack}
 import net.minecraft.nbt.{NBTTagCompound, NBTTagList}
-import net.minecraft.util.{EnumActionResult, ActionResult, EnumHand}
+import net.minecraft.util.{ActionResult, EnumActionResult, EnumHand}
 import net.minecraft.world.World
 
 import scala.collection.JavaConversions
 
 object ItemDropOrb extends Item {
-    this.maxStackSize = 1
-//    setCreativeTab(SanguineExtrasCreativeTab.Instance)
-    this.setUnlocalizedName("dropOrb")
-    this.setRegistryName("dropOrb")
-    this.setHasSubtypes(true)
+  this.maxStackSize = 1
+  //    setCreativeTab(SanguineExtrasCreativeTab.Instance)
+  this.setUnlocalizedName("dropOrb")
+  this.setRegistryName("dropOrb")
+  this.setHasSubtypes(true)
 
   def addItems(orb: ItemStack, stacks: java.util.List[ItemStack]) {
     val list = new NBTTagList
-    var tag:NBTTagCompound = null
+    var tag: NBTTagCompound = null
 
     for (stack <- JavaConversions.asScalaBuffer(stacks)) {
       tag = new NBTTagCompound
@@ -33,9 +33,9 @@ object ItemDropOrb extends Item {
   }
 
   override def onItemRightClick(stack: ItemStack, w: World, player: EntityPlayer, hand: EnumHand): ActionResult[ItemStack] = {
-    if(!player.isSneaking)
+    if (!player.isSneaking)
       return new ActionResult[ItemStack](EnumActionResult.PASS, stack)
-    if(getItemCount(stack) < 1) {
+    if (getItemCount(stack) < 1) {
       stack.stackSize = 0
       return ActionResult.newResult(EnumActionResult.SUCCESS, stack)
     }
@@ -57,20 +57,20 @@ object ItemDropOrb extends Item {
 
     val specific = TextHelper.localize(str, "")
 
-    if(str.equals(specific))
+    if (str.equals(specific))
       tooltip.add(TextHelper.localize(unlocal, "" + count))
     else
       tooltip.add(specific)
   }
 
-  def getItemCount(stack: ItemStack):Int = {
+  def getItemCount(stack: ItemStack): Int = {
     if (stack.hasTagCompound)
       if (stack.getTagCompound.hasKey("items"))
         return stack.getTagCompound.getTagList("items", 10).tagCount
     return 0
   }
 
-  def getNextItem(orb: ItemStack):ItemStack = {
+  def getNextItem(orb: ItemStack): ItemStack = {
     if (orb.hasTagCompound && orb.getTagCompound.hasKey("items")) {
       val tag = orb.getTagCompound.getTagList("items", 10).getCompoundTagAt(0)
       val stack = ItemStack.loadItemStackFromNBT(tag)
@@ -79,7 +79,7 @@ object ItemDropOrb extends Item {
     return null;
   }
 
-  def removeNextItem(orb: ItemStack):Boolean = {
+  def removeNextItem(orb: ItemStack): Boolean = {
     if (getItemCount(orb) > 0) {
       orb.getTagCompound.getTagList("items", 10).removeTag(0)
     }

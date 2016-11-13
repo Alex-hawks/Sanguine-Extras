@@ -1,19 +1,19 @@
 package io.github.alex_hawks.SanguineExtras.common
 
 import WayofTime.bloodmagic.item.block.ItemBlockRitualStone
+import io.github.alex_hawks.SanguineExtras.common.Helpers._
 import io.github.alex_hawks.SanguineExtras.common.constructs.{BlockChest, TileChest}
 import io.github.alex_hawks.SanguineExtras.common.items.ItemDropOrb
+import io.github.alex_hawks.SanguineExtras.common.items.baubles.{FeatheredKnife, LiquidSummoner, StoneSummoner}
+import io.github.alex_hawks.SanguineExtras.common.items.sigils._
 import io.github.alex_hawks.SanguineExtras.common.ritual_stones.marker.micro.ItemMicroStone
 import io.github.alex_hawks.SanguineExtras.common.ritual_stones.marker.warded.{BlockWardedRitualStone, TEWardedRitualStone}
 import io.github.alex_hawks.SanguineExtras.common.ritual_stones.master.advanced.{BlockAdvancedMasterStone, TEAdvancedMasterStone}
 import io.github.alex_hawks.SanguineExtras.common.ritual_stones.master.warded.{BlockWardedMasterStone, TEWardedMasterStone}
-import io.github.alex_hawks.SanguineExtras.common.items.sigils._
-import io.github.alex_hawks.SanguineExtras.common.items.baubles.{FeatheredKnife, StoneSummoner, LiquidSummoner}
-import net.minecraft.item.{ItemBlock, Item}
+import net.minecraft.item.{Item, ItemBlock}
 import net.minecraft.util.ResourceLocation
 import net.minecraftforge.fml.common.Loader
 import net.minecraftforge.fml.common.registry.GameRegistry
-import Helpers._
 
 object Helpers {
   def rl(loc: String) = {
@@ -25,7 +25,7 @@ object Blocks {
   var AdvancedMRS: BlockAdvancedMasterStone = null
   var WardedMRS: BlockWardedMasterStone = null
   var WardedRitualStone: BlockWardedRitualStone = null
-  var Chest: BlockChest.type  = null
+  var Chest: BlockChest.type = null
 
   var ItemWardedRitualStone: ItemBlockRitualStone = null
 

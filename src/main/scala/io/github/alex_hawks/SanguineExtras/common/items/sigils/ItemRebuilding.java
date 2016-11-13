@@ -75,7 +75,8 @@ public class ItemRebuilding extends ItemBindable implements ISigil
             IBlockState b = w.getBlockState(pos);
             stack.getTagCompound().setInteger("state", Block.getStateId(b));
             return EnumActionResult.SUCCESS;
-        } else
+        }
+        else
         {
             Map<Integer, Set<Vector3>> toReplace = UtilsRebuilding.find(pos, w);
             if (getNewBlock(stack) != null)

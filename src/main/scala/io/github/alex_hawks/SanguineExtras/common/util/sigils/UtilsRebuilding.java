@@ -83,7 +83,8 @@ public class UtilsRebuilding
                                 break D2;
                             }
                         }
-                    } else if (!b.getMaterial().isSolid())
+                    }
+                    else if (!b.getMaterial().isSolid())
                     {
                         airBlocks.add(p);
                     }
@@ -103,54 +104,6 @@ public class UtilsRebuilding
                 }
             }
         }
-
-//        Vector3 vec3;
-//        boolean flag;
-//        for (Vector3 v : solidBlocks)
-//        {
-//            flag = false;
-//            block:
-//            for (EnumFacing d : EnumFacing.values())
-//            {
-//                vec3 = v.shift(d);
-//
-//                for (Vector3 air : airBlocks)
-//                {
-//                    if (air.equals(vec3))
-//                    {
-////                        System.out.println(world.getBlockState(v.toPos()).getBlock().getUnlocalizedName() + " is next to " + world.getBlockState(vec3.toPos()).getBlock().getUnlocalizedName());
-//                        flag = true;
-//                        break block;
-//                    }
-//                }
-//            }
-//            if (!flag)
-//            {
-//                for (Set<Vector3> set : toReturn.values())
-//                {
-//                    set.remove(v);
-//                }
-////                System.out.println("Removed: " + v.toString());
-//            }
-//        }
-
-
-//        for (Vector3 v : currentSolidBlocks)
-//        {
-//            for (EnumFacing d : EnumFacing.values())
-//            {
-//                for (Vector3 air : airBlocks)
-//                {
-//                    vec3 = new Vector3(v.x() + d.getFrontOffsetX(), v.y() + d.getFrontOffsetY(), v.z() + d.getFrontOffsetZ());
-//
-//                    if (air.equals(vec3))
-//                    {
-//                        toReturn.add(v);
-//                        continue block;
-//                    }
-//                }
-//            }
-//        }
 
         return toReturn;
     }
@@ -204,7 +157,8 @@ public class UtilsRebuilding
 
                                         if (e.getExpToDrop() > 0)
                                             w.spawnEntityInWorld(new EntityXPOrb(w, player.posX, player.posY, player.posZ, e.getExpToDrop()));
-                                    } else
+                                    }
+                                    else
                                     {
                                         break;
                                     }

@@ -1,12 +1,12 @@
 package io.github.alex_hawks.SanguineExtras.common.util
 
-import baubles.api.{BaublesApi, IBauble}
 import baubles.api.cap.IBaublesItemHandler
+import baubles.api.{BaublesApi, IBauble}
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.item.ItemStack
 
 object Bauble {
-  def isWearing(player: EntityPlayer, bauble: ItemStack, ignoreMeta: Boolean): (Boolean, ItemStack)= {
+  def isWearing(player: EntityPlayer, bauble: ItemStack, ignoreMeta: Boolean): (Boolean, ItemStack) = {
     if (!(bauble.getItem.isInstanceOf[IBauble]))
       return (false, null)
 

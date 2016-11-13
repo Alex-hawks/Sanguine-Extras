@@ -6,12 +6,12 @@ import WayofTime.bloodmagic.api.registry.AltarRecipeRegistry.AltarRecipe
 import WayofTime.bloodmagic.api.registry.{AltarRecipeRegistry, OrbRegistry}
 import WayofTime.bloodmagic.registry.ModBlocks._
 import WayofTime.bloodmagic.registry.ModItems._
+import io.github.alex_hawks.SanguineExtras.common.{Blocks => ModBlocks, Items => ModItems}
 import net.minecraft.block.Block
 import net.minecraft.init.{Items => MCItems}
 import net.minecraft.item.{Item, ItemStack}
 import net.minecraftforge.fml.common.Loader
 import net.minecraftforge.fml.common.registry.GameRegistry
-import io.github.alex_hawks.SanguineExtras.common.{Items => ModItems, Blocks => ModBlocks}
 
 object Recipe {
   def register {

@@ -4,8 +4,8 @@ import java.util.{Map => Jmap, Set => Jset}
 
 import io.github.alex_hawks.SanguineExtras.client.util.Render
 import io.github.alex_hawks.SanguineExtras.common.Constants
-import io.github.alex_hawks.SanguineExtras.common.util.sigils.{UtilsBuilding => ServerUtils}
 import io.github.alex_hawks.SanguineExtras.common.items.sigils.ItemBuilding
+import io.github.alex_hawks.SanguineExtras.common.util.sigils.{UtilsBuilding => ServerUtils}
 import io.github.alex_hawks.util.minecraft.common.Vector3
 import net.minecraft.block.state.IBlockState
 import net.minecraft.client.Minecraft
@@ -27,15 +27,21 @@ class UtilsBuilding {
     val mc: Minecraft = Minecraft.getMinecraft
     val p: EntityPlayerSP = mc.thePlayer
     val w: World = p.getEntityWorld
+    val a = (p.inventory.getCurrentItem != null && p.inventory.getCurrentItem.getItem.isInstanceOf[ItemBuilding],
+      p.inventory.offHandInventory(0) != null && p.inventory.offHandInventory(0).getItem.isInstanceOf[ItemBuilding])
 
-    if (p.inventory.getCurrentItem != null && p.inventory.getCurrentItem.getItem.isInstanceOf[ItemBuilding]) {
+    if (a._1 || a._2) {
 
       if (mc.objectMouseOver.typeOfHit != RayTraceResult.Type.BLOCK)
         return
       val b: IBlockState = w.getBlockState(mc.objectMouseOver.getBlockPos)
       if (b == null || b.getBlock.equals(Blocks.AIR))
         return
-      val ls: Jmap[Integer, Jset[Vector3]] = ServerUtils.getBlocksForBuild(w, new Vector3(mc.objectMouseOver.getBlockPos), mc.objectMouseOver.sideHit, p, Constants.HardLimits.BUILDERS_SIGIL_COUNT)
+      var ls: Jmap[Integer, Jset[Vector3]] = null
+      if (a._1)
+        ls = ServerUtils.getBlocksForBuild(w, new Vector3(mc.objectMouseOver.getBlockPos), mc.objectMouseOver.sideHit, p, Constants.HardLimits.BUILDERS_SIGIL_COUNT, true)
+      else if (a._2)
+        ls = ServerUtils.getBlocksForBuild(w, new Vector3(mc.objectMouseOver.getBlockPos), mc.objectMouseOver.sideHit, p, Constants.HardLimits.BUILDERS_SIGIL_COUNT, false)
 
       val (px, py, pz) = (p.lastTickPosX + (p.posX - p.lastTickPosX) * e.getPartialTicks,
         p.lastTickPosY + (p.posY - p.lastTickPosY) * e.getPartialTicks,

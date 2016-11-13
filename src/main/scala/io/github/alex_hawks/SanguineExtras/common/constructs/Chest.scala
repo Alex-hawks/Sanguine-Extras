@@ -14,8 +14,8 @@ import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.inventory.{Container, IInventory, Slot}
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
+import net.minecraft.network.NetworkManager
 import net.minecraft.network.play.server.SPacketUpdateTileEntity
-import net.minecraft.network.{NetworkManager, Packet}
 import net.minecraft.tileentity.TileEntity
 import net.minecraft.util._
 import net.minecraft.util.math.BlockPos
@@ -64,7 +64,7 @@ object BlockChest extends BlockContainer(Material.ROCK) {
   }
 }
 
-class TileChest(var tier: Int) extends TileEntity with IInventory with ITickable  {
+class TileChest(var tier: Int) extends TileEntity with IInventory with ITickable {
   val chestContents = new Array[ItemStack](Chest.maxChestSize);
 
   // the Chest Levitates and slowly rotates

@@ -16,7 +16,7 @@ import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.network.PacketBuffer
 import net.minecraft.util.math.AxisAlignedBB
-import net.minecraft.util.{ResourceLocation, BlockRenderLayer, EnumFacing, EnumHand}
+import net.minecraft.util.{BlockRenderLayer, EnumFacing, EnumHand, ResourceLocation}
 import net.minecraftforge.common.capabilities.{Capability, CapabilityInject}
 import net.minecraftforge.common.property.{ExtendedBlockState, IUnlistedProperty}
 
@@ -72,7 +72,8 @@ class MultipartStone extends Multipart {
   }
 
   override def writeToNBT(tag: NBTTagCompound) = {
-    tag.setByte("runeType", runeType.getRuneType.ordinal.toByte); tag
+    tag.setByte("runeType", runeType.getRuneType.ordinal.toByte);
+    tag
   }
 
   override def readFromNBT(tag: NBTTagCompound) = {
@@ -99,16 +100,18 @@ class MultipartStone extends Multipart {
     NAME
   }
 
-  override def addSelectionBoxes (list: java.util.List[AxisAlignedBB]) = {
+  override def addSelectionBoxes(list: java.util.List[AxisAlignedBB]) = {
     list.add(box)
   }
 
-  override def addCollisionBoxes(mask: AxisAlignedBB, list: java.util.List[AxisAlignedBB] , collidingEntity: Entity) = {
+  override def addCollisionBoxes(mask: AxisAlignedBB, list: java.util.List[AxisAlignedBB], collidingEntity: Entity) = {
     if (mask.intersectsWith(box))
       list.add(box)
   }
 
-  override def createBlockState: BlockStateContainer = { MULTIPART_STATE }
+  override def createBlockState: BlockStateContainer = {
+    MULTIPART_STATE
+  }
 
   override def getExtendedState(state: IBlockState): IBlockState = {
     state.withProperty(PROPERTY_RUNE_TYPE, runeType.getRuneType)

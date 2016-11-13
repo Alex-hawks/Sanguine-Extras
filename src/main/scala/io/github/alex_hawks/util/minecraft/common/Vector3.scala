@@ -33,7 +33,7 @@ class Vector3(val x: Int, val y: Int, val z: Int) {
 
   def shift(dir: EnumFacing): Vector3 = this +(dir.getFrontOffsetX, dir.getFrontOffsetY, dir.getFrontOffsetZ)
 
-  def shiftAABB(aabb: AxisAlignedBB):AxisAlignedBB = {
+  def shiftAABB(aabb: AxisAlignedBB): AxisAlignedBB = {
     import aabb._
     new AxisAlignedBB(minX + x, minY + y, minZ + z, maxX + x, maxY + y, maxZ + z)
   }

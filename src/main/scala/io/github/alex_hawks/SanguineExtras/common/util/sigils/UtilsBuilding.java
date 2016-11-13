@@ -15,7 +15,7 @@ public class UtilsBuilding
     static final int QUARTER_CIRCLE = 90;
     static final EnumFacing[] YAW_ROTATION = {SOUTH, WEST, NORTH, EAST};
 
-    public static Map<Integer, Set<Vector3>> getBlocksForBuild(World w, Vector3 v, EnumFacing d, EntityPlayer player, int limit)
+    public static Map<Integer, Set<Vector3>> getBlocksForBuild(World w, Vector3 v, EnumFacing d, EntityPlayer player, int limit, boolean horizontal)
     {
         Set<Vector3> ls = new HashSet<>();
 
@@ -26,7 +26,10 @@ public class UtilsBuilding
 
         if (player.isSneaking() && dirs.containsAll(EnumSet.of(UP, DOWN)))
         {
-            dirs.removeAll(EnumSet.of(UP, DOWN));
+            if (horizontal)
+                dirs.removeAll(EnumSet.of(UP, DOWN));
+            else
+                dirs = EnumSet.of(UP, DOWN);
         }
 
         float yaw = player.rotationYaw;
@@ -39,7 +42,10 @@ public class UtilsBuilding
 
             int val = (int) (yaw / QUARTER_CIRCLE + 0.5);
 
-            dirs.removeAll(EnumSet.of(getDir(val), getDir(val).getOpposite()));
+            if (horizontal)
+                dirs.removeAll(EnumSet.of(getDir(val), getDir(val).getOpposite()));
+            else
+                dirs = EnumSet.of(getDir(val), getDir(val).getOpposite());
         }
 
         ls.add(new Vector3(v.x() + d.getFrontOffsetX(), v.y() + d.getFrontOffsetY(), v.z() + d.getFrontOffsetZ()));

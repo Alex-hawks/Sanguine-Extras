@@ -82,7 +82,7 @@ class GuiChest(val player: EntityPlayer, val chest: TileChest) extends GuiContai
 
     for (y <- 0 until Chest.maxRows)
       for (x <- 0 until Chest.maxCols)
-        if (y * 12 + x >=  slotsForTier)
+        if (y * 12 + x >= slotsForTier)
           this.drawTexturedModalRect(xStart + x * 18 + 12, yStart + y * 18 + 8, xx, xy, 16, 16)
   }
 } 

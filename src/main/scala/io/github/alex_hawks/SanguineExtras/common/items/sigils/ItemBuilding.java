@@ -63,7 +63,7 @@ public class ItemBuilding extends ItemBindable implements ISigil
     @Override
     public EnumActionResult onItemUse(ItemStack stack, EntityPlayer player, World w, BlockPos pos, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
     {
-        final Map<Integer, Set<Vector3>> map = UtilsBuilding.getBlocksForBuild(w, new Vector3(pos), side, player, 9);
+        final Map<Integer, Set<Vector3>> map = UtilsBuilding.getBlocksForBuild(w, new Vector3(pos), side, player, 9, hand == EnumHand.MAIN_HAND);
         final String owner = BloodUtils.getOrBind(stack, player);
 
         MinecraftForge.EVENT_BUS.register(new Object()

@@ -79,7 +79,8 @@ public class ItemDestruction extends ItemBindable
             else
                 setLength(stack, 1);
             return EnumActionResult.SUCCESS;
-        } else
+        }
+        else
         {
             List<Vector3> toBreak = UtilsDestruction.find(pos, w, side, getLength(stack));
 
