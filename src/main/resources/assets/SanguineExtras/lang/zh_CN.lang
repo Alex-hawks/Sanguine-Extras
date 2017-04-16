@@ -1,0 +1,56 @@
+##  Creative Tab
+itemGroup.tabSanguineExtras=血法扩展
+
+##  Block Localizations
+tile.blockAdvancedMasterStone.name=进阶主仪式石
+tile.blockWardedMasterStone.name=守卫主仪式石
+tile.blockWardedRitualStone.name=守卫仪式石
+
+##  Item Localizations
+item.sigilBuilding.name=建造印记
+item.sigilDestruction.tier0.name=毁坏印记 <1级>
+item.sigilDestruction.tier1.name=毁坏印记 <2级>
+item.sigilDestruction.tier2.name=毁坏印记 <3级>
+item.sigilDestruction.tier3.name=毁坏印记 <4级>
+item.sigilDestruction.tier4.name=毁坏印记 <5级>
+item.sigilDestruction.tier5.name=毁坏印记 <6级>
+item.sigilInterdiction.name=隔绝印记
+item.sigilMobNet.name=捕获印记
+item.sigilRebuilding.name=更替印记
+
+##	Multipart Localizations
+item.partMicroRitualStone.name=微型仪式石
+item.partMicroStone.name=未激活的微型仪式石
+item.stableRitualStone.name=稳定的微型仪式石
+
+##  Tooltip Localizations
+tooltip.se.destruction.currentlength=破坏长度: %s
+tooltip.se.destruction.maximumlength=最大长度: %s
+
+tooltip.se.mobnet.mob=捕获生物: %s
+tooltip.se.mobnet.mob.null=捕获生物: 无
+
+tooltip.se.owner=主人: %s
+tooltip.se.owner.null=主人: 无
+
+tooltip.se.sigil.active=激活
+tooltip.se.sigil.inactive=未激活
+
+tooltip.se.rebuilding.block=更替方块: %s
+tooltip.se.rebuilding.block.null=更替方块: 未设置
+tooltip.se.rebuilding.meta=Metadata: %s
+tooltip.se.rebuilding.meta.null=Metadata: 未设置
+
+
+##  Chat MSG Localizations
+msg.se.fail.mine.RitualStone.warding=这个方块平淡无奇的掉落下来,但却不可思议的出现在了它之前所在的地方.
+msg.se.fail.sigil.mobnet.full=你意识到了一个捕获印记只能容得下一只生物
+msg.se.fail.sigil.mobnet.boss=你意识到了捕获印记无法捕捉这么强大的生物
+
+
+##  Pun Localizations
+pun.se.sigil.building=
+pun.se.sigil.destruction=你想来建造一个矿井吗?
+pun.se.sigil.interdiction=离我远点!
+pun.se.sigil.mobnet=在那里面是什么样的?
+pun.se.sigil.rebuilding=挖掉这个,换成那个
