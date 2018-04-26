@@ -1,0 +1,36 @@
+{
+  "forge_marker": 1,
+  "defaults": {
+    "model": "builtin/generated",
+    "transform": "forge:default-item"
+  },
+  "variants": {
+    "material": {
+      "minecraft:stone": {
+        "textures": {
+          "layer0": "sanguineextras:items/bauble/charm_stone"
+        }
+      },
+      "minecraft:cobblestone": {
+        "textures": {
+          "layer0": "sanguineextras:items/bauble/charm_cobble"
+        }
+      },
+      "minecraft:netherrack": {
+        "textures": {
+          "layer0": "sanguineextras:items/bauble/charm_netherrack"
+        }
+      },
+      "minecraft:obsidian": {
+        "textures": {
+          "layer0": "sanguineextras:items/bauble/charm_obsidian"
+        }
+      },
+      "minecraft:sand": {
+        "textures": {
+          "layer0": "sanguineextras:items/bauble/charm_sand"
+        }
+      }
+    }
+  }
+}

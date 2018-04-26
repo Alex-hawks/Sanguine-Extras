@@ -1,13 +1,14 @@
 package io.github.alex_hawks.SanguineExtras.common.rituals.basic
 
 import java.util
+import java.util.function.Consumer
 
-import WayofTime.bloodmagic.api.ritual.EnumRuneType._
-import WayofTime.bloodmagic.api.ritual.{IMasterRitualStone, RitualComponent, Ritual}
 import ApiaryOverclock._
+import WayofTime.bloodmagic.ritual.{IMasterRitualStone, Ritual, RitualComponent}
 import forestry.api.apiculture.IBeeHousing
-import io.github.alex_hawks.SanguineExtras.common.Constants
 import net.minecraft.tileentity.TileEntity
+import WayofTime.bloodmagic.ritual.EnumRuneType._
+import io.github.alex_hawks.SanguineExtras.common.Constants
 
 object ApiaryOverclock {
   val name = "SE004ApiaryOverclock"
@@ -15,11 +16,11 @@ object ApiaryOverclock {
   val upkeepCost = 10
 }
 
-class ApiaryOverclock extends Ritual(name, 0, activationCost, s"ritual.${Constants.MetaData.MOD_ID}.apiaryOverclock") {
+class ApiaryOverclock extends Ritual(name, 0, activationCost, s"ritual.${Constants.Metadata.MOD_ID}.apiary_overclock") {
   override val getRefreshCost: Int = upkeepCost
 
   override def performRitual(mrs: IMasterRitualStone): Unit = {
-    // Yes I hardcode what Bee Housings I support, so that I can actually make them consume stuff without just calling update()
+    // Yes, I hardcode what Bee Housings I support, so that I can actually make them consume stuff without just calling update()
     val tile = mrs.getWorldObj.getTileEntity(mrs.getBlockPos.add(0,1,0))
     if (tile == null)
       return
@@ -38,17 +39,13 @@ class ApiaryOverclock extends Ritual(name, 0, activationCost, s"ritual.${Constan
 
   override def getNewCopy: Ritual = this.getClass.newInstance
 
-  override def getComponents: util.ArrayList[RitualComponent] = {
-    val ls = new util.ArrayList[RitualComponent]
-
+  override def gatherComponents(ls: Consumer[RitualComponent]): Unit = {
     //Pillars
     this.addCornerRunes(ls, 1, 0, AIR)
     this.addCornerRunes(ls, 1, 1, AIR)
     this.addCornerRunes(ls, 1, 2, AIR)
 
-    //Player needs to know what they're doing with bees
+    //Player needs to know what they're doing with bees, this rune is on top of the apiary, bee needs to be Cave-Dwelling
     this.addRune(ls, 0, 2, 0, DUSK)
-
-    return ls
   }
 }

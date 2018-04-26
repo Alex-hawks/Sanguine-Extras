@@ -1,18 +1,20 @@
 package io.github.alex_hawks.SanguineExtras.common.ritual_stones.master.warded;
 
-import WayofTime.bloodmagic.api.registry.RitualRegistry;
-import WayofTime.bloodmagic.api.ritual.Ritual;
-import WayofTime.bloodmagic.api.util.helper.RitualHelper;
-import WayofTime.bloodmagic.registry.ModItems;
+import WayofTime.bloodmagic.block.IBMBlock;
+import WayofTime.bloodmagic.item.ItemActivationCrystal;
+import WayofTime.bloodmagic.ritual.Ritual;
+import WayofTime.bloodmagic.ritual.RitualRegistry;
 import WayofTime.bloodmagic.tile.TileMasterRitualStone;
 import WayofTime.bloodmagic.util.ChatUtil;
+import WayofTime.bloodmagic.util.helper.RitualHelper;
 import io.github.alex_hawks.SanguineExtras.common.util.PlayerUtils;
 import io.github.alex_hawks.SanguineExtras.common.util.SanguineExtrasCreativeTab;
-import net.minecraft.block.BlockContainer;
+import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
@@ -26,8 +28,9 @@ import java.util.UUID;
 /**
  * Ritual related code mostly taken from Blood Magic itself
  */
-public class BlockWardedMasterStone extends BlockContainer
+public class BlockWardedMasterStone extends Block implements IBMBlock
 {
+    private static ItemBlock thisItem = null;
 
     public BlockWardedMasterStone()
     {
@@ -35,8 +38,8 @@ public class BlockWardedMasterStone extends BlockContainer
         setHardness(2.0F);
         setResistance(5.0F);
         setCreativeTab(SanguineExtrasCreativeTab.Instance);
-        this.setRegistryName("wardedMasterStone");
-        this.setUnlocalizedName("wardedMasterStone");
+        this.setRegistryName("warded_master_stone");
+        this.setUnlocalizedName("warded_master_stone");
     }
 
     @Override
@@ -59,12 +62,15 @@ public class BlockWardedMasterStone extends BlockContainer
     }
 
     @Override
-    public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ)
+    public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
     {
-        if (!(world.getTileEntity(pos) instanceof TEWardedMasterStone))
+        final ItemStack heldItem = player.getHeldItem(hand);
+        TileEntity tileEntity = world.getTileEntity(pos);
+
+        if (!(tileEntity instanceof TEWardedMasterStone))
             return true;
 
-        TEWardedMasterStone tile = (TEWardedMasterStone) world.getTileEntity(pos);
+        TEWardedMasterStone tile = (TEWardedMasterStone) tileEntity;
 
         UUID stoneOwner = tile.getBlockOwner();
 
@@ -74,9 +80,9 @@ public class BlockWardedMasterStone extends BlockContainer
             stoneOwner = tile.getBlockOwner();
         }
 
-        if (tile instanceof TileMasterRitualStone && stoneOwner.equals(player.getPersistentID()))
+        if (stoneOwner.equals(player.getPersistentID()))
         {
-            if (heldItem != null && heldItem.getItem() == ModItems.ACTIVATION_CRYSTAL)
+            if (heldItem.getItem() instanceof ItemActivationCrystal)
             {
                 String key = RitualHelper.getValidRitual(world, pos);
                 EnumFacing direction = RitualHelper.getDirectionOfRitual(world, pos, key);
@@ -98,7 +104,7 @@ public class BlockWardedMasterStone extends BlockContainer
     }
 
     @Override
-    public TileEntity createNewTileEntity(World p_149915_1_, int p_149915_2_)
+    public TileEntity createTileEntity(World world, IBlockState state)
     {
         return new TEWardedMasterStone();
     }
@@ -106,9 +112,25 @@ public class BlockWardedMasterStone extends BlockContainer
     @Override
     public void onBlockPlacedBy(World w, BlockPos pos, IBlockState state, EntityLivingBase player, ItemStack stack)
     {
-        TEWardedMasterStone tileEntity = (TEWardedMasterStone) w.getTileEntity(pos);
+        TEWardedMasterStone te = (TEWardedMasterStone) w.getTileEntity(pos);
 
-        if (player instanceof EntityPlayer && !PlayerUtils.isNotFakePlayer((EntityPlayer) player))
-            tileEntity.setBlockOwner(player.getPersistentID());
+        if (player instanceof EntityPlayer && PlayerUtils.isRealPlayer((EntityPlayer) player) && te != null)
+            te.setBlockOwner(player.getPersistentID());
+    }
+
+    @Override
+    public ItemBlock getItem()
+    {
+        if (thisItem == null)
+        {
+            synchronized (this)
+            {
+                if (thisItem == null)
+                {
+                    thisItem = new ItemBlock(this);
+                }
+            }
+        }
+        return thisItem;
     }
 }

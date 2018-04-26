@@ -1,110 +1,139 @@
 package io.github.alex_hawks.SanguineExtras.common
 
-import WayofTime.bloodmagic.item.block.ItemBlockRitualStone
-import io.github.alex_hawks.SanguineExtras.common.Helpers._
+import WayofTime.bloodmagic.block.IBMBlock
+import WayofTime.bloodmagic.client.{IMeshProvider, IVariantProvider}
+import com.google.common.collect.Lists
+import io.github.alex_hawks.SanguineExtras.common.Helpers.MOD_ID
 import io.github.alex_hawks.SanguineExtras.common.constructs.{BlockChest, TileChest}
 import io.github.alex_hawks.SanguineExtras.common.items.ItemDropOrb
 import io.github.alex_hawks.SanguineExtras.common.items.baubles.{FeatheredKnife, LiquidSummoner, StoneSummoner}
 import io.github.alex_hawks.SanguineExtras.common.items.sigils._
-import io.github.alex_hawks.SanguineExtras.common.ritual_stones.marker.micro.ItemMicroStone
 import io.github.alex_hawks.SanguineExtras.common.ritual_stones.marker.warded.{BlockWardedRitualStone, TEWardedRitualStone}
 import io.github.alex_hawks.SanguineExtras.common.ritual_stones.master.advanced.{BlockAdvancedMasterStone, TEAdvancedMasterStone}
 import io.github.alex_hawks.SanguineExtras.common.ritual_stones.master.warded.{BlockWardedMasterStone, TEWardedMasterStone}
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
+import net.minecraft.block.Block
+import net.minecraft.client.renderer.block.model.{ModelBakery, ModelResourceLocation}
 import net.minecraft.item.{Item, ItemBlock}
 import net.minecraft.util.ResourceLocation
-import net.minecraftforge.fml.common.Loader
+import net.minecraftforge.client.event.ModelRegistryEvent
+import net.minecraftforge.client.model.ModelLoader
+import net.minecraftforge.event.RegistryEvent
+import net.minecraftforge.fml.common.Mod
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 import net.minecraftforge.fml.common.registry.GameRegistry
+import net.minecraftforge.fml.relauncher.{Side, SideOnly}
+
+import scala.collection.JavaConverters._
+import scala.util.control.Breaks._
 
 object Helpers {
-  def rl(loc: String) = {
-    new ResourceLocation(Constants.MetaData.MOD_ID, loc)
-  }
+  def rl(loc: String) = new ResourceLocation(Constants.Metadata.MOD_ID, loc)
+
+  final val MOD_ID = "sanguineextras"
 }
 
 object Blocks {
-  var AdvancedMRS: BlockAdvancedMasterStone = null
-  var WardedMRS: BlockWardedMasterStone = null
-  var WardedRitualStone: BlockWardedRitualStone = null
-  var Chest: BlockChest.type = null
-
-  var ItemWardedRitualStone: ItemBlockRitualStone = null
-
-  def initBlocks {
-    AdvancedMRS = new BlockAdvancedMasterStone
-    GameRegistry.register(AdvancedMRS)
-    GameRegistry.register(new ItemBlock(AdvancedMRS).setRegistryName(AdvancedMRS.getRegistryName))
-    GameRegistry.registerTileEntity(classOf[TEAdvancedMasterStone], "AdvancedMasterStone")
-
-    WardedMRS = new BlockWardedMasterStone
-    GameRegistry.register(WardedMRS)
-    GameRegistry.register(new ItemBlock(WardedMRS).setRegistryName(WardedMRS.getRegistryName))
-    GameRegistry.registerTileEntity(classOf[TEWardedMasterStone], "WardedMasterStone")
-
-    WardedRitualStone = new BlockWardedRitualStone
-    GameRegistry.register(WardedRitualStone)
-    ItemWardedRitualStone = new ItemBlockRitualStone(WardedRitualStone)
-    ItemWardedRitualStone.setRegistryName(rl("WardedRitualStone"))
-    GameRegistry.register(ItemWardedRitualStone)
-    GameRegistry.registerTileEntity(classOf[TEWardedRitualStone], "WardedRitualStone")
-
-    Chest = BlockChest
-    GameRegistry.register(Chest)
-    GameRegistry.register(new ItemBlock(Chest).setRegistryName(Chest.getRegistryName))
-    GameRegistry.registerTileEntity(classOf[TileChest], "SanguineChest")
-
-    System.out.println("Initializing Blocks")
-  }
+  lazy val advanced_mrs           = new BlockAdvancedMasterStone
+  lazy val warded_mrs             = new BlockWardedMasterStone
+  lazy val warded_rs              = new BlockWardedRitualStone
+  lazy val chest                  =     BlockChest
 }
 
 object Items {
-  var SigilBuilding: ItemBuilding = null
-  var SigilDestruction: ItemDestruction = null
-  var SigilInterdiction: ItemInterdiction = null
-  var SigilMobNet: ItemMobNet = null
-  var SigilRebuild: ItemRebuilding = null
+  lazy val sigil_building         = new ItemBuilding
+  lazy val sigil_destruction      =     ItemDestruction
+  lazy val sigil_interdiction     = new ItemInterdiction
+  lazy val sigil_mob_net          = new ItemMobNet
+  lazy val sigil_rebuild          = new ItemRebuilding
 
-  var MicroRitualStone: Item = null
+  lazy val bauble_feathered_knife =     FeatheredKnife
+  lazy val bauble_liquid_summoner =     LiquidSummoner
+  lazy val bauble_stone_summoner  =     StoneSummoner
 
-  var BaubleLiquidSummoner: Item = null
-  var BaubleStoneSummoner: Item = null
-  var BaubleFeatheredKnife: Item = null
+  lazy val drop_orb               =     ItemDropOrb
+}
 
-  var DropOrb = ItemDropOrb
+@Mod.EventBusSubscriber(modid = MOD_ID)
+object Registrar {
+  val blocks = Lists.newArrayList[Block]().asScala
+  val items = Lists.newArrayList[Item]().asScala
 
-  def initItems {
-    SigilBuilding = new ItemBuilding
-    GameRegistry.register(SigilBuilding)
+  @SubscribeEvent
+  def registerBlocks(event: RegistryEvent.Register[Block]): Unit = {
+    import Blocks._
+    blocks += advanced_mrs
+    blocks += warded_mrs
+    blocks += warded_rs
+    blocks += chest
 
-    SigilDestruction = new ItemDestruction
-    GameRegistry.register(SigilDestruction)
+    event.getRegistry.registerAll(blocks.asJava.toArray(Array.empty[Block]): _*)
 
-    SigilInterdiction = new ItemInterdiction
-    GameRegistry.register(SigilInterdiction)
+    registerTEs()
+  }
 
-    SigilMobNet = new ItemMobNet
-    GameRegistry.register(SigilMobNet)
-
-    SigilRebuild = new ItemRebuilding
-    GameRegistry.register(SigilRebuild)
-
-    if (Loader.isModLoaded(Constants.MetaData.MCMP_ID)) {
-      MicroRitualStone = new ItemMicroStone
-      GameRegistry.register(MicroRitualStone)
+  @SubscribeEvent
+  def registerItems(event: RegistryEvent.Register[Item]): Unit = {
+    import Items._
+    for (block <- blocks) {
+      if (block.isInstanceOf[IBMBlock])
+        items += block.asInstanceOf[IBMBlock].getItem.setRegistryName(block.getRegistryName)
     }
 
-    if (Loader.isModLoaded(Constants.MetaData.BAUBLES_ID)) {
-      BaubleLiquidSummoner = LiquidSummoner
-      GameRegistry.register(BaubleLiquidSummoner)
+    items += sigil_building
+    items += sigil_destruction
+    items += sigil_interdiction
+    items += sigil_mob_net
+    items += sigil_rebuild
 
-      BaubleStoneSummoner = StoneSummoner
-      GameRegistry.register(BaubleStoneSummoner)
+    items += bauble_feathered_knife
+    items += bauble_liquid_summoner
+    items += bauble_stone_summoner
 
-      BaubleFeatheredKnife = FeatheredKnife
-      GameRegistry.register(BaubleFeatheredKnife)
-    }
+    items += drop_orb
 
-    GameRegistry.register(DropOrb)
+    event.getRegistry.registerAll(items.asJava.toArray(Array.empty[Item]): _*)
+  }
 
-    System.out.println("Initializing Items")
+  @SubscribeEvent
+  @SideOnly(Side.CLIENT)
+  def registerRenders(event: ModelRegistryEvent): Unit = {
+    for (item <- items)
+      breakable {
+        item match {
+          case i: IVariantProvider =>
+            val map = new Int2ObjectOpenHashMap[String]
+            i.gatherVariants(map)
+            for (pair <- map.asScala)
+              ModelLoader.setCustomModelResourceLocation(item, pair._1, new ModelResourceLocation(item.getRegistryName, pair._2))
+            break
+          case i: IMeshProvider =>
+            var loc = i.getCustomLocation
+            if (loc == null)
+              loc = i.getRegistryName
+              i.gatherVariants(variant => {ModelBakery.registerItemVariants(item, new ModelResourceLocation(loc, variant))})
+
+            ModelLoader.setCustomMeshDefinition(i, i.getMeshDefinition)
+            break
+          case i: ItemBlock if i.getBlock.isInstanceOf[IVariantProvider] =>
+            val map = new Int2ObjectOpenHashMap[String]
+            i.getBlock.asInstanceOf[IVariantProvider].gatherVariants(map)
+            for ((meta, variant) <- map.asScala)
+              ModelLoader.setCustomModelResourceLocation(item, meta, new ModelResourceLocation(item.getRegistryName, variant))
+            break
+          case i: ItemBlock =>
+              ModelLoader.setCustomModelResourceLocation(i, 0, new ModelResourceLocation(i.getRegistryName, null))
+            break
+          case _ =>
+            ModelLoader.setCustomModelResourceLocation(item, 0, new ModelResourceLocation(item.getRegistryName, null))
+        }
+      }
+  }
+
+  def registerTEs(): Unit = {
+    GameRegistry.registerTileEntity(classOf[TEAdvancedMasterStone], Blocks.advanced_mrs.getRegistryName.toString)
+    GameRegistry.registerTileEntity(classOf[TEWardedMasterStone],   Blocks.warded_mrs.getRegistryName.toString)
+    GameRegistry.registerTileEntity(classOf[TEWardedRitualStone],   Blocks.warded_rs.getRegistryName.toString)
+    GameRegistry.registerTileEntity(classOf[TileChest],             Blocks.chest.getRegistryName.toString)
   }
 }

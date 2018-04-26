@@ -1,0 +1,21 @@
+{
+  "forge_marker": 1,
+  "defaults": {
+    "model": "builtin/generated",
+    "transform": "forge:default-item"
+  },
+  "variants": {
+    "active": {
+      "true": {
+        "textures": {
+          "layer0": "sanguineextras:item/sigil/interdiction.active"
+        }
+      },
+      "false": {
+        "textures": {
+          "layer0": "sanguineextras:item/sigil/interdiction.passive"
+        }
+      }
+    }
+  }
+}

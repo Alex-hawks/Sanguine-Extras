@@ -1,0 +1,30 @@
+{
+  "result": {
+    "item": "sanguineextras:warded_master_stone"
+  },
+  "pattern": [
+    "aba",
+    "bcb",
+    "aba"
+  ],
+  "type": "forge:ore_shaped",
+  "key": {
+    "a": {
+      "item": "bloodmagic:slate",
+      "data": 3
+    },
+    "b": {
+      "type": "bloodmagic:orb",
+      "orb": "bloodmagic:master"
+    },
+    "c": [{
+        "item": "bloodmagic:ritual_controller",
+        "data": 0
+      },
+      {
+        "item": "bloodmagic:ritual_controller",
+        "data": 2
+      }
+    ]
+  }
+}

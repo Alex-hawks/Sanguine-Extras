@@ -1,7 +1,7 @@
 package io.github.alex_hawks.SanguineExtras.common.ritual_stones.master.warded;
 
-import WayofTime.bloodmagic.api.ritual.Ritual;
-import WayofTime.bloodmagic.api.ritual.RitualComponent;
+
+import WayofTime.bloodmagic.ritual.Ritual;
 import WayofTime.bloodmagic.util.ChatUtil;
 import io.github.alex_hawks.SanguineExtras.common.ritual_stones.marker.warded.TEWardedRitualStone;
 import net.minecraft.entity.player.EntityPlayer;
@@ -9,8 +9,6 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-
-import java.util.List;
 
 public class WMRSHandler
 {
@@ -44,21 +42,11 @@ public class WMRSHandler
         if (ritual == null)
             return;
 
-        if (ritual != null)
+        ritual.gatherComponents(component ->
         {
-            List<RitualComponent> stones = ritual.getRitualComponents();
-
-            if (stones != null && !stones.isEmpty())
-            {
-                for (RitualComponent stone : stones)
-                {
-                    TileEntity te = mrs.getWorldObj().getTileEntity(mrs.getPos().add(stone.getOffset()));
-                    if (te instanceof TEWardedRitualStone)
-                    {
-                        ((TEWardedRitualStone) te).setBlockOwner(player.getPersistentID());
-                    }
-                }
-            }
-        }
+            TileEntity te = mrs.getWorldObj().getTileEntity(mrs.getPos().add(component.getOffset()));
+            if (te instanceof TEWardedRitualStone)
+                ((TEWardedRitualStone) te).setBlockOwner(player.getPersistentID());
+        });
     }
 }

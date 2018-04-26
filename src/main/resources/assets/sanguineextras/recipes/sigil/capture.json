@@ -1,0 +1,24 @@
+{
+  "result": {
+    "item": "sanguineextras:sigil_mob_net"
+  },
+  "pattern": [
+    "aaa",
+    "aba",
+    "aca"
+  ],
+  "type": "forge:ore_shaped",
+  "key": {
+    "a": {
+      "item": "bloodmagic:slate",
+      "data": 0
+    },
+    "b": {
+      "item": "minecraft:ender_pearl"
+    },
+    "c": {
+      "type": "bloodmagic:orb",
+      "orb": "bloodmagic:master"
+    }
+  }
+}

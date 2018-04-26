@@ -1,9 +1,9 @@
 package io.github.alex_hawks.SanguineExtras.common.ritual_stones.marker.warded;
 
-import WayofTime.bloodmagic.api.ritual.EnumRuneType;
-import WayofTime.bloodmagic.api.ritual.IRitualStone;
-import WayofTime.bloodmagic.block.BlockRitualStone;
-import WayofTime.bloodmagic.block.base.BlockStringContainer;
+import WayofTime.bloodmagic.block.base.BlockEnum;
+import WayofTime.bloodmagic.core.RegistrarBloodMagicBlocks;
+import WayofTime.bloodmagic.ritual.EnumRuneType;
+import WayofTime.bloodmagic.ritual.IRitualStone;
 import io.github.alex_hawks.SanguineExtras.common.Constants;
 import io.github.alex_hawks.SanguineExtras.common.util.SanguineExtrasCreativeTab;
 import net.minecraft.block.SoundType;
@@ -13,19 +13,16 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-import java.util.Locale;
-
-public class BlockWardedRitualStone extends BlockStringContainer implements IRitualStone
+public class BlockWardedRitualStone extends BlockEnum<EnumRuneType> implements IRitualStone
 {
-    public static final String[] names = BlockRitualStone.names;
 
     public BlockWardedRitualStone()
     {
-        super(Material.IRON, names);
-        this.setRegistryName(Constants.MetaData.MOD_ID.toLowerCase(Locale.ROOT), "wardedRitualStone");
+        super(Material.IRON, EnumRuneType.class);
+        this.setRegistryName(Constants.Metadata.MOD_ID, "warded_ritual_stone");
         setCreativeTab(SanguineExtrasCreativeTab.Instance);
 
-        setUnlocalizedName(Constants.MetaData.MOD_ID + ".ritualStone.");
+        setUnlocalizedName(Constants.Metadata.MOD_ID + ".warded_ritual_stone.");
         setSoundType(SoundType.STONE);
         setHardness(2.0F);
         setResistance(-1.0F);
@@ -33,7 +30,7 @@ public class BlockWardedRitualStone extends BlockStringContainer implements IRit
     }
 
     @Override
-    public TileEntity createNewTileEntity(World w, int meta)
+    public TileEntity createTileEntity(World world, IBlockState state)
     {
         return new TEWardedRitualStone();
     }
@@ -45,16 +42,14 @@ public class BlockWardedRitualStone extends BlockStringContainer implements IRit
     }
 
     @Override
-    public boolean isRuneType(World world, BlockPos pos, EnumRuneType runeType)
-    {
-        return runeType.toString().equals(names[getMetaFromState(world.getBlockState(pos))]);
+    public boolean isRuneType(World world, BlockPos pos, EnumRuneType runeType) {
+        return runeType == this.getTypes()[getMetaFromState(world.getBlockState(pos))];
     }
 
     @Override
-    public void setRuneType(World world, BlockPos pos, EnumRuneType runeType)
-    {
+    public void setRuneType(World world, BlockPos pos, EnumRuneType runeType) {
         int meta = runeType.ordinal();
-        IBlockState newState = this.getStateFromMeta(meta);
+        IBlockState newState = RegistrarBloodMagicBlocks.RITUAL_STONE.getStateFromMeta(meta);
         world.setBlockState(pos, newState);
     }
 }

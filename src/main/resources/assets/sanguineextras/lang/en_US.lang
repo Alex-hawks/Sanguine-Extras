@@ -1,49 +1,55 @@
+#   Comments do not need to be retained when translating, and are solely here to explain how things work, because there
+#   are definitions not present that can be used, although said absent definitions are unnecessary on default
+#   configuration settings with English (US) as the in-game language
+
 
 ##  Creative Tab
-itemGroup.tabSanguineExtras=Sanguine Extras
+itemGroup.tabsanguineextras=Sanguine Extras
 
 
 ##  Block Localizations
-tile.advancedMasterStone.name=Advanced Master Ritual Stone
-tile.wardedMasterStone.name=Warded Master Ritual Stone
-tile.SanguineExtras.ritualStone.name=Warded Ritual Stone
-tile.SanguineExtras.ritualStone.blank.name=Warded Blank Ritual Stone
-tile.SanguineExtras.ritualStone.water.name=Warded Water Ritual Stone
-tile.SanguineExtras.ritualStone.fire.name=Warded Fire Ritual Stone
-tile.SanguineExtras.ritualStone.earth.name=Warded Earth Ritual Stone
-tile.SanguineExtras.ritualStone.air.name=Warded Air Ritual Stone
-tile.SanguineExtras.ritualStone.dusk.name=Warded Dusk Ritual Stone
-tile.SanguineExtras.ritualStone.dawn.name=Warded Dawn Ritual Stone
-tile.sanguineChest.name=Sanguine Chest
+tile.advanced_master_stone.name=Advanced Master Ritual Stone
+tile.warded_master_stone.name=Warded Master Ritual Stone
+tile.sanguineextras.warded_ritual_stone.name=Warded Ritual Stone
+tile.sanguineextras.warded_ritual_stone.blank.name=Warded Blank Ritual Stone
+tile.sanguineextras.warded_ritual_stone.water.name=Warded Water Ritual Stone
+tile.sanguineextras.warded_ritual_stone.fire.name=Warded Fire Ritual Stone
+tile.sanguineextras.warded_ritual_stone.earth.name=Warded Earth Ritual Stone
+tile.sanguineextras.warded_ritual_stone.air.name=Warded Air Ritual Stone
+tile.sanguineextras.warded_ritual_stone.dusk.name=Warded Dusk Ritual Stone
+tile.sanguineextras.warded_ritual_stone.dawn.name=Warded Dawn Ritual Stone
+tile.sanguine_chest.name=Sanguine Chest
 
 
 ##  Item Localizations
-item.sigilBuilding.name=Sigil of Building
-item.sigilDestruction.tier0.name=Sigil of Destruction: Tier 1
-item.sigilDestruction.tier1.name=Sigil of Destruction: Tier 2
-item.sigilDestruction.tier2.name=Sigil of Destruction: Tier 3
-item.sigilDestruction.tier3.name=Sigil of Destruction: Tier 4
-item.sigilDestruction.tier4.name=Sigil of Destruction: Tier 5
-item.sigilDestruction.tier5.name=Sigil of Destruction: Tier 6
-item.sigilInterdiction.name=Interdiction Sigil
-item.sigilMobNet.name=Sigil of Entrapment
-item.sigilRebuilding.name=Sigil of Rebuilding
-item.dropOrb.name=Hypercondensed Mining Rubble
+item.sigil_building.name=Sigil of Building
+item.sigil_destruction.tier0.name=Sigil of Destruction: Tier 1
+item.sigil_destruction.tier1.name=Sigil of Destruction: Tier 2
+item.sigil_destruction.tier2.name=Sigil of Destruction: Tier 3
+item.sigil_destruction.tier3.name=Sigil of Destruction: Tier 4
+item.sigil_destruction.tier4.name=Sigil of Destruction: Tier 5
+item.sigil_destruction.tier5.name=Sigil of Destruction: Tier 6
+item.sigil_interdiction.name=Interdiction Sigil
+item.sigil_mob_net.name=Sigil of Entrapment
+item.sigil_rebuilding.name=Sigil of Rebuilding
+item.drop_orb.name=Hypercondensed Mining Rubble
 
-item.baubleLiquidSummoner.0.name=Water Amulet
-item.baubleLiquidSummoner.1.name=Lava Amulet
-item.baubleLiquidSummoner.2.name=Life Essence Amulet
+item.bauble_liquid_summoner.water.name=Water Amulet
+item.bauble_liquid_summoner.lava.name=Lava Amulet
+item.bauble_liquid_summoner.lifeessence.name=Life Essence Amulet
+#   The ".." is in case anyone names their fluid "bugged". Not sure why they'd do that though, but just covering all bases
+item.bauble_liquid_summoner..bugged.name=This item has no NBT Data. This is a bug
 
-item.baubleStoneSummoner.0.name=Cobblestone Charm
-item.baubleStoneSummoner.1.name=Stone Charm
-item.baubleStoneSummoner.2.name=Netherrack Charm
-item.baubleStoneSummoner.3.name=Obsidian Charm
-item.baubleStoneSummoner.4.name=Sand Charm
+item.bauble_stone_summoner.0.name=Cobblestone Charm
+item.bauble_stone_summoner.1.name=Stone Charm
+item.bauble_stone_summoner.2.name=Netherrack Charm
+item.bauble_stone_summoner.3.name=Obsidian Charm
+item.bauble_stone_summoner.4.name=Sand Charm
 
-item.baubleFeatheredKnife.name=Charm of the Feathered Knife
+item.bauble_feathered_knife.name=Charm of the Feathered Knife
 
 
-##	Multipart Localizations
+##	Multipart Localizations (Not present at the moment)
 item.microRitualStone.name=Micro Ritual Stone
 item.microRitualStone.blank.name=Micro Blank Ritual Stone
 item.microRitualStone.water.name=Micro Water Ritual Stone
@@ -71,7 +77,9 @@ tooltip.se.rebuilding.block.null=New Block: None set
 tooltip.se.rebuilding.meta=Metadata: %s
 tooltip.se.rebuilding.meta.null=Metadata: None set
 
-#   This .numbers trick should work for any, not just the ones provided
+#   This .numbers trick should work for any, not just the ones provided. Useful in the case where your language has a different syntax depending on count
+#   The sole example that comes to mind for me is a count of one being singular instead of plural in English, but I know there are other examples like that with other numbers
+#   Please leave the .0 one as a bug warning, but feel free to translate it
 tooltip.se.dropOrb.contains=Contains %s stacks of items
 tooltip.se.dropOrb.contains.0=This Orb is empty. This is a bug
 tooltip.se.dropOrb.contains.1=Contains 1 stack of items
@@ -79,9 +87,11 @@ tooltip.se.dropOrb.contains.1=Contains 1 stack of items
 
 ##  Chat MSG Localizations
 msg.se.fail.mine.RitualStone.warding=The block falls like any other, but strangely rematerializes where it was before.
-msg.se.fail.sigil.mobnet.full=You somehow feel that you should try emptying the sigil first
-msg.se.fail.sigil.mobnet.boss=You somehow feel that this enemy is too powerful to capture
-msg.se.fail.sigil.mobnet.boss=Gods like you don't need to use this to move or spawn mobs
+msg.se.fail.sigil.mobnet.full=You somehow feel that you should try emptying the sigil first.
+msg.se.fail.sigil.mobnet.boss=You somehow feel that this enemy is too powerful to ever capture.
+msg.se.fail.sigil.mobnet.health=You somehow feel that this weakening this enemy might help with its capture.
+msg.se.fail.sigil.mobnet.creative=Gods like you don't need to use this to move or spawn mobs.
+msg.se.fail.ritual.same=You feel like the runes haven't changed enough to need to do that.
 
 
 ##  Pun Localizations
@@ -93,7 +103,8 @@ pun.se.sigil.rebuilding=Let's take this, and replace it with that.
 
 
 ##  Rituals
-ritual.SanguineExtras.spawn=Ritual of Re-creation
-ritual.SanguineExtras.test=Superior Ritual of Testing
-ritual.SanguineExtras.forge=Sanguine Forge
+ritual.sanguineextras.spawn=Ritual of Re-creation
+ritual.sanguineextras.test=Superior Ritual of Testing
+ritual.sanguineextras.forge=Sanguine Forge
+ritual.sanguineextras.bees=Ritual of Apimancy
 

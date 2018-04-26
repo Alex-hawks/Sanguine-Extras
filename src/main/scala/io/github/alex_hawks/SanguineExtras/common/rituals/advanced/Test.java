@@ -1,16 +1,18 @@
 package io.github.alex_hawks.SanguineExtras.common.rituals.advanced;
 
-import WayofTime.bloodmagic.api.ritual.EnumRuneType;
-import WayofTime.bloodmagic.api.ritual.IMasterRitualStone;
-import WayofTime.bloodmagic.api.ritual.Ritual;
-import WayofTime.bloodmagic.api.ritual.RitualComponent;
+import WayofTime.bloodmagic.ritual.EnumRuneType;
+import WayofTime.bloodmagic.ritual.IMasterRitualStone;
+import WayofTime.bloodmagic.ritual.Ritual;
+import WayofTime.bloodmagic.ritual.RitualComponent;
 import io.github.alex_hawks.SanguineExtras.api.ritual.AdvancedRitual;
 import io.github.alex_hawks.SanguineExtras.api.ritual.IAdvancedMasterRitualStone;
 import io.github.alex_hawks.SanguineExtras.common.Constants;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 
-import java.util.ArrayList;
+import java.util.function.Consumer;
 
 public class Test extends AdvancedRitual
 {
@@ -18,7 +20,7 @@ public class Test extends AdvancedRitual
 
     public Test()
     {
-        super(name, 0, 100, "ritual." + Constants.MetaData.MOD_ID + ".test");
+        super(name, 0, 100, "ritual." + Constants.Metadata.MOD_ID + ".test");
     }
 
     @Override
@@ -28,13 +30,9 @@ public class Test extends AdvancedRitual
     }
 
     @Override
-    public ArrayList<RitualComponent> getComponents()
+    public void gatherComponents(Consumer<RitualComponent> ls)
     {
-        ArrayList<RitualComponent> ls = new ArrayList<RitualComponent>();
-
         this.addRune(ls, 0, -1, 0, EnumRuneType.BLANK);
-
-        return ls;
     }
 
     @Override
@@ -44,21 +42,21 @@ public class Test extends AdvancedRitual
     }
 
     @Override
-    public boolean onRightClick(IAdvancedMasterRitualStone mrs, EnumHand hand)
+    public boolean onRightClick(IAdvancedMasterRitualStone mrs, EntityPlayer player, EnumHand hand, EnumFacing side, double hitX, double hitY, double hitZ)
     {
         System.out.println("Right Click");
         return true;
     }
 
     @Override
-    public boolean onLeftClick(IAdvancedMasterRitualStone mrs, EnumHand hand)
+    public boolean onLeftClick(IAdvancedMasterRitualStone mrs, EntityPlayer player, EnumHand hand, EnumFacing side, double hitX, double hitY, double hitZ)
     {
         System.out.println("Left Click");
         return true;
     }
 
     @Override
-    public void onCollideWith(IAdvancedMasterRitualStone mrs, Entity ent)
+    public void onFallUpon(IAdvancedMasterRitualStone mrs, Entity ent, float fallDistance)
     {
         System.out.println("A " + ent.getName() + " collided with the stone");
     }

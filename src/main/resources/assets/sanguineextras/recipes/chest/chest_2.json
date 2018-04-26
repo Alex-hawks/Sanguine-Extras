@@ -1,0 +1,26 @@
+{
+  "result": {
+    "item": "sanguineextras:sanguine_chest",
+    "nbt": {
+      "BlockEntityTag": {
+        "tier": 2
+      }
+    }
+  },
+  "pattern": [
+    "sss",
+    "sos",
+    "sss"
+  ],
+  "type": "forge:ore_shaped",
+  "key": {
+    "o": {
+      "type": "bloodmagic:orb",
+      "orb": "bloodmagic:apprentice"
+    },
+    "s": {
+      "item": "bloodmagic:slate",
+      "data": 2
+    }
+  }
+}

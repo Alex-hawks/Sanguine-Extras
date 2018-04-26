@@ -1,24 +1,27 @@
 package io.github.alex_hawks.SanguineExtras.common.items.sigils;
 
-import WayofTime.bloodmagic.api.iface.ISigil;
-import WayofTime.bloodmagic.api.impl.ItemBindable;
-import WayofTime.bloodmagic.api.util.helper.NBTHelper;
-import WayofTime.bloodmagic.api.util.helper.PlayerHelper;
+import WayofTime.bloodmagic.core.data.Binding;
+import WayofTime.bloodmagic.iface.ISigil;
+import WayofTime.bloodmagic.item.ItemBindableBase;
+import WayofTime.bloodmagic.util.helper.NBTHelper;
 import WayofTime.bloodmagic.util.helper.TextHelper;
-import com.google.common.base.Strings;
-import io.github.alex_hawks.SanguineExtras.common.SanguineExtras;
+import io.github.alex_hawks.SanguineExtras.common.Constants;
 import io.github.alex_hawks.SanguineExtras.common.util.BloodUtils;
 import io.github.alex_hawks.SanguineExtras.common.util.PlayerUtils;
 import io.github.alex_hawks.SanguineExtras.common.util.SanguineExtrasCreativeTab;
+import io.github.alex_hawks.SanguineExtras.common.util.config.Base;
 import io.github.alex_hawks.SanguineExtras.common.util.sigils.UtilsBuilding;
-import io.github.alex_hawks.util.minecraft.common.Vector3;
+import lombok.AccessLevel;
+import lombok.experimental.FieldDefaults;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
@@ -27,48 +30,57 @@ import net.minecraftforge.event.world.BlockEvent.PlaceEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
+import javax.annotation.Nullable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import static io.github.alex_hawks.SanguineExtras.common.package$.MODULE$;
+import static net.minecraftforge.fml.common.gameevent.TickEvent.Phase.END;
 
-public class ItemBuilding extends ItemBindable implements ISigil
+@FieldDefaults(level = AccessLevel.PUBLIC, makeFinal = true)
+public class ItemBuilding extends ItemBindableBase implements ISigil
 {
+    static String               ID              =       "sigil_building";
+    static ResourceLocation     RL              = new   ResourceLocation(Constants.Metadata.MOD_ID, ID);
+    static int                  TICKS_PER_OP    =       10;
+
+
     public ItemBuilding()
     {
         super();
         this.maxStackSize = 1;
         setCreativeTab(SanguineExtrasCreativeTab.Instance);
-        this.setUnlocalizedName("sigilBuilding");
-        this.setRegistryName("sigilBuilding");
+        this.setUnlocalizedName(ID);
+        this.setRegistryName(RL);
     }
 
     @Override
-    @SuppressWarnings({"rawtypes", "unchecked"})
-    public void addInformation(ItemStack stack, EntityPlayer par2EntityPlayer, List tooltip, boolean par4)
+    public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn)
     {
         tooltip.add(MODULE$.loreFormat() + TextHelper.localize("pun.se.sigil.building"));
 //        tooltip.add("");
 
         NBTHelper.checkNBT(stack);
-
-        if (!Strings.isNullOrEmpty(getOwnerUUID(stack)))
-            tooltip.add(TextHelper.localizeEffect("tooltip.BloodMagic.currentOwner", PlayerHelper.getUsernameFromStack(stack)));
+  
+        Binding binding = getBinding(stack);
+        if (binding != null)
+            tooltip.add(TextHelper.localizeEffect("tooltip.bloodmagic.currentOwner", binding.getOwnerName()));
         else
             tooltip.add(TextHelper.localizeEffect("tooltip.se.owner.null"));
     }
 
     @Override
-    public EnumActionResult onItemUse(ItemStack stack, EntityPlayer player, World w, BlockPos pos, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
+    public EnumActionResult onItemUse(EntityPlayer player, World w, BlockPos pos, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
     {
-        final Map<Integer, Set<Vector3>> map = UtilsBuilding.getBlocksForBuild(w, new Vector3(pos), side, player, 9, hand == EnumHand.MAIN_HAND);
-        final String owner = BloodUtils.getOrBind(stack, player);
+        ItemStack stack = player.getHeldItem(hand);
+        final Map<Integer, Set<BlockPos>> map = UtilsBuilding.getBlocksForBuild(w, pos, side, player, Constants.HardLimits.BUILDERS_SIGIL_COUNT, hand == EnumHand.MAIN_HAND);
+        final Binding bind = BloodUtils.getOrBind(stack, player);
 
         MinecraftForge.EVENT_BUS.register(new Object()
         {
-            Iterator<Map.Entry<Integer, Set<Vector3>>> it = map.entrySet().iterator();
+            Iterator<Map.Entry<Integer, Set<BlockPos>>> it = map.entrySet().iterator();
             int ticks = 0;
 
             PlaceEvent e;
@@ -79,24 +91,25 @@ public class ItemBuilding extends ItemBindable implements ISigil
             @SubscribeEvent
             public void onWorldTick(TickEvent.WorldTickEvent event)
             {
+                if (event.phase == END)
+                    return;
                 ticks++;
-                if (ticks % 20 == 0)
+                if (ticks % TICKS_PER_OP == 0)
                 {
-                    for (Vector3 v : it.next().getValue())
+                    for (BlockPos v : it.next().getValue())
                     {
                         t = w.getBlockState(pos);
-                        s = new BlockSnapshot(w, v.toPos(), t);
+                        s = new BlockSnapshot(w, v, t);
                         b = t.getBlock();
-                        e = new PlaceEvent(s, t, player, null);
+                        e = new PlaceEvent(s, t, player, hand);
                         if (!MinecraftForge.EVENT_BUS.post(e))
                         {
-                            String str = owner;
-                            if (str != null && !str.isEmpty())
+                            if (bind != null)
                             {
-                                if (BloodUtils.drainSoulNetworkWithDamage(ItemBuilding.this.getOwnerUUID(stack), player, SanguineExtras.rebuildSigilCost)
+                                if (BloodUtils.drainSoulNetworkWithDamage(bind.getOwnerId(), Base.sigil.build.cost, player)
                                         && PlayerUtils.takeItem(player, new ItemStack(b, 1, b.getMetaFromState(w.getBlockState(pos))), stack))
                                 {
-                                    w.setBlockState(v.toPos(), t, 0x3);
+                                    w.setBlockState(v, t, 0x3);
                                 }
                             }
                         }

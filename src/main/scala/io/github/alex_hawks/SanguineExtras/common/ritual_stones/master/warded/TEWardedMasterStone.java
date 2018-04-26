@@ -1,8 +1,8 @@
 package io.github.alex_hawks.SanguineExtras.common.ritual_stones.master.warded;
 
-import WayofTime.bloodmagic.api.ritual.Ritual;
+import WayofTime.bloodmagic.ritual.Ritual;
 import WayofTime.bloodmagic.tile.TileMasterRitualStone;
-import io.github.alex_hawks.SanguineExtras.common.SanguineExtras;
+import io.github.alex_hawks.SanguineExtras.common.util.config.Base;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -27,14 +27,14 @@ public class TEWardedMasterStone extends TileMasterRitualStone
 
     public boolean canBreak(EntityPlayer player)
     {
-        if (blockOwner == null)
+        if (blockOwner == null) // not claimed
             return true;
-        if (player.getPersistentID().equals(blockOwner))
+        if (player.getPersistentID().equals(blockOwner)) // owner is breaking
             return true;
-        if (this.getOwner().equals(""))
+        if (this.getCurrentRitual() == null) // ritual not activated at all. even if disabled with redstone, that still returns a ritual
             return true;
         if (FMLCommonHandler.instance().getSide() == Side.SERVER)
-            if (player.canCommandSenderUseCommand(2, "") && SanguineExtras.opsCanBreakWardedBlocks)
+            if (player.canUseCommand(2, "") && Base.ritual.stones.opsCanBreakWardedBlocks)
                 return true;
         return false;
     }
@@ -44,10 +44,7 @@ public class TEWardedMasterStone extends TileMasterRitualStone
     {
         super.serialize(tag);
         if (blockOwner != null)
-        {
-            tag.setLong("OwnerMost", blockOwner.getMostSignificantBits());
-            tag.setLong("OwnerLeast", blockOwner.getLeastSignificantBits());
-        }
+            tag.setUniqueId("BlockOwner", blockOwner);
 
         return tag;
     }
@@ -56,10 +53,8 @@ public class TEWardedMasterStone extends TileMasterRitualStone
     public void deserialize(NBTTagCompound tag)
     {
         super.deserialize(tag);
-        if (tag.hasKey("OwnerMost") && tag.hasKey("OwnerLeast"))
-        {
-            this.blockOwner = new UUID(tag.getLong("OwnerMost"), tag.getLong("OwnerLeast"));
-        }
+        if (tag.hasUniqueId("BlockOwner"))
+            this.blockOwner = tag.getUniqueId("BlockOwner");
     }
 
     @Override

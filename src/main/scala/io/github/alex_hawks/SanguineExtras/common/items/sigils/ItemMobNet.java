@@ -1,56 +1,74 @@
 package io.github.alex_hawks.SanguineExtras.common.items.sigils;
 
-import WayofTime.bloodmagic.api.Constants;
-import WayofTime.bloodmagic.api.impl.ItemBindable;
-import WayofTime.bloodmagic.api.util.helper.NBTHelper;
-import WayofTime.bloodmagic.api.util.helper.PlayerHelper;
+import WayofTime.bloodmagic.client.IMeshProvider;
+import WayofTime.bloodmagic.core.data.Binding;
+import WayofTime.bloodmagic.iface.ISigil;
+import WayofTime.bloodmagic.item.ItemBindableBase;
 import WayofTime.bloodmagic.util.ChatUtil;
 import WayofTime.bloodmagic.util.helper.TextHelper;
-import com.google.common.base.Strings;
-import io.github.alex_hawks.SanguineExtras.common.SanguineExtras;
+import io.github.alex_hawks.SanguineExtras.common.Constants;
 import io.github.alex_hawks.SanguineExtras.common.util.BloodUtils;
 import io.github.alex_hawks.SanguineExtras.common.util.SanguineExtrasCreativeTab;
+import io.github.alex_hawks.SanguineExtras.common.util.config.Base;
+import io.github.alex_hawks.SanguineExtras.common.util.config.Overrides;
 import io.github.alex_hawks.SanguineExtras.common.util.sigils.UtilsMobNet;
+import lombok.AccessLevel;
+import lombok.experimental.FieldDefaults;
+import net.minecraft.client.renderer.ItemMeshDefinition;
+import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.EnumActionResult;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
+import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 import java.util.List;
+import java.util.function.Consumer;
 
-import static io.github.alex_hawks.SanguineExtras.api.sigil.MobNet.isCaptureBlacklisted;
 import static io.github.alex_hawks.SanguineExtras.common.package$.MODULE$;
+import static io.github.alex_hawks.SanguineExtras.common.util.config.Overrides.Capture.CaptureEntry;
+import static io.github.alex_hawks.SanguineExtras.common.util.config.Overrides.Capture.INSTANCE;
 
-public class ItemMobNet extends ItemBindable
+@FieldDefaults(level = AccessLevel.PUBLIC, makeFinal = true)
+public class ItemMobNet extends ItemBindableBase implements ISigil, IMeshProvider
 {
+    static String           ID          =       "sigil_mob_net";
+    static ResourceLocation RL          = new   ResourceLocation(Constants.Metadata.MOD_ID, ID);
+    static String           NBT_ID      =       "full";
+
+    private ModelResourceLocation full  = new   ModelResourceLocation(RL, NBT_ID + "=true");
+    private ModelResourceLocation empty = new   ModelResourceLocation(RL, NBT_ID + "=false");
+
+    static String NBT_ENT_NAME          =       "entityName";
+    static String NBT_ENT_ID            =       "entityID";
+    static String NBT_ENT_BOSS          =       "isBoss";
+    static String NBT_ENT               =       "entity";
+
     public ItemMobNet()
     {
         super();
         this.maxStackSize = 1;
         setCreativeTab(SanguineExtrasCreativeTab.Instance);
-        this.setUnlocalizedName("sigilMobNet");
-        this.setRegistryName("sigilMobNet");
+        this.setUnlocalizedName(ID);
+        this.setRegistryName(RL);
         this.setHasSubtypes(true);
     }
 
     @Override
-    @SuppressWarnings({"rawtypes", "unchecked"})
-    public void addInformation(ItemStack stack, EntityPlayer par2EntityPlayer, List tooltip, boolean par4)
+    public void addInformation(ItemStack stack, World world, List<String> tooltip, ITooltipFlag flag)
     {
         tooltip.add(MODULE$.loreFormat() + TextHelper.localize("pun.se.sigil.mobnet"));
         tooltip.add("");
 
-        NBTHelper.checkNBT(stack);
+        Binding binding = getBinding(stack);
 
-        if (!Strings.isNullOrEmpty(stack.getTagCompound().getString(Constants.NBT.OWNER_UUID)))
-            tooltip.add(TextHelper.localizeEffect("tooltip.BloodMagic.currentOwner", PlayerHelper.getUsernameFromStack(stack)));
+        if (binding != null)
+            tooltip.add(TextHelper.localizeEffect("tooltip.BloodMagic.currentOwner", binding.getOwnerName()));
         else
             tooltip.add(TextHelper.localizeEffect("tooltip.se.owner.null"));
 
@@ -63,16 +81,17 @@ public class ItemMobNet extends ItemBindable
     @Override
     public boolean itemInteractionForEntity(ItemStack stack, EntityPlayer player, EntityLivingBase target, EnumHand hand)
     {
-        if (isCaptureBlacklisted(target.getClass()))
+        final CaptureEntry data = INSTANCE.getData().get(Overrides.getEntityID(target));
+        if (data == null || !data.enabled)
         {
             return true;
         }
-        else if (stack.getTagCompound().hasKey("entityClass") || stack.getTagCompound().hasKey("entity"))
+        else if (stack.getSubCompound(NBT_ENT) != null)
         {
             ChatUtil.sendNoSpamUnloc(player, "msg.se.fail.sigil.mobnet.full");
             return true;
         }
-        else if (!target.isNonBoss() && !SanguineExtras.trappableBossMobs)
+        else if (!target.isNonBoss() && !Base.sigil.holding.trappableBosses)
         {
             ChatUtil.sendNoSpamUnloc(player, "msg.se.fail.sigil.mobnet.boss");
             return true;
@@ -87,65 +106,100 @@ public class ItemMobNet extends ItemBindable
             ChatUtil.sendNoSpamUnloc(player, "msg.se.fail.sigil.mobnet.creative");
             return true;
         }
+        else if (data.isPercentage && (target.getHealth() / target.getMaxHealth() * 100.0) > data.maxHealth)
+        {
+            ChatUtil.sendNoSpamUnloc(player, "msg.se.fail.sigil.mobnet.health");
+            return true;
+        }
+        else if(target.getHealth() > data.maxHealth)
+        {
+            ChatUtil.sendNoSpamUnloc(player, "msg.se.fail.sigil.mobnet.health");
+            return true;
+        }
 
-        System.out.println("Stack" + getOwnerUUID(stack));
-        System.out.println("Player" + player.getUniqueID().toString());
+        Binding bd = BloodUtils.getOrBind(stack, player);
+        ResourceLocation loc = EntityList.getKey(target);
+        if (loc == null)
+        {
+            ChatUtil.sendNoSpamUnloc(player, "msg.se.fail.sigil.mobnet.internal");
+            return true;
+        }
 
-        if (BloodUtils.drainSoulNetworkWithDamage(getOwnerUUID(stack), player, target.isNonBoss() ? 1000 : 10000))
+        if (BloodUtils.drainSoulNetworkWithDamage(bd.getOwnerId().toString(), player, Base.sigil.holding.cost * (target.isNonBoss() ? 1 : 10)))
         {
             NBTTagCompound tag = new NBTTagCompound();
             target.writeToNBT(tag);
 
             if (stack.getTagCompound() == null)
                 stack.setTagCompound(new NBTTagCompound());
-            stack.getTagCompound().setTag("entity", tag);
-            stack.getTagCompound().setString("entityClass", target.getClass().getName());
-            stack.getTagCompound().setBoolean("isBoss", !target.isNonBoss());
-            stack.getTagCompound().setString("entityName", "entity." + EntityList.getEntityString(target) + ".name");
+            stack.getTagCompound().setTag(NBT_ENT, tag);
+            stack.getTagCompound().setString(NBT_ENT_ID, loc.toString());
+            stack.getTagCompound().setBoolean(NBT_ENT_BOSS, !target.isNonBoss());
+            stack.getTagCompound().setString(NBT_ENT_NAME, "entity." + EntityList.getEntityString(target) + ".name");
             stack.setItemDamage(1);
 
-            target.worldObj.removeEntity(target);
+            target.getEntityWorld().removeEntity(target);
         }
         return true;
     }
 
     @Override
-    public ActionResult<ItemStack> onItemRightClick(ItemStack stack, World w, EntityPlayer player, EnumHand hand)
+    public ActionResult<ItemStack> onItemRightClick(World w, EntityPlayer player, EnumHand hand)
     {
+        final ItemStack stack = player.getHeldItem(hand);
+
         if (w.isRemote)
             return ActionResult.newResult(EnumActionResult.SUCCESS, stack);
-        if (stack.getTagCompound() == null || !stack.getTagCompound().hasKey("entityClass") || !stack.getTagCompound().hasKey("entity"))
+        if (stack.getTagCompound() == null || !stack.getTagCompound().hasKey(NBT_ENT_ID) || !stack.getTagCompound().hasKey(NBT_ENT))
             return ActionResult.newResult(EnumActionResult.SUCCESS, stack);
 
-        EntityLivingBase ent = UtilsMobNet.createCopiedEntity(stack, w);
+        Entity ent = UtilsMobNet.createCopiedEntity(stack, w);
         ent.setPosition(player.posX + w.rand.nextDouble() - 0.5, player.posY, player.posZ + w.rand.nextDouble() - 0.5);
-        w.spawnEntityInWorld(ent);
+        w.spawnEntity(ent);
 
-        stack.getTagCompound().removeTag("entity");
-        stack.getTagCompound().removeTag("entityClass");
-        stack.getTagCompound().removeTag("isBoss");
-        stack.getTagCompound().removeTag("entityName");
+        stack.getTagCompound().removeTag(NBT_ENT);
+        stack.getTagCompound().removeTag(NBT_ENT_ID);
+        stack.getTagCompound().removeTag(NBT_ENT_BOSS);
+        stack.getTagCompound().removeTag(NBT_ENT_NAME);
         stack.setItemDamage(0);
 
         return ActionResult.newResult(EnumActionResult.SUCCESS, stack);
     }
 
     @Override
-    public EnumActionResult onItemUse(ItemStack stack, EntityPlayer player, World w, BlockPos pos, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
+    public EnumActionResult onItemUse(EntityPlayer player, World w, BlockPos pos, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
     {
+        final ItemStack stack = player.getHeldItem(hand);
+
         if (w.isRemote)
             return EnumActionResult.SUCCESS;
-        if (stack.getTagCompound() == null || !stack.getTagCompound().hasKey("entityClass") || !stack.getTagCompound().hasKey("entity"))
+        if (stack.getTagCompound() == null || !stack.getTagCompound().hasKey(NBT_ENT_ID) || !stack.getTagCompound().hasKey(NBT_ENT))
             return EnumActionResult.SUCCESS;
 
-        EntityLivingBase ent = UtilsMobNet.createCopiedEntity(stack, w);
+        Entity ent = UtilsMobNet.createCopiedEntity(stack, w);
         ent.setPosition(pos.getX() + side.getFrontOffsetX() + hitX, pos.getY() + side.getFrontOffsetY(), pos.getZ() + side.getFrontOffsetZ() + hitZ);
-        w.spawnEntityInWorld(ent);
+        w.spawnEntity(ent);
 
-        stack.getTagCompound().removeTag("entity");
-        stack.getTagCompound().removeTag("entityClass");
-        stack.getTagCompound().removeTag("isBoss");
-        stack.getTagCompound().removeTag("entityName");
+        stack.getTagCompound().removeTag(NBT_ENT);
+        stack.getTagCompound().removeTag(NBT_ENT_ID);
+        stack.getTagCompound().removeTag(NBT_ENT_BOSS);
+        stack.getTagCompound().removeTag(NBT_ENT_NAME);
         return EnumActionResult.SUCCESS;
+    }
+
+    @Override
+    public ItemMeshDefinition getMeshDefinition()
+    {
+        return stack -> stack.getSubCompound(NBT_ENT) != null
+                ? ItemMobNet.this.full
+                : ItemMobNet.this.empty;
+
+    }
+
+    @Override
+    public void gatherVariants(Consumer<String> ls)
+    {
+        ls.accept("full=true");
+        ls.accept("full=false");
     }
 }

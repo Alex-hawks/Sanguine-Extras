@@ -1,71 +1,241 @@
 package io.github.alex_hawks.SanguineExtras.common
 package constructs
 
-import java.util.Locale
+import java.util.function.Consumer
 import javax.annotation.Nullable
 
+import WayofTime.bloodmagic.block.IBMBlock
+import WayofTime.bloodmagic.client.IMeshProvider
+import com.google.common.base.Strings
 import io.github.alex_hawks.SanguineExtras.common.constructs.Chest._
 import io.github.alex_hawks.SanguineExtras.common.util.{PlayerUtils, SanguineExtrasCreativeTab}
-import io.github.alex_hawks.util.minecraft.common.WorldUtils.dropItem
-import net.minecraft.block.BlockContainer
+import io.github.alex_hawks.util.minecraft.common.Implicit.iItemStack
+import net.minecraft.block.Block
 import net.minecraft.block.material.Material
-import net.minecraft.block.state.IBlockState
+import net.minecraft.block.properties.{IProperty, PropertyInteger}
+import net.minecraft.block.state.{BlockStateContainer, IBlockState}
+import net.minecraft.client.renderer.ItemMeshDefinition
+import net.minecraft.client.renderer.block.model.ModelResourceLocation
+import net.minecraft.creativetab.CreativeTabs
+import net.minecraft.enchantment.EnchantmentHelper
+import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.inventory.{Container, IInventory, Slot}
-import net.minecraft.item.ItemStack
+import net.minecraft.init.Enchantments
+import net.minecraft.inventory.{Container, Slot}
+import net.minecraft.item.ItemStack.EMPTY
+import net.minecraft.item.{ItemBlock, ItemStack}
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.network.NetworkManager
 import net.minecraft.network.play.server.SPacketUpdateTileEntity
+import net.minecraft.stats.StatList
 import net.minecraft.tileentity.TileEntity
+import net.minecraft.util.EnumBlockRenderType.ENTITYBLOCK_ANIMATED
 import net.minecraft.util._
-import net.minecraft.util.math.BlockPos
-import net.minecraft.util.text.ITextComponent
-import net.minecraft.world.World
+import net.minecraft.util.math.{BlockPos, RayTraceResult}
+import net.minecraft.util.text.{ITextComponent, TextComponentString}
+import net.minecraft.world.chunk.Chunk
+import net.minecraft.world.{ChunkCache, IBlockAccess, World}
+import net.minecraftforge.common.MinecraftForge
+import net.minecraftforge.common.capabilities.{Capability, CapabilityInject}
+import net.minecraftforge.event.world.BlockEvent.HarvestDropsEvent
+import net.minecraftforge.items.{IItemHandler, ItemStackHandler, SlotItemHandler}
+
+import scala.collection.JavaConverters._
+
 
 object Chest {
   val maxRows = 9
   val maxCols = 12
   val maxChestSize = maxRows * maxCols
-  val maxTier = 4
+  val maxTier = 4 // 0 indexed: this is the max tier, not the number of tiers
   val slotsPerTier = 18
 
-  val textureLocGui = new ResourceLocation(Constants.MetaData.MOD_ID.toLowerCase, "textures/gui/chest.png")
+  val textureLocGui = new ResourceLocation(Constants.Metadata.MOD_ID, "textures/gui/chest.png")
   val heightChange = 0.000625f
   val maxLidAngle = 1f
   val minLidAngle = 0f
   val maxHeightChange = 0.02f
   val lidMotion = 1f / 10f
+
+  @CapabilityInject(classOf[IItemHandler])
+  var CapInv: Capability[IItemHandler] = null
+
+  val PropTier = PropertyInteger.create("tier", 0, 4)
+
+  def getTier(is: ItemStack): Int = {
+    val tag = is.getSubCompound("BlockEntityTag")
+    if (tag != null)
+      return tag.getInteger("tier")
+    0
+  }
 }
 
-object BlockChest extends BlockContainer(Material.ROCK) {
+object BlockChest extends Block(Material.ROCK) with IBMBlock {
+  this.setRegistryName(Constants.Metadata.MOD_ID, "sanguine_chest")
+  this.setUnlocalizedName("sanguine_chest")
+  this.setDefaultState(getDefaultState.withProperty[Integer,Integer](PropTier, 0))
 
-  this.setRegistryName(Constants.MetaData.MOD_ID.toLowerCase(Locale.ROOT), "sanguineChest");
-  this.setUnlocalizedName("sanguineChest")
-  setCreativeTab(SanguineExtrasCreativeTab.Instance);
 
-  override def createNewTileEntity(world: World, meta: Int) = new TileChest(meta)
+  override def hasTileEntity(state: IBlockState) = true
+
+  override def createTileEntity(world: World, state: IBlockState) = new TileChest()
 
   override def isOpaqueCube(state: IBlockState): Boolean = false
 
   override def isBlockNormalCube(state: IBlockState): Boolean = false
 
-  override def onBlockActivated(w: World, pos: BlockPos, st: IBlockState, p: EntityPlayer, h: EnumHand, @Nullable item: ItemStack, s: EnumFacing, x: Float, y: Float, z: Float) = {
+  override def getRenderType(state: IBlockState): EnumBlockRenderType = ENTITYBLOCK_ANIMATED
+
+  override def onBlockActivated(w: World, pos: BlockPos, st: IBlockState, p: EntityPlayer, h: EnumHand, s: EnumFacing, x: Float, y: Float, z: Float) = {
     p.openGui(SanguineExtras.INSTANCE, 0, w, pos.getX, pos.getY, pos.getZ)
     true
   }
 
-  override def breakBlock(w: World, pos: BlockPos, state: IBlockState) = {
-    val te = w.getTileEntity(pos).asInstanceOf[TileChest]
+  override def getPickBlock(state: IBlockState, target: RayTraceResult, w: World, pos: BlockPos, player: EntityPlayer) = {
+    if (player.isSneaking && player.isCreative) {
+      val is = new ItemStack(getItem)
+      val chest = w.getTileEntity(pos).asInstanceOf[TileChest]
+      val tag = chest.save(new NBTTagCompound)
+      if (!tag.hasNoTags)
+        is.setTagInfo("BlockEntityTag", tag)
+      if (chest.hasCustomName)
+        is.setStackDisplayName(chest.getCustomName)
+      is
+    } else {
+      val chest = w.getTileEntity(pos).asInstanceOf[TileChest]
+      new ItemStack(getItem).withNBT("BlockEntityTag::tier", chest.tier)
+    }
+  }
 
-    for (item <- te.chestContents)
-      dropItem(w, item, pos.getX, pos.getY, pos.getZ)
+  override def getDrops(drops: NonNullList[ItemStack], w: IBlockAccess, pos: BlockPos, state: IBlockState, fortune: Int): Unit = {
+    // still necessary due to how the Destruction Sigil is implemented.
 
-    super.breakBlock(w, pos, state)
+    val te = w.getTileEntity(pos)
+
+    if (te.isInstanceOf[TileChest]) {
+      SanguineExtras.LOG.fatal("Is a chest")
+      val is = new ItemStack(getItem)
+      val chest = te.asInstanceOf[TileChest]
+      val tag = chest.save(new NBTTagCompound)
+      if (!tag.hasNoTags)
+        is.setTagInfo("BlockEntityTag", tag)
+      if (chest.hasCustomName)
+        is.setStackDisplayName(chest.getCustomName)
+
+      drops.add(is)
+    }
+  }
+
+  override def harvestBlock(w: World, p: EntityPlayer, pos: BlockPos, state: IBlockState, @Nullable te: TileEntity, stack: ItemStack): Unit = {
+    // Can't call super due to the logic in that method, so I need to do some things here that it does there
+    // This needs to exist, as it's the easiest point in the chain to override such that I still get the TileEntity to work with
+    p.addStat(StatList.getBlockStats(this))
+    p.addExhaustion(0.005F)
+
+    if (te.isInstanceOf[TileChest]) {
+      val is = new ItemStack(getItem)
+      val chest = te.asInstanceOf[TileChest]
+      val tag = chest.save(new NBTTagCompound)
+      if (!tag.hasNoTags)
+        is.setTagInfo("BlockEntityTag", tag)
+      if (chest.hasCustomName)
+        is.setStackDisplayName(chest.getCustomName)
+
+      val fortune = EnchantmentHelper.getEnchantmentLevel(Enchantments.FORTUNE, stack)
+      val silky = EnchantmentHelper.getEnchantmentLevel(Enchantments.SILK_TOUCH, stack) != 0
+
+      val event = new HarvestDropsEvent(w, pos, state, fortune, 1.0F, List(is).asJava, p, silky)
+      if (!MinecraftForge.EVENT_BUS.post(event)) { // I'm aware that this is a possible exception, I'm being polite and conforming to standards
+        for(item <- event.getDrops.asScala)
+          if (w.rand.nextDouble <= event.getDropChance)
+            Block.spawnAsEntity(w, pos, item)
+      }
+    }
+  }
+
+  override def onBlockPlacedBy(worldIn: World, pos: BlockPos, state: IBlockState, placer: EntityLivingBase, stack: ItemStack): Unit = {
+    if (stack.hasDisplayName) {
+      val te = worldIn.getTileEntity(pos)
+      if (te.isInstanceOf[TileChest])
+        te.asInstanceOf[TileChest].setCustomName(stack.getDisplayName)
+    }
+  }
+
+  override val getItem = ItemBlockChest
+
+  override def getSubBlocks(itemIn: CreativeTabs, items: NonNullList[ItemStack]): Unit = { /* no-op */ }
+
+  override def createBlockState() = new BlockStateContainer(this, Array[IProperty[_ <: Comparable[_]]](PropTier):_*)
+
+  override def getMetaFromState(state: IBlockState) = 0
+
+  override def getStateFromMeta(meta: Int) = this.getDefaultState
+
+  override def getActualState(state: IBlockState, world: IBlockAccess, pos: BlockPos) = {
+    val te = world match {
+      case cache: ChunkCache => cache.getTileEntity(pos, Chunk.EnumCreateEntityType.CHECK)
+      case _ => world.getTileEntity(pos)
+    }
+    if(te.isInstanceOf[TileChest])
+      state.withProperty[Integer,Integer](PropTier, te.asInstanceOf[TileChest].tier)
+    else
+      state
   }
 }
 
-class TileChest(var tier: Int) extends TileEntity with IInventory with ITickable {
-  val chestContents = new Array[ItemStack](Chest.maxChestSize);
+object ItemBlockChest extends ItemBlock(BlockChest) with IMeshProvider {
+  this.setCreativeTab(SanguineExtrasCreativeTab.Instance)
+
+
+  override def gatherVariants(ls: Consumer[String]): Unit = {
+    for (i <- 0 until maxTier)
+      ls.accept(s"tier=$i")
+  }
+
+  override def getMeshDefinition: ItemMeshDefinition = (stack: ItemStack) => {
+    if (stack.getSubCompound("BlockEntityTag") != null && stack.getSubCompound("BlockEntityTag").hasKey("tier"))
+      new ModelResourceLocation(ItemBlockChest.this.getRegistryName, "tier=" + stack.getSubCompound("BlockEntityTag").getInteger("tier"))
+    else
+      new ModelResourceLocation(ItemBlockChest.this.getRegistryName, "tier=0")
+  }
+
+  override def getSubItems(tab: CreativeTabs, items: NonNullList[ItemStack]): Unit = {
+    if (tab == SanguineExtrasCreativeTab.Instance)
+      for (i <- 0 to maxTier)
+        items.add(new ItemStack(this).withNBT("BlockEntityTag::tier", i))
+  }
+}
+
+class TileChest(var tier: Int, var name: String) extends TileEntity with ITickable {
+  def this() = this(0, "")
+
+  lazy val inv = new ItemStackHandler(actInvSize) {
+
+    override def getStackInSlot(slot: Int): ItemStack = {
+      if (0 <= slot && slot < stacks.size)
+        return super.getStackInSlot(slot)
+      ItemStack.EMPTY
+    }
+
+    override def setStackInSlot(slot: Int, stack: ItemStack): Unit = {
+      if (0 <= slot && slot < stacks.size)
+        super.setStackInSlot(slot, stack)
+    }
+
+    override def insertItem(slot: Int, stack: ItemStack, simulate: Boolean): ItemStack = {
+      if (0 <= slot && slot < stacks.size)
+        return super.insertItem(slot, stack, simulate)
+      stack
+    }
+
+    override def extractItem(slot: Int, amount: Int, simulate: Boolean): ItemStack = {
+      if (0 <= slot && slot < stacks.size)
+        return super.extractItem(slot, amount, simulate)
+      ItemStack.EMPTY
+    }
+
+    override def getSlots = maxChestSize
+  }
 
   // the Chest Levitates and slowly rotates
   var lidAngle: Float = _
@@ -77,13 +247,11 @@ class TileChest(var tier: Int) extends TileEntity with IInventory with ITickable
   var lidMoving: Boolean = _
   var numPlayersUsing: Int = _
 
-  def this() = this(0)
-
   // Begin calculations
   def actInvSize = (tier + 2) * slotsPerTier
 
   // Begin TileEntity overrides
-  def update = {
+  override def update(): Unit = {
     prevLidAngle = lidAngle
 
     rotation += 1
@@ -98,7 +266,7 @@ class TileChest(var tier: Int) extends TileEntity with IInventory with ITickable
 
     height += Math.min(motion, maxHeightChange)
 
-    worldObj.markBlockRangeForRenderUpdate(pos, pos)
+    getWorld.markBlockRangeForRenderUpdate(pos, pos)
 
     if (lidMoving) {
       if (numPlayersUsing > 0) {
@@ -128,13 +296,22 @@ class TileChest(var tier: Int) extends TileEntity with IInventory with ITickable
 
   override def writeToNBT(tag: NBTTagCompound) = {
     super.writeToNBT(tag)
-    val tag2 = new NBTTagCompound
-    for (i <- 0 until maxChestSize)
-      if (chestContents(i) != null)
-        tag2.setTag("slot" + i, chestContents(i).writeToNBT(new NBTTagCompound))
+    save(tag)
 
-    tag.setTag("inventory", tag2)
-    writeSyncData(tag)
+    tag
+  }
+
+  def save(tag: NBTTagCompound): NBTTagCompound = {
+    val tag2 = inv.serializeNBT()
+
+    if (!tag2.getTagList("Items", 10).hasNoTags)
+      tag.setTag("inventory", tag2)
+
+    tag.setInteger("tier", tier)
+    if (!Strings.isNullOrEmpty(name))
+      tag.setString("name", name)
+
+    tag
   }
 
   def writeSyncData(tag: NBTTagCompound): NBTTagCompound = {
@@ -142,17 +319,26 @@ class TileChest(var tier: Int) extends TileEntity with IInventory with ITickable
     tag.setFloat("height", height)
     tag.setFloat("motion", motion)
     tag.setInteger("tier", tier)
+    if (!Strings.isNullOrEmpty(name))
+      tag.setString("name", name)
     tag
   }
 
-  override def readFromNBT(tag: NBTTagCompound) = {
+  override def readFromNBT(tag: NBTTagCompound): Unit = {
     super.readFromNBT(tag)
-    val tag2 = tag.getCompoundTag("inventory")
-    if (tag2 != null)
-      for (i <- 0 until maxChestSize)
-        chestContents(i) = ItemStack.loadItemStackFromNBT(tag2.getCompoundTag("slot" + i))
+    tier = tag.getInteger("tier")
+    name = tag.getString("name")
 
-    readSyncData(tag)
+    val tag2 = tag.getCompoundTag("inventory")
+    load(tag2)
+  }
+
+  def load(tag: NBTTagCompound): Unit = {
+    if (tag != null) {
+      if (tag.getInteger("Size") <= actInvSize)
+        tag.setInteger("Size", actInvSize)
+      inv.deserializeNBT(tag)
+    }
   }
 
   def readSyncData(tag: NBTTagCompound): NBTTagCompound = {
@@ -160,6 +346,7 @@ class TileChest(var tier: Int) extends TileEntity with IInventory with ITickable
     height = tag.getFloat("height")
     motion = tag.getFloat("motion")
     tier = tag.getInteger("tier")
+    name = tag.getString("name")
     tag
   }
 
@@ -168,76 +355,37 @@ class TileChest(var tier: Int) extends TileEntity with IInventory with ITickable
     new SPacketUpdateTileEntity(this.pos, 1, tag)
   }
 
-  override def onDataPacket(net: NetworkManager, pkt: SPacketUpdateTileEntity) = {
+  override def onDataPacket(net: NetworkManager, pkt: SPacketUpdateTileEntity): Unit = {
     readSyncData(pkt.getNbtCompound)
   }
 
-  // Begin IInventory
-  override def closeInventory(player: EntityPlayer): Unit = {
-    this.numPlayersUsing -= 1
-    if (this.numPlayersUsing < 0)
-      this.numPlayersUsing = 0;
-    this.worldObj.addBlockEvent(this.pos, this.getBlockType(), 1, this.numPlayersUsing)
+  override def hasCapability(cap: Capability[_], dir: EnumFacing): Boolean = {
+    if (cap == CapInv)
+      return true
+    super.hasCapability(cap, dir)
   }
 
-  override def decrStackSize(slot: Int, qty: Int): ItemStack = {
-    if (chestContents(slot) == null || chestContents(slot).getItem == null)
-      null;
-    else {
-      val y = chestContents(slot).copy
-      y.stackSize = Math.max(Math.min(chestContents(slot).stackSize, qty), 0)
-      if (chestContents(slot).stackSize == y.stackSize)
-        chestContents(slot) = null
-      else
-        chestContents(slot).stackSize -= y.stackSize
-      markDirty
-      y
-    }
-
+  override def getCapability[T](cap: Capability[T], dir: EnumFacing): T = {
+    if (cap == CapInv)
+      CapInv.cast(inv)
+    super.getCapability(cap, dir)
   }
 
-  override def getName: String = "container.sanguine_chest"
-
-  override def getInventoryStackLimit: Int = 64
-
-  override def getSizeInventory: Int = actInvSize
-
-  override def getStackInSlot(slot: Int): ItemStack = chestContents(slot)
-
-  override def isItemValidForSlot(slot: Int, stack: ItemStack): Boolean = slot < actInvSize && slot >= 0
-
-  override def isUseableByPlayer(player: EntityPlayer): Boolean = true
-
-  override def openInventory(player: EntityPlayer): Unit = {
-    this.numPlayersUsing += 1
-    this.worldObj.addBlockEvent(this.pos, this.getBlockType, 1, this.numPlayersUsing)
+  def openInventory(p: EntityPlayer): Unit = {
+    numPlayersUsing += 1
   }
 
-  override def setInventorySlotContents(slot: Int, stack: ItemStack): Unit = {
-    chestContents(slot) = stack;
-    markDirty
+  def closeInventory(p: EntityPlayer): Unit = {
+    numPlayersUsing -= 1
   }
 
-  override def removeStackFromSlot(index: Int): ItemStack = {
-    if (index > -1 && index < maxChestSize && chestContents(index) != null) {
-      val s = chestContents(index)
-      chestContents(index) = null
-      s
-    } else
-      null
-  }
+  override def getDisplayName: ITextComponent = new TextComponentString(if (hasCustomName) getCustomName else "container.sanguine_chest")
 
-  override def clear(): Unit = for (x <- 0 until chestContents.length) chestContents(x) = null
+  def hasCustomName: Boolean = !(null == name || "".equals(name))
 
-  override def getFieldCount: Int = 0
+  def getCustomName: String = name
 
-  override def getField(id: Int): Int = 0
-
-  override def setField(id: Int, value: Int): Unit = {}
-
-  override def getDisplayName: ITextComponent = null
-
-  override def hasCustomName: Boolean = false;
+  def setCustomName(n: String): Unit = name = n
 }
 
 class ContainerChest(val player: EntityPlayer, val chest: TileChest) extends Container {
@@ -245,7 +393,7 @@ class ContainerChest(val player: EntityPlayer, val chest: TileChest) extends Con
   chest.openInventory(player)
   for (i <- 0 until maxRows)
     for (j <- 0 until maxCols)
-      this.addSlotToContainer(new SlotChest(chest, i * maxCols + j, 12 + j * 18, 8 + i * 18))
+      this.addSlotToContainer(new SlotItemHandler(chest.inv, i * maxCols + j, 12 + j * 18, 8 + i * 18))
 
   for (playerInvRow <- 0 until 3)
     for (playerInvCol <- 0 until 9)
@@ -254,40 +402,34 @@ class ContainerChest(val player: EntityPlayer, val chest: TileChest) extends Con
   for (playerInvCol <- 0 until 9)
     addSlotToContainer(new Slot(player.inventory, playerInvCol, 39 + playerInvCol * 18, 232));
 
-  override def canInteractWith(player: EntityPlayer): Boolean = PlayerUtils.isNotFakePlayer(player)
+  override def canInteractWith(player: EntityPlayer): Boolean = PlayerUtils.isRealPlayer(player)
 
   override def transferStackInSlot(player: EntityPlayer, slotID: Int): ItemStack = {
-    var itemstack: ItemStack = null
+    var ret: ItemStack = EMPTY
     val slot = this.inventorySlots.get(slotID)
 
-    if (slot != null && slot.getHasStack()) {
-      val itemstack1 = slot.getStack();
-      itemstack = itemstack1.copy();
+    if (slot.getHasStack) {
+      val moved = slot.getStack
+      ret = moved.copy
       val size = chest.actInvSize
 
       if (slotID < size) {
-        if (!this.mergeItemStack(itemstack1, size, this.inventorySlots.size(), true)) {
-          return null;
+        if (!this.mergeItemStack(moved, size, this.inventorySlots.size(), true)) {
+          return EMPTY
         }
-      } else if (!this.mergeItemStack(itemstack1, 0, size, false)) {
-        return null;
+      } else if (!this.mergeItemStack(moved, 0, size, false)) {
+        return EMPTY
       }
 
-      if (itemstack1.stackSize == 0) {
-        slot.putStack(null);
+      if (moved.isEmpty) {
+        slot.putStack(EMPTY)
       } else {
-        slot.onSlotChanged();
+        slot.onSlotChanged()
       }
     }
 
-    itemstack
+    ret
   }
 
-  override def onContainerClosed(player: EntityPlayer) = chest.closeInventory(player)
+  override def onContainerClosed(player: EntityPlayer): Unit = chest.closeInventory(player)
 }
-
-class SlotChest(val inv: TileChest, index: Int, x: Int, y: Int) extends Slot(inv, index, x, y) {
-
-  override def isItemValid(stack: ItemStack): Boolean = inv.actInvSize > index
-}
-

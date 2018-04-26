@@ -1,0 +1,1 @@
+CyanideX - The texture for the Drop Orb is the Weak Blood Orb texture (from Unity) after it has been greyshifted using Paint.net

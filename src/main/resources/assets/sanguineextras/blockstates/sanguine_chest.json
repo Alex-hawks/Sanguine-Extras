@@ -1,0 +1,39 @@
+{
+  "forge_marker": 1,
+  "defaults": {
+    "model": "sanguineextras:chest",
+    "transform": {
+      "scale": [0.75, 0.75, 0.75],
+      "rotation": {"y": 270}
+    }
+  },
+  "variants": {
+    "tier": {
+      "0": {
+        "textures": {
+          "chest": "sanguineextras:model/chest0"
+        }
+      },
+      "1": {
+        "textures": {
+          "chest": "sanguineextras:model/chest0"
+        }
+      },
+      "2": {
+        "textures": {
+          "chest": "sanguineextras:model/chest0"
+        }
+      },
+      "3": {
+        "textures": {
+          "chest": "sanguineextras:model/chest0"
+        }
+      },
+      "4": {
+        "textures": {
+          "chest": "sanguineextras:model/chest0"
+        }
+      }
+    }
+  }
+}

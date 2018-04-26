@@ -1,6 +1,6 @@
 package io.github.alex_hawks.SanguineExtras.common.ritual_stones.marker.warded;
 
-import io.github.alex_hawks.SanguineExtras.common.SanguineExtras;
+import io.github.alex_hawks.SanguineExtras.common.util.config.Base;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
@@ -53,7 +53,7 @@ public class TEWardedRitualStone extends TileEntity
         if (player.getPersistentID().equals(blockOwner))
             return true;
         if (FMLCommonHandler.instance().getSide() == Side.SERVER)
-            if (player.canCommandSenderUseCommand(2, "") && SanguineExtras.opsCanBreakWardedBlocks)
+            if (player.canUseCommand(2, "") && Base.ritual.stones.opsCanBreakWardedBlocks)
                 return true;
         return false;
     }

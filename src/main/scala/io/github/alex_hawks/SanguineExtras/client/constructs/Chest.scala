@@ -13,20 +13,16 @@ object RenderChest extends {
   val size = 0.35f
   val model = new ModelChest
   val chestpng0 = new ResourceLocation("sanguineextras:textures/model/chest0.png")
-  val chestpng1 = new ResourceLocation("sanguineextras:textures/model/chest1.png");
-  //  TODO make my chest texture
-  val chestpng2 = new ResourceLocation("sanguineextras:textures/model/chest2.png");
-  //  TODO make my chest texture
-  val chestpng3 = new ResourceLocation("sanguineextras:textures/model/chest3.png");
-  //  TODO make my chest texture
-  val chestpng4 = new ResourceLocation("sanguineextras:textures/model/chest4.png");
-  //  TODO make my chest texture
+  val chestpng1 = new ResourceLocation("sanguineextras:textures/model/chest1.png")  //  TODO make my chest texture
+  val chestpng2 = new ResourceLocation("sanguineextras:textures/model/chest2.png")  //  TODO make my chest texture
+  val chestpng3 = new ResourceLocation("sanguineextras:textures/model/chest3.png")  //  TODO make my chest texture
+  val chestpng4 = new ResourceLocation("sanguineextras:textures/model/chest4.png")  //  TODO make my chest texture
   val chestpngVanilla = new ResourceLocation("textures/entity/chest/normal.png")
-  val pixel = 0.0625f
+  val pixel = 1f / 16f
 } with TileEntitySpecialRenderer[TileChest] {
-  override def renderTileEntityAt(ch: TileChest, X: Double, Y: Double, Z: Double, partialTickTime: Float, destroyStage: Int) = {
+  override def render(ch: TileChest, X: Double, Y: Double, Z: Double, partialTickTime: Float, destroyStage: Int, alpha: Float): Unit = {
 
-    GL11.glPushMatrix
+    GL11.glPushMatrix()
     GL11.glTranslated(X + 0.5, Y + 0.625 + ch.height, Z + 0.5)
     GL11.glRotatef(ch.rotation, 0, 1, 0)
     GL11.glScalef(size, size, size)
@@ -54,21 +50,20 @@ object RenderChest extends {
       case _ => chestpngVanilla
     })
 
-    //    Tessellator.getInstance().setBrightness(ModBlocks.Chest.getMixedBrightnessForBlock(te.getWorld, new BlockPos(X.toInt, Y.toInt, Z.toInt)))
-    val f1: Float = ch.prevLidAngle + (ch.lidAngle - ch.prevLidAngle) * partialTickTime;
+    val f1: Float = ch.prevLidAngle + (ch.lidAngle - ch.prevLidAngle) * partialTickTime
 
-    model.chestLid.rotateAngleX = -(f1 * Math.PI / 2.0F).toFloat;
-    model.renderAll
+    model.chestLid.rotateAngleX = -(f1 * Math.PI / 2.0F).toFloat
+    model.renderAll()
 
-    GL11.glPopMatrix
+    GL11.glPopMatrix()
   }
 }
 
 class GuiChest(val player: EntityPlayer, val chest: TileChest) extends GuiContainer(new ContainerChest(player, chest)) {
-  xSize = 238;
-  ySize = 256;
+  xSize = 238
+  ySize = 256
 
-  override def drawGuiContainerBackgroundLayer(opacity: Float, x: Int, y: Int) = {
+  override def drawGuiContainerBackgroundLayer(opacity: Float, x: Int, y: Int): Unit = {
     GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 
     val (xx, xy) = (240, 0)

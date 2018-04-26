@@ -1,0 +1,21 @@
+{
+  "forge_marker": 1,
+  "defaults": {
+    "model": "builtin/generated",
+    "transform": "forge:default-item"
+  },
+  "variants": {
+    "full": {
+      "true": {
+        "textures": {
+          "layer0": "sanguineextras:item/sigil/entrapment.full"
+        }
+      },
+      "false": {
+        "textures": {
+          "layer0": "sanguineextras:item/sigil/entrapment.empty"
+        }
+      }
+    }
+  }
+}

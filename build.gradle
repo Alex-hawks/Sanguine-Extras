@@ -5,7 +5,7 @@ buildscript {
         maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
     }
     dependencies {
-		classpath 'net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT'
+		classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
         classpath 'org.ajoberstar:gradle-git:0.10.1'
     }
 }
@@ -38,34 +38,36 @@ version = "${mc_version}-${mod_version}-${build_number}"
 if (project.hasProperty('gitpush'))
     version += "-ss"
 
-import org.ajoberstar.grgit.*
 
-ext.repo = Grgit.open(project.file('.'))
+import net.franz_becker.gradle.lombok.task.DelombokTask
+
+//ext.repo = Grgit.open(project.file('.'))
 def gitHash = 'unknown'
 
-if (new File(projectDir, '.git').exists())
-    gitHash = repo.log().find().abbreviatedId
+//if (new File(projectDir, '.git').exists())
+//    gitHash = repo.log().find().abbreviatedId
 
 repositories {
+    mavenCentral()
+	// A bunch of these are for Transitive Dependencies
+    maven { url "http://files.minecraftforge.net/maven" }
     maven { url "http://dvs1.progwml6.com/files/maven" }
-    maven {	url "http://mobiusstrip.eu/maven" }
-	maven { url "http://maven.amadornes.com/" }
-	maven { url "http://tehnut.info/maven/" }
-	maven { url "http://maven.ic2.player.to/" }
-	maven { url "http://maven.tterrag.com/" }
+    maven { url "http://maven.amadornes.com/" }
+    maven { url "http://tehnut.info/maven/" }
+    maven { url "http://maven.ic2.player.to/" }
+    maven { url "http://maven.tterrag.com/" }
+    maven { url "http://maven.k-4u.nl" }
+    maven { url "http://maven.covers1624.net" }
+    maven { url "http://maven.thiakil.com" }
+    maven { url "https://www.curseforge.com/api/maven/" }
+    maven { url "http://maven.blamejared.com/"}
 
-    ivy {
-        name "Thaumcraft"
-        artifactPattern "https://dl.dropboxusercontent.com/u/47135879/[module]-[revision]-deobf.[ext]"
-    }
-    ivy {
-        name "Baubles"
-        artifactPattern "https://dl.dropboxusercontent.com/u/47135879/[module]-1.10.2-[revision]-deobf.[ext]"
-    }
-    ivy {
-        name "Botania"
-        artifactPattern "http://botaniamod.net/files/deobf/[module] [revision]-deobf.[ext]"
-    }
+
+
+//    ivy {
+//        name "Thaumcraft"
+//        artifactPattern "https://dl.dropboxusercontent.com/u/47135879/[module]-[revision]-deobf.[ext]"
+//    }
 }
 
 sourceSets {
@@ -82,15 +84,15 @@ dependencies {
     deobfCompile "mezz.jei:jei_${mc_version}:${jei_version}"
 
 //    compile name: "Thaumcraft", version: "${mc_version}-${thaumcraft_version}", ext: "jar"
-    compile name: 'Baubles', version: "${baubles_version}", ext: 'jar'
-    compile name: 'Botania', version: "${botania_version}", ext: 'jar'
-	
-	deobfCompile "MCMultiPart:MCMultiPart-experimental:${mcmp_version}:universal"
-	deobfCompile "com.wayoftime.bloodmagic:BloodMagic:${bm_version}"
+
+    deobfCompile "vazkii.botania:Botania:r1.10-353"
+    deobfCompile "com.azanor.baubles:Baubles:1.12-${baubles_version}"
+    deobfCompile "MCMultiPart2:MCMultiPart:${mcmp_version}"
+    deobfCompile "com.wayoftime.bloodmagic:BloodMagic:${mc_version}-${bm_version}"
     deobfCompile "net.sengir.forestry:forestry_${mc_version}:${forestry_version}"
-	deobfCompile "mcjty.theoneprobe:TheOneProbe:1.10-${top_version}"
-    deobfCompile "info.amerifrance.guideapi:Guide-API:1.9.4-${guideapi_version}"
-    deobfCompile "info.tehnut.buttons:Buttons:${buttons_version}:api"
+    deobfCompile "mcjty.theoneprobe:TheOneProbe-1.12:${top_version}"
+    deobfCompile "info.amerifrance.guideapi:Guide-API:${guideapi_version}"
+//    deobfCompile "info.tehnut.buttons:Buttons:${mc_version}-${buttons_version}:api"
 }
 
 minecraft {
@@ -135,8 +137,6 @@ lombok {
     sha256 = "e0a471be03e1e6b02bf019480cec7a3ac9801702bf7bf62f15d077ad4df8dd5d"
 }
 
-import net.franz_becker.gradle.lombok.task.DelombokTask
-
 task delombok(type: DelombokTask) {
     args("src/main/scala", "-d", "build/sources/delomboked/scala")
 }
@@ -145,12 +145,13 @@ tasks.eclipse.dependsOn installLombok
 
 jar {
     classifier = ''
+    from sourceSets.main.output
+    from sourceSets.api.output
     manifest.mainAttributes(
         "Built-By": System.getProperty('user.name'),
         "Created-By": "${System.getProperty('java.vm.version')} + (${System.getProperty('java.vm.vendor')})",
         "Implementation-Title": project.name,
         "Implementation-Version": project.version,
-        "Git-Hash": gitHash,
         "Built-On": "${mc_version}-${forge_version}"
     )
 }
@@ -224,14 +225,14 @@ String getChangelogText() {
 }
 
 def curseRelations = {
-    optionalLibrary 'just-enough-items-jei'
+//    optionalLibrary 'just-enough-items-jei'
 //    optionalLibrary 'waila'
 	requiredLibrary 'blood-magic'
+    optionalLibrary 'botania'
 }
 
 curseforge {
-    if (project.hasProperty('curse_key_Alex_hawks'))
-        apiKey = project.curse_key_Alex_hawks
+    apiKey = curseToken
 
     project {
         id = "${curse_id}"

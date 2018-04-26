@@ -1,25 +1,25 @@
 package io.github.alex_hawks.SanguineExtras.common.rituals.advanced
 
 import java.util
-import java.util.UUID
+import java.util.function.Consumer
 
-import WayofTime.bloodmagic.api.ritual.EnumRuneType._
-import WayofTime.bloodmagic.api.ritual.{IMasterRitualStone, Ritual, RitualComponent}
+import WayofTime.bloodmagic.ritual.EnumRuneType._
+import WayofTime.bloodmagic.ritual.{IMasterRitualStone, Ritual, RitualComponent}
 import io.github.alex_hawks.SanguineExtras.api.ritual.{AdvancedRitual, IAdvancedMasterRitualStone}
 import io.github.alex_hawks.SanguineExtras.common.Constants
 import io.github.alex_hawks.SanguineExtras.common.rituals.advanced.Forge._
-import io.github.alex_hawks.SanguineExtras.common.rituals.advanced.Forge.recipes.{getSmeltingExperience => getXp, getSmeltingResult => get}
 import io.github.alex_hawks.SanguineExtras.common.util.BloodUtils
-import io.github.alex_hawks.util.minecraft.common.Vector3
+import io.github.alex_hawks.util.minecraft.common.Implicit.iBlockPos
 import net.minecraft.entity.Entity
 import net.minecraft.entity.item.EntityItem
-import net.minecraft.inventory.IInventory
 import net.minecraft.item.ItemStack
 import net.minecraft.item.crafting.FurnaceRecipes
 import net.minecraft.nbt.{NBTTagCompound, NBTTagList}
 import net.minecraft.util.EnumFacing
 import net.minecraft.util.EnumFacing._
 import net.minecraft.util.math.{AxisAlignedBB, BlockPos}
+import net.minecraftforge.common.capabilities.{Capability, CapabilityInject}
+import net.minecraftforge.items.IItemHandler
 import net.minecraftforge.oredict.OreDictionary
 
 object Forge {
@@ -28,9 +28,14 @@ object Forge {
   val baseSmeltCost = 200
   val name = "SE003Forge"
   val activationCost = 10000
+
+  @CapabilityInject(classOf[IItemHandler])
+  var CapInv: Capability[IItemHandler] = null
 }
 
-class Forge extends AdvancedRitual(name, 0, activationCost, s"ritual.${Constants.MetaData.MOD_ID}.forge") {
+class Forge extends AdvancedRitual(name, 0, activationCost, s"ritual.${Constants.Metadata.MOD_ID}.forge") {
+
+  import io.github.alex_hawks.SanguineExtras.common.rituals.advanced.Forge.recipes.{getSmeltingExperience => getXp, getSmeltingResult => get}
 
   private val inputs = new util.ArrayList[ItemStack]
   private val outputs = new util.ArrayList[ItemStack]
@@ -40,43 +45,48 @@ class Forge extends AdvancedRitual(name, 0, activationCost, s"ritual.${Constants
 
   override def getRefreshTime = 1
 
-  override def onCollideWith(mrs: IAdvancedMasterRitualStone, entity: Entity): Unit = {
+  override def onFallUpon(mrs: IAdvancedMasterRitualStone, entity: Entity, fallDistance: Float): Unit = {
     if (verifyBounds(entity, mrs.getBlockPos) && entity.isInstanceOf[EntityItem]) {
       // has the item? been thrown on top?
       val ent = entity.asInstanceOf[EntityItem]
-      val is = ent.getEntityItem
-      if (isValidInFilter(is, mrs) && get(is) != null) // it smelts, and matches the filter
+      val is = ent.getItem
+      if (isValidInFilter(is, mrs) && !get(is).isEmpty) // it smelts, and matches the filter
         inputs.add(is)
       else
         outputs.add(is) // pass it through, let's not break automation because your friend is an idiot
 
-      ent.worldObj.removeEntity(ent)
+      ent.getEntityWorld.removeEntity(ent)
     }
   }
 
   def verifyBounds(ent: Entity, s: BlockPos): Boolean = {
-    new AxisAlignedBB(s.getX, s.getY, s.getZ, s.getX + 1, s.getY + 2, s.getZ + 1).isVecInside(ent.getPositionVector)
+    new AxisAlignedBB(s.getX, s.getY, s.getZ, s.getX + 1, s.getY + 2, s.getZ + 1).contains(ent.getPositionVector)
   }
 
-  def getInputFilter(mrs: IAdvancedMasterRitualStone): (Boolean, IInventory) = {
-    val white = new Vector3(mrs.getBlockPos).shift(mrs.getDirection)
-    val black = new Vector3(mrs.getBlockPos).shift(mrs.getDirection.getOpposite)
-    if (mrs.getWorldObj.getTileEntity(white.toPos).isInstanceOf[IInventory])
-      (true, mrs.getWorldObj.getTileEntity(white.toPos).asInstanceOf[IInventory])
-    else if (mrs.getWorldObj.getTileEntity(black.toPos).isInstanceOf[IInventory])
-      (false, mrs.getWorldObj.getTileEntity(black.toPos).asInstanceOf[IInventory])
+  def getInputFilter(mrs: IAdvancedMasterRitualStone): (Boolean, IItemHandler) = {
+    val white = mrs.getBlockPos.shift(mrs.getDirection)
+    val black = mrs.getBlockPos.shift(mrs.getDirection.getOpposite)
+
+    if (mrs.getWorldObj.getTileEntity(white).hasCapability(CapInv, null))
+      (true, mrs.getWorldObj.getTileEntity(white).getCapability(CapInv, null))
+
+    else if (mrs.getWorldObj.getTileEntity(black).hasCapability(CapInv, null))
+      (false, mrs.getWorldObj.getTileEntity(black).getCapability(CapInv, null))
+
     else
       null
   }
 
   def isValidInFilter(is: ItemStack, mrs: IAdvancedMasterRitualStone): Boolean = {
-    if (is == null)
+    if (is.isEmpty)
       return false
+
     val (isWhiteList, filter) = getInputFilter(mrs)
     if (filter == null)
       return true //neither filter exists
+
     import filter._
-    for (i <- 0 until getSizeInventory)
+    for (i <- 0 until getSlots)
       if (is.isItemEqual(getStackInSlot(i)))
         return isWhiteList
     return !isWhiteList
@@ -87,14 +97,14 @@ class Forge extends AdvancedRitual(name, 0, activationCost, s"ritual.${Constants
 
     if (!inputs.isEmpty) {
       currentProgress += 1
-      if (currentProgress >= baseSmeltTime && BloodUtils.drainSoulNetworkWithNausea(UUID.fromString(mrs.getOwner), baseSmeltCost, null)) {
+      if (currentProgress >= baseSmeltTime && BloodUtils.drainSoulNetworkWithNausea(mrs.getOwner, baseSmeltCost, null)) {
         currentProgress %= baseSmeltTime
         outputs.add(get(inputs.get(0)))
         xp += getXp(get(inputs.get(0)))
         nuggets(mrs, get(inputs.get(0)))
 
-        if (inputs.get(0).stackSize > 1)
-          inputs.get(0).stackSize -= 1
+        if (inputs.get(0).getCount > 1)
+          inputs.get(0).shrink(1)
         else
           inputs.remove(0)
 
@@ -107,7 +117,7 @@ class Forge extends AdvancedRitual(name, 0, activationCost, s"ritual.${Constants
       ticks %= Math.max(baseSmeltTime / outputs.size, 1)
       val pos = mrs.getBlockPos
       val ent = new EntityItem(mrs.getWorldObj, pos.getX + 0.5, pos.getY - 1, pos.getZ + 0.5, outputs.get(0))
-      mrs.getWorldObj.spawnEntityInWorld(ent)
+      mrs.getWorldObj.spawnEntity(ent)
       ent.motionX = 0
       ent.motionZ = 0
       ent.motionY = 0
@@ -126,18 +136,16 @@ class Forge extends AdvancedRitual(name, 0, activationCost, s"ritual.${Constants
     for (x <- OreDictionary.getOreIDs(output)) {
       val ingot = OreDictionary.getOreName(x)
       if (ingot.startsWith("ingot") && OreDictionary.doesOreNameExist(s"nugget${ingot.substring("ingot".length)}") && OreDictionary.getOres(s"nugget${ingot.substring("ingot".length)}").size() > 0)
-        for (y <- 0 until mrs.getWorldObj.rand.nextInt(3 * output.stackSize) + 2 * output.stackSize)
+        for (y <- 0 until mrs.getWorldObj.rand.nextInt(3 * output.getCount) + 2 * output.getCount)
           outputs.add(OreDictionary.getOres(ingot.substring("ingot".length)).get(0))
     }
   }
 
   override def getRefreshCost: Int = 0 // I'll take it when I need it
 
-  override def getNewCopy: Ritual = return this.getClass.newInstance
+  override def getNewCopy: Ritual = this.getClass.newInstance
 
-  override def getComponents: util.ArrayList[RitualComponent] = {
-    val ls = new util.ArrayList[RitualComponent]
-
+  override def gatherComponents(ls: Consumer[RitualComponent]): Unit = {
     //Pillars
     this.addCornerRunes(ls, 1, -2, FIRE)
     this.addCornerRunes(ls, 1, -1, FIRE)
@@ -151,21 +159,19 @@ class Forge extends AdvancedRitual(name, 0, activationCost, s"ritual.${Constants
     //Others
     for (dir: EnumFacing <- Array[EnumFacing](EAST, SOUTH, WEST))
       this.addRune(ls, dir.getFrontOffsetX, 1, dir.getFrontOffsetZ, AIR)
-
-    return ls
   }
 
   override def readFromNBT(tag: NBTTagCompound): Unit = {
     if (tag.hasKey("inputs")) {
       val ls = tag.getTagList("inputs", tag.getId)
       for (x <- 0 until ls.tagCount)
-        inputs.add(ItemStack.loadItemStackFromNBT(ls.getCompoundTagAt(x)))
+        inputs.add(new ItemStack(ls.getCompoundTagAt(x)))
     }
 
     if (tag.hasKey("outputs")) {
       val ls = tag.getTagList("outputs", tag.getId)
       for (x <- 0 until ls.tagCount)
-        outputs.add(ItemStack.loadItemStackFromNBT(ls.getCompoundTagAt(x)))
+        outputs.add(new ItemStack(ls.getCompoundTagAt(x)))
     }
 
     if (tag.hasKey("currentProgress"))

@@ -1,14 +1,14 @@
 package io.github.alex_hawks.SanguineExtras.common.util.sigils;
 
-import io.github.alex_hawks.SanguineExtras.common.SanguineExtras;
 import io.github.alex_hawks.SanguineExtras.common.util.BloodUtils;
-import io.github.alex_hawks.util.minecraft.common.Vector3;
+import io.github.alex_hawks.SanguineExtras.common.util.config.Base;
 import lombok.NonNull;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.item.EntityXPOrb;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
@@ -20,32 +20,35 @@ import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 import java.util.*;
 
+import static io.github.alex_hawks.SanguineExtras.common.items.sigils.ItemRebuilding.TICKS_PER_OP;
 import static io.github.alex_hawks.SanguineExtras.common.util.PlayerUtils.putItemWithDrop;
 import static io.github.alex_hawks.SanguineExtras.common.util.PlayerUtils.takeItem;
+import static io.github.alex_hawks.util.minecraft.common.Implicit.iBlockPos;
+import static net.minecraftforge.fml.common.gameevent.TickEvent.Phase.END;
 
 public class UtilsRebuilding
 {
-    public static Map<Integer, Set<Vector3>> find(BlockPos pos, World world)
+    public static Map<Integer, Set<BlockPos>> find(BlockPos pos, World world)
     {
-        List<Vector3> solidBlocks = new ArrayList<>();
-        List<Vector3> airBlocks = new ArrayList<>();
-        List<Vector3> currentSolidBlocks = new ArrayList<>();
-        List<Vector3> currentAirBlocks = new ArrayList<>();
+        List<BlockPos> solidBlocks = new ArrayList<>();
+        List<BlockPos> airBlocks = new ArrayList<>();
+        List<BlockPos> currentSolidBlocks = new ArrayList<>();
+        List<BlockPos> currentAirBlocks = new ArrayList<>();
 
-        Map<Integer, Set<Vector3>> toReturn = new HashMap<>();
+        Map<Integer, Set<BlockPos>> toReturn = new HashMap<>();
 
         IBlockState b;
 
         IBlockState original = world.getBlockState(pos);
-        solidBlocks.add(new Vector3(pos));
+        solidBlocks.add(pos);
         toReturn.put(0, new HashSet<>(solidBlocks));
 
-        Vector3 p;
+        BlockPos p;
 
         for (EnumFacing d : EnumFacing.values())
         {
-            p = new Vector3(pos).shift(d);
-            b = world.getBlockState(p.toPos());
+            p = shift(pos, d);
+            b = world.getBlockState(p);
 
             if (!b.getMaterial().isSolid())
             {
@@ -53,9 +56,9 @@ public class UtilsRebuilding
             }
         }
 
-        for (int i = 1; i <= SanguineExtras.pathfindIterations; i++)
+        for (int i = 1; i <= Base.sigil.rebuild.iterations; i++)
         {
-            Set<Vector3> set = new HashSet<>();
+            Set<BlockPos> set = new HashSet<>();
             toReturn.put(i, set);
 
             //  Going to do this properly
@@ -64,38 +67,37 @@ public class UtilsRebuilding
             currentAirBlocks.clear();
             currentAirBlocks.addAll(airBlocks);
 
-            for (Vector3 v : currentSolidBlocks)
+            for (BlockPos v : currentSolidBlocks)
             {
                 for (EnumFacing d : EnumFacing.values())
                 {
-                    p = v.shift(d);
-                    b = world.getBlockState(p.toPos());
+                    p = shift(v, d);
+                    b = world.getBlockState(p);
 
                     if (b.getMaterial().isSolid() && b.equals(original))
                     {
                         D2:
                         for (EnumFacing d2 : EnumFacing.values())
                         {
-                            if (!world.getBlockState(p.shift(d2).toPos()).getMaterial().isSolid())
+                            if (!world.getBlockState(shift(p, d2)).getMaterial().isSolid())
                             {
                                 solidBlocks.add(p);
                                 set.add(p);
                                 break D2;
                             }
                         }
-                    }
-                    else if (!b.getMaterial().isSolid())
+                    } else if (!b.getMaterial().isSolid())
                     {
                         airBlocks.add(p);
                     }
                 }
             }
-            for (Vector3 v : currentAirBlocks)
+            for (BlockPos v : currentAirBlocks)
             {
                 for (EnumFacing d : EnumFacing.values())
                 {
-                    p = v.shift(d);
-                    b = world.getBlockState(p.toPos());
+                    p = shift(v, d);
+                    b = world.getBlockState(p);
 
                     if (!b.getMaterial().isSolid())
                     {
@@ -108,25 +110,25 @@ public class UtilsRebuilding
         return toReturn;
     }
 
-    public static Map<Integer, Set<Vector3>> find(Vector3 coords, World w, EnumFacing side)
+    public static Map<Integer, Set<BlockPos>> find(BlockPos coords, World w, EnumFacing side)
     {
-        return find(coords.toPos(), w);
+        return find(coords, w);
     }
 
-    public static void doReplace(EntityPlayer player, String sigilOwner, Vector3 ls, World w, IBlockState oldBlock, IBlockState newBlock)
+    public static void doReplace(EntityPlayer player, UUID sigilOwner, BlockPos ls, World w, IBlockState oldBlock, IBlockState newBlock, EnumHand hand)
     {
-        Map<Integer, Set<Vector3>> tmp = new HashMap<>();
+        Map<Integer, Set<BlockPos>> tmp = new HashMap<>();
         tmp.put(0, new HashSet<>());
         tmp.get(0).add(ls);
-        doReplace(player, sigilOwner, tmp, w, oldBlock, newBlock);
+        doReplace(player, sigilOwner, tmp, w, oldBlock, newBlock, hand);
     }
 
-    public static void doReplace(@NonNull EntityPlayer player, String sigilOwner, @NonNull final Map<Integer, Set<Vector3>> map, World w, IBlockState oldBlock, IBlockState newBlock)
+    public static void doReplace(@NonNull EntityPlayer player, UUID sigilOwner, @NonNull final Map<Integer, Set<BlockPos>> map, World w, IBlockState oldBlock, IBlockState newBlock, EnumHand hand)
     {
         ItemStack stack = player.inventory.getCurrentItem();
         MinecraftForge.EVENT_BUS.register(new Object()
         {
-            Iterator<Map.Entry<Integer, Set<Vector3>>> it = map.entrySet().iterator();
+            Iterator<Map.Entry<Integer, Set<BlockPos>>> it = map.entrySet().iterator();
             int ticks = 0;
             BreakEvent e;
             PlaceEvent e2;
@@ -136,29 +138,30 @@ public class UtilsRebuilding
             @SubscribeEvent
             public void onWorldTick(TickEvent.WorldTickEvent event)
             {
+                if (event.phase == END)
+                    return;
                 ticks++;
-                if (ticks % 20 == 0)
+                if (ticks % TICKS_PER_OP == 0)
                 {
-                    for (Vector3 v : it.next().getValue())
+                    for (BlockPos v : it.next().getValue())
                     {
-                        if (w.getBlockState(v.toPos()).equals(oldBlock))
+                        if (w.getBlockState(v).equals(oldBlock))
                         {
-                            e = new BreakEvent(w, v.toPos(), oldBlock, player);
-                            s = new BlockSnapshot(w, v.toPos(), newBlock);
-                            e2 = new PlaceEvent(s, newBlock, player, null);
+                            e = new BreakEvent(w, v, oldBlock, player);
+                            s = new BlockSnapshot(w, v, newBlock);
+                            e2 = new PlaceEvent(s, newBlock, player, hand);
                             if (!MinecraftForge.EVENT_BUS.post(e))
                             {
                                 if (!MinecraftForge.EVENT_BUS.post(e2))
                                 {
-                                    if (BloodUtils.drainSoulNetwork(sigilOwner, SanguineExtras.rebuildSigilCost, player) && takeItem(player, new ItemStack(newBlock.getBlock(), 1, newBlock.getBlock().getMetaFromState(newBlock)), stack))
+                                    if (BloodUtils.drainSoulNetworkWithDamage(sigilOwner, Base.sigil.rebuild.cost, player) && takeItem(player, new ItemStack(newBlock.getBlock(), 1, newBlock.getBlock().getMetaFromState(newBlock)), stack))
                                     {
-                                        putItemWithDrop(player, oldBlock.getBlock().getDrops(w, v.toPos(), oldBlock, 0).toArray(new ItemStack[0]));
-                                        w.setBlockState(v.toPos(), newBlock, 0x3);
+                                        putItemWithDrop(player, oldBlock.getBlock().getDrops(w, v, oldBlock, 0).toArray(new ItemStack[0]));
+                                        w.setBlockState(v, newBlock, 0x3);
 
                                         if (e.getExpToDrop() > 0)
-                                            w.spawnEntityInWorld(new EntityXPOrb(w, player.posX, player.posY, player.posZ, e.getExpToDrop()));
-                                    }
-                                    else
+                                            w.spawnEntity(new EntityXPOrb(w, player.posX, player.posY, player.posZ, e.getExpToDrop()));
+                                    } else
                                     {
                                         break;
                                     }
@@ -172,5 +175,16 @@ public class UtilsRebuilding
                 }
             }
         });
+    }
+
+
+    public static BlockPos shift(BlockPos pos, EnumFacing face)
+    {
+        return iBlockPos(pos).shift(face);
+    }
+
+    public static BlockPos plus(BlockPos pos, int x, int y, int z)
+    {
+        return iBlockPos(pos).$plus(x, y, z);
     }
 }

@@ -1,0 +1,33 @@
+{
+  "result": {
+    "item": "sanguineextras:sigil_destruction",
+    "nbt": {
+      "tier": 0
+    }
+  },
+  "pattern": [
+    "abc",
+    "ddd",
+    "ded"
+  ],
+  "type": "forge:ore_shaped",
+  "key": {
+    "a": {
+      "item": "bloodmagic:sentient_shovel"
+    },
+    "b": {
+      "item": "bloodmagic:sentient_pickaxe"
+    },
+    "c": {
+      "item": "bloodmagic:sentient_axe"
+    },
+    "d": {
+      "item": "bloodmagic:slate",
+      "data": 0
+    },
+    "e": {
+      "type": "bloodmagic:orb",
+      "orb": "bloodmagic:weak"
+    }
+  }
+}

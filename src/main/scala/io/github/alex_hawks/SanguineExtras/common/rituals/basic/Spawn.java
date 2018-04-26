@@ -1,27 +1,31 @@
 package io.github.alex_hawks.SanguineExtras.common.rituals.basic;
 
-import WayofTime.bloodmagic.api.altar.IBloodAltar;
-import WayofTime.bloodmagic.api.ritual.IMasterRitualStone;
-import WayofTime.bloodmagic.api.ritual.Ritual;
-import WayofTime.bloodmagic.api.ritual.RitualComponent;
-import io.github.alex_hawks.SanguineExtras.api.sigil.MobNet;
+import WayofTime.bloodmagic.altar.IBloodAltar;
+import WayofTime.bloodmagic.ritual.IMasterRitualStone;
+import WayofTime.bloodmagic.ritual.Ritual;
+import WayofTime.bloodmagic.ritual.RitualComponent;
 import io.github.alex_hawks.SanguineExtras.common.Constants;
-import io.github.alex_hawks.SanguineExtras.common.SanguineExtras;
 import io.github.alex_hawks.SanguineExtras.common.items.sigils.ItemMobNet;
 import io.github.alex_hawks.SanguineExtras.common.util.BloodUtils;
+import io.github.alex_hawks.SanguineExtras.common.util.config.Base;
+import io.github.alex_hawks.SanguineExtras.common.util.config.Overrides;
+import io.github.alex_hawks.SanguineExtras.common.util.config.Overrides.Spawn.SpawnEntry;
 import io.github.alex_hawks.SanguineExtras.common.util.sigils.UtilsMobNet;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-import java.util.ArrayList;
 import java.util.UUID;
+import java.util.function.Consumer;
 
-import static WayofTime.bloodmagic.api.ritual.EnumRuneType.*;
+import static WayofTime.bloodmagic.ritual.EnumRuneType.*;
 
 public class Spawn extends Ritual
 {
@@ -29,7 +33,7 @@ public class Spawn extends Ritual
 
     public Spawn()
     {
-        super(name, 2, 250000, "ritual." + Constants.MetaData.MOD_ID + ".spawn");
+        super(name, 2, 250000, "ritual." + Constants.Metadata.MOD_ID + ".spawn");
     }
 
     public static final class Drain
@@ -47,10 +51,8 @@ public class Spawn extends Ritual
     }
 
     @Override
-    public ArrayList<RitualComponent> getComponents()
+    public void gatherComponents(Consumer<RitualComponent> ls)
     {
-        ArrayList<RitualComponent> ls = new ArrayList<RitualComponent>();
-
         this.addCornerRunes(ls, 1, -1, AIR);
         this.addCornerRunes(ls, 2, -2, DUSK);
         this.addCornerRunes(ls, 2, -3, FIRE);
@@ -59,8 +61,6 @@ public class Spawn extends Ritual
         this.addCornerRunes(ls, 2, -6, EARTH);
         this.addCornerRunes(ls, 1, -6, FIRE);
         this.addCornerRunes(ls, 1, -6, EARTH);
-
-        return ls;
     }
 
     @Override
@@ -84,37 +84,27 @@ public class Spawn extends Ritual
         if (te instanceof IBloodAltar)
         {
             ItemStack sigilStack = ((IInventory) te).getStackInSlot(0);
-            if (sigilStack != null && sigilStack.getItem() instanceof ItemMobNet)
+            if (sigilStack.getItem() instanceof ItemMobNet)
             {
-                final int baseCost = SanguineExtras.spawnLpPerHealth;
-                int cost = baseCost;
-
-//                boolean hasTerrae = this.canDrainReagent(stone, ReagentRegistry.terraeReagent, Drain.terrae, false);
-//                boolean hasOrbisTerrae = this.canDrainReagent(stone, ReagentRegistry.orbisTerraeReagent, Drain.orbisTerrae, false);
-//                boolean hasSanctus = this.canDrainReagent(stone, ReagentRegistry.sanctusReagent, Drain.sanctus, false);
-//
-//                cost += hasTerrae ? hasOrbisTerrae ? 0 : baseCost / 2 : hasOrbisTerrae ? baseCost / 2 : baseCost;
-//
-//                cost *= hasSanctus ? 2 : 1;
-//
-//                EntityLivingBase ent = hasSanctus ? UtilsMobNet.createCopiedEntity(sigilStack, w) : UtilsMobNet.createNewEntity(sigilStack, w);
+                // TODO Consume Steadfast Will to make an exact copy
                 EntityLivingBase ent = UtilsMobNet.createNewEntity(sigilStack, w);
 
                 if (ent == null)
                     return;
 
-                if (MobNet.isSpawnBlacklisted(ent.getClass()))
+                final SpawnEntry data = Overrides.Spawn.INSTANCE.getData().get(getEntityID(ent));
+                if (data == null || !data.enabled)
+                    return;
+                int cost = data.lpMultiplier * (ent.isNonBoss() ? 4 : 40);
+                // TODO Consume other varieties of will to make it cheaper
+
+                if (w.getEntitiesWithinAABB(ent.getClass(), new AxisAlignedBB(pos.add(-2, -4, -2), pos.add(2, 0, 2))).size() > (ent.isNonBoss() ? Base.ritual.spawn.maxEntities : Math.max(Base.ritual.spawn.maxEntities / 10, 1)))
                     return;
 
-                if (w.getEntitiesWithinAABB(ent.getClass(), new AxisAlignedBB(pos.add(-2, -4, -2), pos.add(2, 0, 2))).size() > (ent.isNonBoss() ? SanguineExtras.spawnMaxEntities : SanguineExtras.spawnMaxEntities / 10))
-                {
-                    return;
-                }
-
-                if (ent.isNonBoss() || SanguineExtras.spawnableBossMobs)
+                if (ent.isNonBoss() || Base.ritual.spawn.spawnableBosses)
                     return;
 
-                if (BloodUtils.drainSoulNetworkWithNausea(UUID.fromString(stone.getOwner()), (int) (ent.getMaxHealth() + ent.getMaxHealth() - ent.getHealth()) * cost * (ent.isNonBoss() ? 1 : 10), null))
+                if (BloodUtils.drainSoulNetworkWithNausea(UUID.fromString(stone.getOwner().toString()), (int) (2 * ent.getMaxHealth() - ent.getHealth()) * cost, null))
                 {
 //                    this.canDrainReagent(stone, ReagentRegistry.terraeReagent, Drain.terrae, true);
 //                    this.canDrainReagent(stone, ReagentRegistry.orbisTerraeReagent, Drain.orbisTerrae, true);
@@ -122,14 +112,13 @@ public class Spawn extends Ritual
 
 
                     ent.setPosition(pos.getX() + 0.5, pos.getY() - 3, pos.getZ() + +0.5);
-                    w.spawnEntityInWorld(ent);
-
+                    w.spawnEntity(ent);
+                    // TODO consume Raw Will to lower the cooldown
 //                    if (this.canDrainReagent(stone, ReagentRegistry.potentiaReagent, Drain.potentia, true))
 //                    {
 //                        stone.setCooldown(20);
 //                    }
                 }
-                return;
             }
         }
     }
@@ -138,6 +127,11 @@ public class Spawn extends Ritual
     public Ritual getNewCopy()
     {
         return new Spawn();
+    }
+
+    public static ResourceLocation getEntityID(Entity ent)
+    {
+        return EntityList.getKey(ent);
     }
 
 }

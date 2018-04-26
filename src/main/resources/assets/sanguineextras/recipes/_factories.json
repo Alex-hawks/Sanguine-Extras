@@ -1,0 +1,5 @@
+{
+  "ingredients": {
+    "sanguineextras:item_nbt_part": "io.github.alex_hawks.util.minecraft.common.FactoryPartNBT"
+  }
+}

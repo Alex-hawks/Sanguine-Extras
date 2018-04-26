@@ -1,0 +1,16 @@
+{
+  "forge_marker": 1,
+  "defaults": {
+    "model": "sanguineextras:warded_master_stone",
+    "uvlock": true,
+    "textures": {
+      "all": "bloodmagic:blocks/MasterRitualStone"
+    }
+  },
+  "variants": {
+    "normal": [{
+    }],
+    "inventory": [{
+    }]
+  }
+}

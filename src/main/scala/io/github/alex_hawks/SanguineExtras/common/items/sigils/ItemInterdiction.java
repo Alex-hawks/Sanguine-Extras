@@ -1,74 +1,89 @@
 package io.github.alex_hawks.SanguineExtras.common.items.sigils;
 
-import WayofTime.bloodmagic.api.Constants;
-import WayofTime.bloodmagic.api.impl.ItemBindable;
-import WayofTime.bloodmagic.api.util.helper.NBTHelper;
-import WayofTime.bloodmagic.api.util.helper.PlayerHelper;
-import WayofTime.bloodmagic.registry.ModPotions;
+import WayofTime.bloodmagic.client.IMeshProvider;
+import WayofTime.bloodmagic.core.data.Binding;
+import WayofTime.bloodmagic.item.ItemBindableBase;
 import WayofTime.bloodmagic.util.helper.TextHelper;
-import com.google.common.base.Strings;
-import io.github.alex_hawks.SanguineExtras.api.sigil.Interdiction;
+import io.github.alex_hawks.SanguineExtras.api.sigil.IPushCondition;
+import io.github.alex_hawks.SanguineExtras.common.Constants;
 import io.github.alex_hawks.SanguineExtras.common.SanguineExtras;
 import io.github.alex_hawks.SanguineExtras.common.network.entity_motion.MsgEntityMotion;
 import io.github.alex_hawks.SanguineExtras.common.util.BloodUtils;
 import io.github.alex_hawks.SanguineExtras.common.util.SanguineExtrasCreativeTab;
+import io.github.alex_hawks.SanguineExtras.common.util.config.Base;
+import io.github.alex_hawks.SanguineExtras.common.util.config.Overrides;
+import lombok.AccessLevel;
+import lombok.experimental.FieldDefaults;
+import net.minecraft.client.renderer.ItemMeshDefinition;
+import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.IProjectile;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.world.World;
+import net.minecraftforge.common.util.Constants.NBT;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
 
 import static io.github.alex_hawks.SanguineExtras.common.package$.MODULE$;
+import static io.github.alex_hawks.SanguineExtras.common.util.config.Overrides.Interdiction.INSTANCE;
+import static io.github.alex_hawks.SanguineExtras.common.util.config.Overrides.Interdiction.InterdictionEntry;
 
-public class ItemInterdiction extends ItemBindable
+@FieldDefaults(level = AccessLevel.PUBLIC, makeFinal = true)
+public class ItemInterdiction extends ItemBindableBase implements IMeshProvider
 {
+    static String ID = "sigil_interdiction";
+    static ResourceLocation RL = new ResourceLocation(Constants.Metadata.MOD_ID, ID);
+    static String NBT_ID = "active";
+
+    private ModelResourceLocation active = new ModelResourceLocation(RL, NBT_ID + "=true");
+    private ModelResourceLocation inactive = new ModelResourceLocation(RL, NBT_ID + "=false");
 
     public ItemInterdiction()
     {
         super();
         this.maxStackSize = 1;
         setCreativeTab(SanguineExtrasCreativeTab.Instance);
-        this.setUnlocalizedName("sigilInterdiction");
-        this.setRegistryName("sigilInterdiction");
+        this.setUnlocalizedName(ID);
+        this.setRegistryName(RL);
         this.setHasSubtypes(true);
     }
 
+    @NotNull
     @Override
-    public ActionResult<ItemStack> onItemRightClick(ItemStack stack, World w, EntityPlayer player, EnumHand hand)
+    public ActionResult<ItemStack> onItemRightClick(World w, EntityPlayer player, EnumHand hand)
     {
-        boolean b = !stack.getTagCompound().getBoolean("isActive");
-        stack.getTagCompound().setBoolean("isActive", b);
-
-        stack.setItemDamage(b ? 1 : 0);
+        ItemStack stack = player.getHeldItem(hand);
+        toggleState(stack);
 
         return ActionResult.newResult(EnumActionResult.SUCCESS, stack);
     }
 
     @Override
-    @SuppressWarnings({"rawtypes", "unchecked"})
-    public void addInformation(ItemStack stack, EntityPlayer par2EntityPlayer, List tooltip, boolean par4)
+    public void addInformation(ItemStack stack, World world, List<String> tooltip, ITooltipFlag flag)
     {
         tooltip.add(MODULE$.loreFormat() + TextHelper.localize("pun.se.sigil.interdiction"));
         tooltip.add("");
 
-        NBTHelper.checkNBT(stack);
+        Binding binding = getBinding(stack);
 
-        if (!Strings.isNullOrEmpty(stack.getTagCompound().getString(Constants.NBT.OWNER_UUID)))
-            tooltip.add(TextHelper.localizeEffect("tooltip.BloodMagic.currentOwner", PlayerHelper.getUsernameFromStack(stack)));
+        if (binding != null)
+            tooltip.add(TextHelper.localizeEffect("tooltip.BloodMagic.currentOwner", binding.getOwnerName()));
         else
             tooltip.add(TextHelper.localizeEffect("tooltip.se.owner.null"));
 
         tooltip.add("");
 
-        if (stack.getTagCompound() != null && stack.getTagCompound().hasKey("isActive") && stack.getTagCompound().getBoolean("isActive"))
+        if (isActive(stack))
             tooltip.add(TextHelper.localize("tooltip.se.sigil.active"));
         else
             tooltip.add(TextHelper.localize("tooltip.se.sigil.inactive"));
@@ -83,66 +98,107 @@ public class ItemInterdiction extends ItemBindable
         }
 
         EntityPlayer p = (EntityPlayer) ent;
+        final Binding bind = BloodUtils.getOrBind(stack, p);
 
         if (stack.getTagCompound() == null)
         {
             stack.setTagCompound(new NBTTagCompound());
         }
 
-        if (stack.getTagCompound().getBoolean("isActive"))
+        if (isActive(stack))
         {
-            List<Entity> l = w.getEntitiesWithinAABB(Entity.class, getInterdictionAABB(p, SanguineExtras.interdictionRange));
+            List<Entity> l = w.getEntitiesWithinAABB(Entity.class, getInterdictionAABB(p, Base.sigil.interdiction.range));
 
             for (Entity e : l)
             {
-                if (Interdiction.isPushAllowed((Entity) e, p))
-                {
-                    p.addPotionEffect(new PotionEffect(ModPotions.whirlwind, 2, 1));  //  #ImLazy
-//                    System.out.println("movX: " + e.motionX + ", calc: " + (p.posX - e.posX));
-//                    System.out.println("movY: " + e.motionY + ", calc: " + (p.posY - e.posY));
-//                    System.out.println("movZ: " + e.motionZ + ", calc: " + (p.posZ - e.posZ));
-//                    
-//                    System.out.println("x: " + (e.motionX < 0 && p.posX - e.posX > 0 || e.motionX > 0 && p.posX - e.posX < 0));
-//                    System.out.println("z: " + (e.motionZ < 0 && p.posZ - e.posZ > 0 || e.motionZ > 0 && p.posZ - e.posZ < 0));
-//                    
-//                    if ((e.motionX < 0 && p.posX - e.posX < 0) || (e.motionX > 0 && p.posX - e.posX > 0))
-//                        e.motionX = -e.motionX;
-//                    
-//                    if ((e.motionY < 0 && p.posY - e.posY < 0) || (e.motionY > 0 && p.posY - e.posY > 0))
-//                        e.motionY = -e.motionY;
-//                    
-//                    if ((e.motionZ < 0 && p.posZ - e.posZ < 0) || (e.motionZ > 0 && p.posZ - e.posZ > 0))
-//                        e.motionZ = -e.motionZ;
+                final InterdictionEntry data = INSTANCE.getData().get(Overrides.getEntityID(e));
+                // TODO fix to actually use the new filtering system
 
-                    if (e instanceof IProjectile)
-                        continue;
+                if (push(e, p))
+                {
+//                    p.addPotionEffect(new PotionEffect(RegistrarBloodMagic.WHIRLWIND, 2, 1));  //  #ImLazy
+                    System.out.println("movX: " + e.motionX + ", calc: " + (p.posX - e.posX));
+                    System.out.println("movY: " + e.motionY + ", calc: " + (p.posY - e.posY));
+                    System.out.println("movZ: " + e.motionZ + ", calc: " + (p.posZ - e.posZ));
+
+                    System.out.println("x: " + (e.motionX < 0 && p.posX - e.posX > 0 || e.motionX > 0 && p.posX - e.posX < 0));
+                    System.out.println("z: " + (e.motionZ < 0 && p.posZ - e.posZ > 0 || e.motionZ > 0 && p.posZ - e.posZ < 0));
+
+                    if ((e.motionX < 0 && p.posX - e.posX < 0) || (e.motionX > 0 && p.posX - e.posX > 0))
+                        e.motionX = -e.motionX;
+
+                    if ((e.motionY < 0 && p.posY - e.posY < 0) || (e.motionY > 0 && p.posY - e.posY > 0))
+                        e.motionY = -e.motionY;
+
+                    if ((e.motionZ < 0 && p.posZ - e.posZ < 0) || (e.motionZ > 0 && p.posZ - e.posZ > 0))
+                        e.motionZ = -e.motionZ;
+
+//                    if (e instanceof IProjectile)
+//                        continue;
 
                     e.motionX -= (p.posX - e.posX);
                     e.motionY -= (p.posY - e.posY);
                     e.motionZ -= (p.posZ - e.posZ);
 
-                    if (!e.worldObj.isRemote)
+                    if (!e.getEntityWorld().isRemote)
                         SanguineExtras.networkWrapper.sendToAll(new MsgEntityMotion(e));
                 }
             }
         }
 
-        if (w.getWorldTime() % 200 == stack.getTagCompound().getInteger("worldTimeDelay") && stack.getTagCompound().getBoolean("isActive"))
+        if (w.getWorldTime() % 200 == stack.getTagCompound().getInteger("worldTimeDelay") && isActive(stack))
         {
-            if (!p.capabilities.isCreativeMode)
-            {
-                if (!BloodUtils.drainSoulNetworkWithDamage(getOwnerUUID(stack), p, 200))
-                {
-                    // if code here is executed, something went horribly wrong...
-                }
-            }
+            BloodUtils.drainSoulNetworkWithDamage(bind.getOwnerId().toString(), p, Base.sigil.interdiction.cost);
+            // if code here is executed, something went horribly wrong...
         }
-
-        return;
     }
 
-    static AxisAlignedBB getInterdictionAABB(Entity e, double range)
+    private static AxisAlignedBB getInterdictionAABB(Entity e, double range)
     {
         return new AxisAlignedBB(e.posX - range, e.posY - range, e.posZ - range, e.posX + range, e.posY + range, e.posZ + range);
+    }
+
+    @Override
+    public ItemMeshDefinition getMeshDefinition()
+    {
+        return stack -> isActive(stack)
+                ? ItemInterdiction.this.active
+                : ItemInterdiction.this.inactive;
+    }
+
+    @Override
+    public void gatherVariants(Consumer<String> ls)
+    {
+        ls.accept(NBT_ID + "=true");
+        ls.accept(NBT_ID + "=false");
+    }
+
+    private static boolean push(Entity target, EntityPlayer player)
+    {
+        final InterdictionEntry data = INSTANCE.getData().get(Overrides.getEntityID(target));
+        if (data == null) return false;
+        final Map<String, IPushCondition> filters = INSTANCE.getFilters();
+        IPushCondition.Push tmp, result = IPushCondition.Push.IGNORE;
+
+        for (String name : data.enabledFilters)
+        {
+            IPushCondition filter = filters.get(name);
+            tmp = filter.canPush(target, player);
+            if (tmp.compareTo(result) > 0)
+                result = tmp;
+        }
+        return result.push;
+    }
+
+    private static boolean isActive(ItemStack stack)
+    {
+        return stack.hasTagCompound() && stack.getTagCompound().getTagId(NBT_ID) == NBT.TAG_BYTE && stack.getTagCompound().getBoolean(NBT_ID);
+    }
+
+    private static void toggleState(ItemStack stack)
+    {
+        if (stack.getTagCompound() == null)
+            stack.setTagCompound(new NBTTagCompound());
+        stack.getTagCompound().setBoolean(NBT_ID, !isActive(stack));
     }
 }
