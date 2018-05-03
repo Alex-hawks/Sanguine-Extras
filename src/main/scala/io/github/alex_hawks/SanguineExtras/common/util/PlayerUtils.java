@@ -182,14 +182,20 @@ public class PlayerUtils
 
     public static IItemHandler getAllPlayerSlots(EntityPlayer player)
     {
+        ArrayList<IItemHandler> ls = new ArrayList<>();
         InventoryPlayer inv = player.inventory;
-        return CapabilityJoiner.JoinedItemHandler.join(Arrays.<IItemHandler>asList(
-                new PlayerOffhandInvWrapper(inv),
-                new PlayerArmorInvWrapper(inv),
-                player.getCapability(CapBauble, null),
-                //TODO Alchemical Bags from ProjectE, but make sure the player has one of the correct colour in their inventory (or in another bag) to actually use the contents
-                new PlayerMainInvWrapper(inv)
-        ));
+        
+        ls.add(new PlayerOffhandInvWrapper(inv));
+        ls.add(new PlayerArmorInvWrapper(inv));
+        
+        if (player.hasCapability(CapBauble, null))
+            ls.add(player.getCapability(CapBauble, null));
+    
+        //TODO Alchemical Bags from ProjectE, but make sure the player has one of the correct colour in their inventory (or in another bag) to actually use the contents
+        
+        ls.add(new PlayerMainInvWrapper(inv));
+        
+        return CapabilityJoiner.JoinedItemHandler.join(ls);
     }
 
     public static void putItemWithDrop(EntityPlayer player, ItemStack... is2)
