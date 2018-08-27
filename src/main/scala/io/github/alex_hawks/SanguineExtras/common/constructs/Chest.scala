@@ -2,8 +2,8 @@ package io.github.alex_hawks.SanguineExtras.common
 package constructs
 
 import java.util.function.Consumer
-import javax.annotation.Nullable
 
+import javax.annotation.Nullable
 import WayofTime.bloodmagic.block.IBMBlock
 import WayofTime.bloodmagic.client.IMeshProvider
 import com.google.common.base.Strings
@@ -40,6 +40,7 @@ import net.minecraftforge.common.capabilities.{Capability, CapabilityInject}
 import net.minecraftforge.event.world.BlockEvent.HarvestDropsEvent
 import net.minecraftforge.items.{IItemHandler, ItemStackHandler, SlotItemHandler}
 
+import scala.annotation.meta.setter
 import scala.collection.JavaConverters._
 
 
@@ -57,10 +58,10 @@ object Chest {
   val maxHeightChange = 0.02f
   val lidMotion = 1f / 10f
 
-  @CapabilityInject(classOf[IItemHandler])
+  @(CapabilityInject @setter)(classOf[IItemHandler])
   var CapInv: Capability[IItemHandler] = null
 
-  val PropTier = PropertyInteger.create("tier", 0, 4)
+  val PropTier: PropertyInteger = PropertyInteger.create("tier", 0, 4)
 
   def getTier(is: ItemStack): Int = {
     val tag = is.getSubCompound("BlockEntityTag")
@@ -68,6 +69,8 @@ object Chest {
       return tag.getInteger("tier")
     0
   }
+
+  def getActInvSize(tier: Int): Int = (tier + 2) * slotsPerTier
 }
 
 object BlockChest extends Block(Material.ROCK) with IBMBlock {
@@ -86,12 +89,12 @@ object BlockChest extends Block(Material.ROCK) with IBMBlock {
 
   override def getRenderType(state: IBlockState): EnumBlockRenderType = ENTITYBLOCK_ANIMATED
 
-  override def onBlockActivated(w: World, pos: BlockPos, st: IBlockState, p: EntityPlayer, h: EnumHand, s: EnumFacing, x: Float, y: Float, z: Float) = {
+  override def onBlockActivated(w: World, pos: BlockPos, st: IBlockState, p: EntityPlayer, h: EnumHand, s: EnumFacing, x: Float, y: Float, z: Float): Boolean = {
     p.openGui(SanguineExtras.INSTANCE, 0, w, pos.getX, pos.getY, pos.getZ)
     true
   }
 
-  override def getPickBlock(state: IBlockState, target: RayTraceResult, w: World, pos: BlockPos, player: EntityPlayer) = {
+  override def getPickBlock(state: IBlockState, target: RayTraceResult, w: World, pos: BlockPos, player: EntityPlayer): ItemStack = {
     if (player.isSneaking && player.isCreative) {
       val is = new ItemStack(getItem)
       val chest = w.getTileEntity(pos).asInstanceOf[TileChest]
@@ -169,9 +172,9 @@ object BlockChest extends Block(Material.ROCK) with IBMBlock {
 
   override def getMetaFromState(state: IBlockState) = 0
 
-  override def getStateFromMeta(meta: Int) = this.getDefaultState
+  override def getStateFromMeta(meta: Int): IBlockState = this.getDefaultState
 
-  override def getActualState(state: IBlockState, world: IBlockAccess, pos: BlockPos) = {
+  override def getActualState(state: IBlockState, world: IBlockAccess, pos: BlockPos): IBlockState = {
     val te = world match {
       case cache: ChunkCache => cache.getTileEntity(pos, Chunk.EnumCreateEntityType.CHECK)
       case _ => world.getTileEntity(pos)
@@ -192,11 +195,13 @@ object ItemBlockChest extends ItemBlock(BlockChest) with IMeshProvider {
       ls.accept(s"tier=$i")
   }
 
-  override def getMeshDefinition: ItemMeshDefinition = (stack: ItemStack) => {
-    if (stack.getSubCompound("BlockEntityTag") != null && stack.getSubCompound("BlockEntityTag").hasKey("tier"))
-      new ModelResourceLocation(ItemBlockChest.this.getRegistryName, "tier=" + stack.getSubCompound("BlockEntityTag").getInteger("tier"))
-    else
-      new ModelResourceLocation(ItemBlockChest.this.getRegistryName, "tier=0")
+  override def getMeshDefinition: ItemMeshDefinition = new ItemMeshDefinition {
+    override def getModelLocation(stack: ItemStack): ModelResourceLocation = {
+      if (stack.getSubCompound("BlockEntityTag") != null && stack.getSubCompound("BlockEntityTag").hasKey("tier"))
+        new ModelResourceLocation(ItemBlockChest.this.getRegistryName, "tier=" + stack.getSubCompound("BlockEntityTag").getInteger("tier"))
+      else
+        new ModelResourceLocation(ItemBlockChest.this.getRegistryName, "tier=0")
+    }
   }
 
   override def getSubItems(tab: CreativeTabs, items: NonNullList[ItemStack]): Unit = {
@@ -248,7 +253,7 @@ class TileChest(var tier: Int, var name: String) extends TileEntity with ITickab
   var numPlayersUsing: Int = _
 
   // Begin calculations
-  def actInvSize = (tier + 2) * slotsPerTier
+  def actInvSize = getActInvSize(this.tier)
 
   // Begin TileEntity overrides
   override def update(): Unit = {

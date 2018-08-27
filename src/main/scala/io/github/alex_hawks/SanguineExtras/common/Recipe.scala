@@ -1,26 +1,25 @@
 package io.github.alex_hawks.SanguineExtras.common
 
-import WayofTime.bloodmagic.api.impl.BloodMagicAPI
+import WayofTime.bloodmagic.api.IBloodMagicRecipeRegistrar
 import WayofTime.bloodmagic.core.RegistrarBloodMagicBlocks._
 import WayofTime.bloodmagic.core.RegistrarBloodMagicItems._
 import WayofTime.bloodmagic.core.recipe.IngredientBloodOrb
 import WayofTime.bloodmagic.orb.IBloodOrb
-import io.github.alex_hawks.SanguineExtras.common.{Blocks => ModBlocks, Items => ModItems}
+import io.github.alex_hawks.SanguineExtras.common.{Blocks ⇒ ModBlocks, Items ⇒ ModItems}
 import io.github.alex_hawks.util.minecraft.common.Implicit.{block, item}
-import io.github.alex_hawks.util.minecraft.common.{IngredientPartNBT => INBT}
-import net.minecraft.init.{Blocks => MCBlocks, Items => MCItems}
+import io.github.alex_hawks.util.minecraft.common.{IngredientPartNBT ⇒ INBT}
 import net.minecraft.item.ItemStack
 import net.minecraft.item.crafting.Ingredient
 
 import scala.language.implicitConversions
 
 object Recipe {
-  def register(): Unit = {
-    registerSmelting()
-    registerAltar()
-    registerAlchemyTable()
-    registerTartaricForge()
-    registerAlchemyArray()
+  def register(implicit registrar: IBloodMagicRecipeRegistrar): Unit = {
+    registerSmelting
+    registerAltar
+    registerAlchemyTable
+    registerTartaricForge
+    registerAlchemyArray
   }
 
   implicit def isToIngredient(is: ItemStack): Ingredient = is match {
@@ -47,9 +46,8 @@ object Recipe {
     // no-op
   }
 
-  def registerAltar(): Unit = {
-    val BMRecipes = BloodMagicAPI.INSTANCE.getRecipeRegistrar
-    import BMRecipes._
+  def registerAltar(implicit registrar: IBloodMagicRecipeRegistrar): Unit = {
+    import registrar._
     // check out io.github.alex_hawks.util.minecraft.common.Implicit for why these work
     addBloodAltar(ModBlocks.chest.withNBT("BlockEntityTag::tier", 0), ModBlocks.chest.withNBT("BlockEntityTag::tier", 1), 1, 16000,   40,   40)
     addBloodAltar(ModBlocks.chest.withNBT("BlockEntityTag::tier", 1), ModBlocks.chest.withNBT("BlockEntityTag::tier", 2), 2, 40000,   80,   80)
@@ -63,15 +61,15 @@ object Recipe {
     addBloodAltar(RITUAL_CONTROLLER(),                                ModBlocks.advanced_mrs(),                           3, 30000,   40,   10)
   }
 
-  def registerAlchemyTable(): Unit = {
+  def registerAlchemyTable(implicit registrar: IBloodMagicRecipeRegistrar): Unit = {
     // no-op
   }
 
-  def registerTartaricForge(): Unit = {
+  def registerTartaricForge(implicit registrar: IBloodMagicRecipeRegistrar): Unit = {
     // no-op
   }
 
-  def registerAlchemyArray(): Unit = {
+  def registerAlchemyArray(implicit registrar: IBloodMagicRecipeRegistrar): Unit = {
     // no-op
   }
 }

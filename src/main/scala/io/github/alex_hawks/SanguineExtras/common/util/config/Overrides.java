@@ -5,12 +5,10 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import io.github.alex_hawks.SanguineExtras.api.sigil.IPushCondition;
 import io.github.alex_hawks.SanguineExtras.common.SanguineExtras;
-import io.github.alex_hawks.SanguineExtras.common.util.sigils.interdiction.push_handlers.*;
-import lombok.AccessLevel;
-import lombok.EqualsAndHashCode;
-import lombok.RequiredArgsConstructor;
-import lombok.ToString;
-import lombok.experimental.Wither;
+import io.github.alex_hawks.SanguineExtras.common.util.sigils.interdiction.push_handlers.BotaniaManaBurst;
+import io.github.alex_hawks.SanguineExtras.common.util.sigils.interdiction.push_handlers.BotaniaThrowableCopy;
+import io.github.alex_hawks.SanguineExtras.common.util.sigils.interdiction.push_handlers.Default;
+import io.github.alex_hawks.SanguineExtras.common.util.sigils.interdiction.push_handlers.Tamable;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLivingBase;
@@ -32,7 +30,8 @@ import java.io.File;
 import java.util.*;
 import java.util.function.Function;
 
-import static io.github.alex_hawks.SanguineExtras.common.util.config.Base.*;
+import static io.github.alex_hawks.SanguineExtras.common.util.config.Base.ritual;
+import static io.github.alex_hawks.SanguineExtras.common.util.config.Base.sigil;
 
 /**
  * Order:
@@ -175,14 +174,14 @@ public final class Overrides
 
                 if(!generated.getBoolean())
                 {
-                    InterdictionEntry entry = new InterdictionEntry(false, enabledFilters.getStringList(), category);
+                    InterdictionEntry entry = new InterdictionEntry(enabledFilters.getStringList(), category, false);
                     data.put(new ResourceLocation(category), entry);
                 }
             }
 
             for(Map.Entry<ResourceLocation, InterdictionEntry> entry : data.entrySet())
             {
-                if (entry.getValue().generated)
+                if (entry.getValue().generated())
                 {
                     Property generated      = file.get(entry.getKey().toString(), "generated", true);
                     Property enabledFilters = file.get(entry.getKey().toString(), "enabledFilters", filters.keySet().toArray(new String[0]));
@@ -190,8 +189,8 @@ public final class Overrides
                     generated.      setComment("Set to \"false\" to use these values for the mob instead of the default, which is \"all of them\"");
                     enabledFilters. setComment("Enabled filters will be listed here. Remove an entry to do disable that filter for the Entity.");
 
-                    generated.      set(entry.getValue().generated);
-                    enabledFilters. set(entry.getValue().enabledFilters);
+                    generated.      set(entry.getValue().generated());
+                    enabledFilters. set(entry.getValue().enabledFilters());
                 }
             }
 
@@ -209,28 +208,13 @@ public final class Overrides
         {
             return ImmutableMap.copyOf(filters);
         }
-
-        @ToString
-        @EqualsAndHashCode
-        @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-        public static final class InterdictionEntry
-        {
-                    public final boolean        generated;      // if false, do not override the other values on change to the defaults. never override this
-                    public final String[]       enabledFilters; // all the filters that this mob can respond to, defaults to all of them. If empty, the mob cannot be pushed
-            @Wither public final String         entityID;       // the EntityID in the Forge EntityRegistry for the mob this is for. Should be the same as the key in the map for this instance
-
-            private InterdictionEntry(String[] enabledFilters, String entityID)
-            {
-                this(true, enabledFilters, entityID);
-            }
-        }
     }
 
     public static class Capture
     {
         public static Capture INSTANCE;
-        static final CaptureEntry defaultDisabled = new CaptureEntry(false, 0, 100.0, true, "");
-        static final CaptureEntry defaultEnabled = new CaptureEntry(true, sigil.holding.cost, sigil.holding.maxHealth, sigil.holding.maxHealthIsPercentage, "");
+        static final CaptureEntry defaultDisabled = new CaptureEntry(false, 0, 100, true, "", true);
+        static final CaptureEntry defaultEnabled = new CaptureEntry(true, sigil.holding.cost, sigil.holding.maxHealth, sigil.holding.maxHealthIsPercentage, "", true);
 
         private Capture(File configDir)
         {
@@ -255,7 +239,7 @@ public final class Overrides
                 boolean     isPercentage    = tag.getBoolean("isPercentage");
                 String      entityID        = tag.getString("entityID");
 
-                CaptureEntry entry = new CaptureEntry(enabled, cost, maxHealth, isPercentage, entityID);
+                CaptureEntry entry = new CaptureEntry(enabled, cost, maxHealth, isPercentage, entityID, true);
 
                 if (data.putIfAbsent(new ResourceLocation(entityID), entry) != null)
                     SanguineExtras.LOG.fatal("Someone ({}) attempted to register Capture data for {} when it was already registered. Using old data", msg.getSender(), entityID);
@@ -298,14 +282,14 @@ public final class Overrides
 
                 if(!generated.getBoolean())
                 {
-                    CaptureEntry entry = new CaptureEntry(false, enabled.getBoolean(), cost.getInt(), maxHealth.getInt(), isPercentage.getBoolean(), category);
+                    CaptureEntry entry = new CaptureEntry(enabled.getBoolean(), cost.getInt(), maxHealth.getInt(), isPercentage.getBoolean(), category, false);
                     data.put(new ResourceLocation(category), entry);
                 }
             }
 
             for(Map.Entry<ResourceLocation, CaptureEntry> entry : data.entrySet())
             {
-                if (entry.getValue().generated)
+                if (entry.getValue().generated())
                 {
                     Property generated      = file.get(entry.getKey().toString(), "generated",      true);
                     Property enabled        = file.get(entry.getKey().toString(), "enabled",        true);
@@ -319,11 +303,11 @@ public final class Overrides
                     maxHealth.      setComment("See the comments on \"Max Health\" in \"Base.cfg\"");
                     isPercentage.   setComment("See the comments on \"Max Health is a Percentage\" in \"Base.cfg\"");
 
-                    generated.      set(entry.getValue().generated);
-                    enabled.        set(entry.getValue().enabled);
-                    cost.           set(entry.getValue().cost);
-                    maxHealth.      set(entry.getValue().maxHealth);
-                    isPercentage.   set(entry.getValue().isPercentage);
+                    generated.      set(entry.getValue().generated());
+                    enabled.        set(entry.getValue().enabled());
+                    cost.           set(entry.getValue().cost());
+                    maxHealth.      set(entry.getValue().maxHealth());
+                    isPercentage.   set(entry.getValue().isPercentage());
                 }
             }
 
@@ -335,37 +319,13 @@ public final class Overrides
         {
             return ImmutableMap.copyOf(data);
         }
-
-        @ToString
-        @EqualsAndHashCode
-        @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-        public static final class CaptureEntry
-        {
-                    public final boolean    generated;      // if false, do not override the other values on change to the defaults. never override this
-                    public final boolean    enabled;        // if false, this mob cannot be captured
-            @Wither public final int        cost;           // see Base.Sigil.Holding.cost
-            @Wither public final double     maxHealth;      // see Base.Sigil.Holding.maxHealth
-            @Wither public final boolean    isPercentage;   // see Base.Sigil.Holding.maxHealthIsPercentage
-            @Wither public final String     entityID;       // the EntityID in the Forge EntityRegistry for the mob this is for. Should be the same as the key in the map for this instance
-
-            private CaptureEntry(boolean enabled, int cost, double maxHealth, boolean isPercentage, String entityID)
-            {
-                this(true, enabled, cost, maxHealth, isPercentage, entityID);
-            }
-
-            public CaptureEntry multiplyCost(double mul)
-            {
-                double multi = cost * mul;
-                return this.withCost((int) multi);
-            }
-        }
     }
 
     public static class Spawn
     {
         public static Spawn INSTANCE;
-        static final SpawnEntry defaultDisabled = new SpawnEntry(false, 0, -1, "");
-        static final SpawnEntry defaultEnabled = new SpawnEntry(true, ritual.spawn.lpMultiplier, ritual.spawn.maxEntities, "");
+        static final SpawnEntry defaultDisabled = new SpawnEntry(false, 0, -1, "", true);
+        static final SpawnEntry defaultEnabled = new SpawnEntry(true, ritual.spawn.lpMultiplier, ritual.spawn.maxEntities, "", true);
 
         private Spawn(File configDir)
         {
@@ -389,7 +349,7 @@ public final class Overrides
                 int         maxEntities     = tag.getInteger("maxEntities");
                 String      entityID        = tag.getString("entityID");
 
-                SpawnEntry entry = new SpawnEntry(enabled, lpMultiplier, maxEntities, entityID);
+                SpawnEntry entry = new SpawnEntry(enabled, lpMultiplier, maxEntities, entityID, true);
 
                 if (data.putIfAbsent(new ResourceLocation(entityID), entry) != null)
                     SanguineExtras.LOG.fatal("Someone ({}) attempted to register Spawn data for {} when it was already registered. Using old data", msg.getSender(), entityID);
@@ -430,14 +390,14 @@ public final class Overrides
 
                 if(!generated.getBoolean())
                 {
-                    SpawnEntry entry = new SpawnEntry(false, enabled.getBoolean(), lpMultiplier.getInt(), maxEntities.getInt(), category);
+                    SpawnEntry entry = new SpawnEntry(enabled.getBoolean(), lpMultiplier.getInt(), maxEntities.getInt(), category, false);
                     data.put(new ResourceLocation(category), entry);
                 }
             }
 
             for(Map.Entry<ResourceLocation, SpawnEntry> entry : data.entrySet())
             {
-                if (entry.getValue().generated)
+                if (entry.getValue().generated())
                 {
                     Property generated      = file.get(entry.getKey().toString(), "generated",      true);
                     Property enabled        = file.get(entry.getKey().toString(), "enabled",        true);
@@ -449,10 +409,10 @@ public final class Overrides
                     lpMultiplier.   setComment("If this is a boss, this number will be multiplied by 10");
                     maxEntities.    setComment("If this is a boss, this number will be divided by 10");
 
-                    generated.      set(entry.getValue().generated);
-                    enabled.        set(entry.getValue().enabled);
-                    lpMultiplier.   set(entry.getValue().lpMultiplier);
-                    maxEntities.    set(entry.getValue().maxEntities);
+                    generated.      set(entry.getValue().generated());
+                    enabled.        set(entry.getValue().enabled());
+                    lpMultiplier.   set(entry.getValue().lpMultiplier());
+                    maxEntities.    set(entry.getValue().maxEntities());
                 }
             }
 
@@ -463,29 +423,6 @@ public final class Overrides
         public Map<ResourceLocation, SpawnEntry> getData()
         {
             return ImmutableMap.copyOf(data);
-        }
-
-        @ToString
-        @EqualsAndHashCode
-        @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-        public static final class SpawnEntry
-        {
-                    public final boolean    generated;      // if false, do not override the other values on change to the defaults. never override this
-                    public final boolean    enabled;        // if false, this mob cannot be spawned
-            @Wither public final int        lpMultiplier;   // see Base.Ritual.Spawn.lpMultiplier
-            @Wither public final int        maxEntities;    // see Base.Ritual.Spawn.maxEntities. This is before the /10 is done for bosses
-            @Wither public final String     entityID;       // the EntityID in the Forge EntityRegistry for the mob this is for. Should be the same as the key in the map for this instance
-
-            private SpawnEntry(boolean enabled, int lpMultiplier, int maxEntities, String entityID)
-            {
-                this(true, enabled, lpMultiplier, maxEntities, entityID);
-            }
-
-            SpawnEntry multiplyCost(double mul)
-            {
-                double multi = lpMultiplier * mul;
-                return this.withLpMultiplier((int) multi);
-            }
         }
     }
 }

@@ -9,6 +9,8 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.fml.common.ModAPIManager;
@@ -16,6 +18,7 @@ import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.wrapper.PlayerArmorInvWrapper;
 import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
 import net.minecraftforge.items.wrapper.PlayerOffhandInvWrapper;
+import org.apache.commons.lang3.tuple.Pair;
 import vazkii.botania.api.item.IBlockProvider;
 
 import javax.annotation.Nonnull;
@@ -101,8 +104,8 @@ public class PlayerUtils
                     is3 = inv.getStackInSlot(i);
                     if (is.isItemEqual(is3) && ItemStack.areItemStackTagsEqual(is, is3))
                     {
-                        is3.shrink(1);
-                        return true;
+                        inv.extractItem(i, 1, false);
+Ti                        return true;
                     }
                 }
             }
@@ -141,7 +144,7 @@ public class PlayerUtils
                 if (is2.getItem() instanceof IBlockProvider)
                 {
                     IBlockProvider prov = (IBlockProvider) is2.getItem();
-                    if (prov.provideBlock(player, requester, is2, ((ItemBlock) is.getItem()).getBlock(), is.getMetadata(), false))
+                    if (prov.getBlockCount(player, requester, is2, ((ItemBlock) is.getItem()).getBlock(), is.getItem().getMetadata(is.getItemDamage())) != 0)
                     {
                         prov.provideBlock(player, requester, is2, ((ItemBlock) is.getItem()).getBlock(), is.getMetadata(), true);
                         return true;
@@ -268,5 +271,28 @@ public class PlayerUtils
     public static boolean isRealPlayer(EntityPlayer p)
     {
         return !PlayerHelper.isFakePlayer(p);
+    }
+    
+    /**
+     * This method is taken from Minecraft MultiParts's {@link mcmultipart.RayTraceHelper RayTraceHelper} and modified to be "future-proof" by modifying the code in the if statement,
+     * and subsequently removing said if statement (as seen <a href=https://github.com/amadornes/MCMultiPart/blob/9d7b00deb66c7c7f2b68640af2d0cb2d95e19e1e/src/main/java/mcmultipart/RayTraceHelper.java>here</a>),
+     * per the advice <em>williewillus</em> left in the comment near {@link net.minecraft.server.management.PlayerInteractionManager#getBlockReachDistance PlayerInteractionManager#getBlockReachDistance}
+     * during the conversion of a player's reach distance from a field in {@link net.minecraft.server.management.PlayerInteractionManager PlayerInteractionManager} to an {@link net.minecraft.entity.ai.attributes.IAttribute Attribute},
+     * in <a href=https://github.com/MinecraftForge/MinecraftForge/pull/4331>MinecraftForge/MinecraftForge#4331</a>.
+     * <br/>For the licence at the time of copying, see <a href=https://github.com/amadornes/MCMultiPart/blob/9d7b00deb66c7c7f2b68640af2d0cb2d95e19e1e/LICENSE>the LICENSE file in the GitHub Repo</a>
+     */
+    public static Pair<Vec3d, Vec3d> getRayTraceVectors(EntityPlayer player) {
+        float pitch = player.rotationPitch;
+        float yaw = player.rotationYaw;
+        Vec3d start = new Vec3d(player.posX, player.posY + player.getEyeHeight(), player.posZ);
+        float f1 = MathHelper.cos(-yaw * 0.017453292F - (float) Math.PI);
+        float f2 = MathHelper.sin(-yaw * 0.017453292F - (float) Math.PI);
+        float f3 = -MathHelper.cos(-pitch * 0.017453292F);
+        float f4 = MathHelper.sin(-pitch * 0.017453292F);
+        float f5 = f2 * f3;
+        float f6 = f1 * f3;
+        double d3 = player.getEntityAttribute(EntityPlayer.REACH_DISTANCE).getAttributeValue();
+        Vec3d end = start.addVector(f5 * d3, f4 * d3, f6 * d3);
+        return Pair.of(start, end);
     }
 }

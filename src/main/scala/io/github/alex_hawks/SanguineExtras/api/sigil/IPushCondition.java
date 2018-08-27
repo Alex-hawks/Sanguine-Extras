@@ -1,7 +1,6 @@
 package io.github.alex_hawks.SanguineExtras.api.sigil;
 
 import io.github.alex_hawks.SanguineExtras.common.util.sigils.interdiction.push_handlers.Default;
-import lombok.RequiredArgsConstructor;
 import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -45,7 +44,6 @@ public interface IPushCondition
         return this.getClass().getSimpleName().toLowerCase(Locale.ROOT);
     }
 
-    @RequiredArgsConstructor
     enum Push // ignores results declared earlier in the list
     {
         IGNORE(false),  //  Do nothing
@@ -54,5 +52,7 @@ public interface IPushCondition
         FORCE(true);    //  Push
 
         public final boolean push;
+
+        Push(Boolean b) {push = b;}
     }
 }

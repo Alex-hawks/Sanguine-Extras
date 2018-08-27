@@ -1,19 +1,22 @@
 package io.github.alex_hawks.SanguineExtras.common
 
+import java.util.function.Consumer
+
 import WayofTime.bloodmagic.block.IBMBlock
 import WayofTime.bloodmagic.client.{IMeshProvider, IVariantProvider}
 import com.google.common.collect.Lists
-import io.github.alex_hawks.SanguineExtras.common.Helpers.MOD_ID
 import io.github.alex_hawks.SanguineExtras.common.constructs.{BlockChest, TileChest}
-import io.github.alex_hawks.SanguineExtras.common.items.ItemDropOrb
+import io.github.alex_hawks.SanguineExtras.common.enchantment.Cutting
 import io.github.alex_hawks.SanguineExtras.common.items.baubles.{FeatheredKnife, LiquidSummoner, StoneSummoner}
 import io.github.alex_hawks.SanguineExtras.common.items.sigils._
+import io.github.alex_hawks.SanguineExtras.common.items.ItemDropOrb
 import io.github.alex_hawks.SanguineExtras.common.ritual_stones.marker.warded.{BlockWardedRitualStone, TEWardedRitualStone}
 import io.github.alex_hawks.SanguineExtras.common.ritual_stones.master.advanced.{BlockAdvancedMasterStone, TEAdvancedMasterStone}
 import io.github.alex_hawks.SanguineExtras.common.ritual_stones.master.warded.{BlockWardedMasterStone, TEWardedMasterStone}
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
 import net.minecraft.block.Block
 import net.minecraft.client.renderer.block.model.{ModelBakery, ModelResourceLocation}
+import net.minecraft.enchantment.Enchantment
 import net.minecraft.item.{Item, ItemBlock}
 import net.minecraft.util.ResourceLocation
 import net.minecraftforge.client.event.ModelRegistryEvent
@@ -25,6 +28,7 @@ import net.minecraftforge.fml.common.registry.GameRegistry
 import net.minecraftforge.fml.relauncher.{Side, SideOnly}
 
 import scala.collection.JavaConverters._
+import scala.language.implicitConversions
 import scala.util.control.Breaks._
 
 object Helpers {
@@ -54,10 +58,15 @@ object Items {
   lazy val drop_orb               =     ItemDropOrb
 }
 
-@Mod.EventBusSubscriber(modid = MOD_ID)
+object Enchantments {
+  lazy val cutting                =     Cutting
+}
+
+@Mod.EventBusSubscriber(modid = Helpers.MOD_ID)
 object Registrar {
   val blocks = Lists.newArrayList[Block]().asScala
   val items = Lists.newArrayList[Item]().asScala
+  val enchantments = Lists.newArrayList[Enchantment]().asScala
 
   @SubscribeEvent
   def registerBlocks(event: RegistryEvent.Register[Block]): Unit = {
@@ -67,7 +76,7 @@ object Registrar {
     blocks += warded_rs
     blocks += chest
 
-    event.getRegistry.registerAll(blocks.asJava.toArray(Array.empty[Block]): _*)
+    event.getRegistry.registerAll(blocks.toArray: _*)
 
     registerTEs()
   }
@@ -92,7 +101,16 @@ object Registrar {
 
     items += drop_orb
 
-    event.getRegistry.registerAll(items.asJava.toArray(Array.empty[Item]): _*)
+    event.getRegistry.registerAll(items.toArray: _*)
+  }
+  
+  @SubscribeEvent
+  def registerEnchantments(event: RegistryEvent.Register[Enchantment]): Unit = {
+    import Enchantments._
+    
+    enchantments += cutting
+    
+    event.getRegistry.registerAll(enchantments.toArray: _*)
   }
 
   @SubscribeEvent
@@ -111,7 +129,7 @@ object Registrar {
             var loc = i.getCustomLocation
             if (loc == null)
               loc = i.getRegistryName
-              i.gatherVariants(variant => {ModelBakery.registerItemVariants(item, new ModelResourceLocation(loc, variant))})
+              i.gatherVariants((variant: String) => {ModelBakery.registerItemVariants(item, new ModelResourceLocation(loc, variant))})
 
             ModelLoader.setCustomMeshDefinition(i, i.getMeshDefinition)
             break
@@ -135,5 +153,9 @@ object Registrar {
     GameRegistry.registerTileEntity(classOf[TEWardedMasterStone],   Blocks.warded_mrs.getRegistryName.toString)
     GameRegistry.registerTileEntity(classOf[TEWardedRitualStone],   Blocks.warded_rs.getRegistryName.toString)
     GameRegistry.registerTileEntity(classOf[TileChest],             Blocks.chest.getRegistryName.toString)
+  }
+
+  implicit def toConsumer[T](in: T ⇒ Unit): Consumer[T] = new Consumer[T] {
+    override def accept(t: T): Unit = in(t)
   }
 }

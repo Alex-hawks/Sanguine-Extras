@@ -22,6 +22,8 @@ import net.minecraftforge.common.capabilities.{Capability, CapabilityInject}
 import net.minecraftforge.items.IItemHandler
 import net.minecraftforge.oredict.OreDictionary
 
+import scala.annotation.meta.setter
+
 object Forge {
   val recipes = FurnaceRecipes.instance
   val baseSmeltTime = 80
@@ -29,7 +31,7 @@ object Forge {
   val name = "SE003Forge"
   val activationCost = 10000
 
-  @CapabilityInject(classOf[IItemHandler])
+  @(CapabilityInject @setter)(classOf[IItemHandler])
   var CapInv: Capability[IItemHandler] = null
 }
 

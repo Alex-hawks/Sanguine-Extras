@@ -2,7 +2,6 @@ package io.github.alex_hawks.SanguineExtras.common.util.sigils;
 
 import io.github.alex_hawks.SanguineExtras.common.util.BloodUtils;
 import io.github.alex_hawks.SanguineExtras.common.util.config.Base;
-import lombok.NonNull;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.item.EntityXPOrb;
 import net.minecraft.entity.player.EntityPlayer;
@@ -18,6 +17,7 @@ import net.minecraftforge.event.world.BlockEvent.PlaceEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
+import javax.annotation.Nonnull;
 import java.util.*;
 
 import static io.github.alex_hawks.SanguineExtras.common.items.sigils.ItemRebuilding.TICKS_PER_OP;
@@ -123,7 +123,7 @@ public class UtilsRebuilding
         doReplace(player, sigilOwner, tmp, w, oldBlock, newBlock, hand);
     }
 
-    public static void doReplace(@NonNull EntityPlayer player, UUID sigilOwner, @NonNull final Map<Integer, Set<BlockPos>> map, World w, IBlockState oldBlock, IBlockState newBlock, EnumHand hand)
+    public static void doReplace(@Nonnull EntityPlayer player, UUID sigilOwner, @Nonnull final Map<Integer, Set<BlockPos>> map, World w, IBlockState oldBlock, IBlockState newBlock, EnumHand hand)
     {
         ItemStack stack = player.inventory.getCurrentItem();
         MinecraftForge.EVENT_BUS.register(new Object()

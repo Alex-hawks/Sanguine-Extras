@@ -4,5 +4,5 @@ import com.mojang.realmsclient.gui.ChatFormatting
 
 package object common {
 
-  def loreFormat: String = ChatFormatting.DARK_PURPLE.toString + ChatFormatting.BOLD.toString
+  val loreFormat: String = ChatFormatting.DARK_PURPLE.toString + ChatFormatting.BOLD.toString
 }

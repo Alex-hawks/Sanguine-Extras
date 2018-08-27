@@ -8,8 +8,6 @@ import io.github.alex_hawks.SanguineExtras.common.Constants;
 import io.github.alex_hawks.SanguineExtras.common.util.BloodUtils;
 import io.github.alex_hawks.SanguineExtras.common.util.SanguineExtrasCreativeTab;
 import io.github.alex_hawks.SanguineExtras.common.util.sigils.UtilsRebuilding;
-import lombok.AccessLevel;
-import lombok.experimental.FieldDefaults;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.util.ITooltipFlag;
@@ -29,14 +27,13 @@ import java.util.Set;
 
 import static io.github.alex_hawks.SanguineExtras.common.package$.MODULE$;
 
-@FieldDefaults(level = AccessLevel.PUBLIC, makeFinal = true)
 public class ItemRebuilding extends ItemBindableBase implements ISigil
 {
-    static String               ID              =       "sigil_rebuilding";
-    static ResourceLocation     RL              = new   ResourceLocation(Constants.Metadata.MOD_ID, ID);
-    static int                  TICKS_PER_OP    =       10;
+    public static final String              ID              =       "sigil_rebuilding";
+    public static final ResourceLocation    RL              = new   ResourceLocation(Constants.Metadata.MOD_ID, ID);
+    public static final int                 TICKS_PER_OP    =       10;
 
-    static String               NBT_STATE       =       "state";
+    public static final String              NBT_STATE       =       "state";
 
 
     public ItemRebuilding()

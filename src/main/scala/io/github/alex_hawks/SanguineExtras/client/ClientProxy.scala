@@ -15,7 +15,7 @@ object ClientProxy {
 
 class ClientProxy extends CommonProxy {
 
-  override def registerClientStuff() {
+  override def registerClientStuff(): Unit = {
     MinecraftForge.EVENT_BUS.register(new UtilsBuilding)
     ClientRegistry.bindTileEntitySpecialRenderer(classOf[TileChest], RenderChest)
   }

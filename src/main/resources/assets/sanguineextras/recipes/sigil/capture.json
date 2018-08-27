@@ -1,6 +1,7 @@
 {
   "result": {
-    "item": "sanguineextras:sigil_mob_net"
+    "item": "sanguineextras:sigil_mob_net",
+    "data": 0
   },
   "pattern": [
     "aaa",

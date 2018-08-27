@@ -1,5 +1,13 @@
 package io.github.alex_hawks.SanguineExtras.common;
 
+import java.io.File;
+
+import org.apache.logging.log4j.Logger;
+
+import WayofTime.bloodmagic.api.BloodMagicPlugin;
+import WayofTime.bloodmagic.api.IBloodMagicAPI;
+import WayofTime.bloodmagic.api.IBloodMagicPlugin;
+import WayofTime.bloodmagic.api.IBloodMagicRecipeRegistrar;
 import WayofTime.bloodmagic.ritual.RitualRegistry;
 import io.github.alex_hawks.SanguineExtras.common.items.baubles.LiquidSummonHandler$;
 import io.github.alex_hawks.SanguineExtras.common.items.baubles.StoneSummonHandler$;
@@ -24,12 +32,8 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.relauncher.Side;
-import org.apache.logging.log4j.Logger;
 
-import java.io.File;
-
-//@SuppressWarnings("unused")
-@Mod(dependencies = "required-after:bloodmagic", modid = Constants.Metadata.MOD_ID, name = Constants.Metadata.NAME, useMetadata = false, modLanguage = "java")
+@Mod(dependencies = "required-after:bloodmagic", modid = Constants.Metadata.MOD_ID, name = Constants.Metadata.NAME)
 //modLanguage is the language this file is in
 public class SanguineExtras
 {
@@ -37,11 +41,30 @@ public class SanguineExtras
 
     @SidedProxy(clientSide = "io.github.alex_hawks.SanguineExtras.client.ClientProxy", serverSide = "io.github.alex_hawks.SanguineExtras.common.CommonProxy", modId = Constants.Metadata.MOD_ID)
     public static CommonProxy proxy;
-
+    
     @Mod.Instance(Constants.Metadata.MOD_ID)
     public static SanguineExtras INSTANCE;
-
+    
     public static Logger LOG;
+    
+    private static IBloodMagicAPI BM_API;
+    
+    @BloodMagicPlugin
+    public static class Plugin implements IBloodMagicPlugin
+    {
+        @Override
+        public void register(IBloodMagicAPI api)
+        {
+            System.out.println("doing stuff");
+            BM_API = api;
+        }
+    
+        @Override
+        public void registerRecipes(IBloodMagicRecipeRegistrar registrar)
+        {
+            Recipe.register(registrar);
+        }
+    }
 
     @Mod.EventHandler
     public static void preInit(FMLPreInitializationEvent e)
@@ -88,10 +111,14 @@ public class SanguineExtras
     @Mod.EventHandler
     public static void postInit(FMLPostInitializationEvent e)
     {
-        Recipe.register();
         NetworkRegistry.INSTANCE.registerGuiHandler(INSTANCE, proxy);
 
         Overrides.handleDefaults();
         Overrides.applyConfig();
+    }
+    
+    public static IBloodMagicAPI getBmApi()
+    {
+        return BM_API;
     }
 }

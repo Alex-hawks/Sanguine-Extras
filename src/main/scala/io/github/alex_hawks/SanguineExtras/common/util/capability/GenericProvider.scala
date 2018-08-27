@@ -6,14 +6,14 @@ import net.minecraftforge.common.capabilities.{Capability, ICapabilityProvider}
 import net.minecraftforge.common.util.INBTSerializable
 
 class GenericProvider[B](val cap: Capability[B], val instance: B, val side: EnumFacing = null, val customStorage: Capability.IStorage[B] = null) extends ICapabilityProvider with INBTSerializable[NBTBase] {
-  override def getCapability[T](cap: Capability[T], facing: EnumFacing) = {
+  override def getCapability[T](cap: Capability[T], facing: EnumFacing): T = {
     if (this.cap == cap && facing == side)
       this.cap.cast(instance)
     else
       null.asInstanceOf[T]
   }
 
-  override def hasCapability(cap: Capability[_], facing: EnumFacing) = {
+  override def hasCapability(cap: Capability[_], facing: EnumFacing): Boolean = {
     if (this.cap == cap && facing == side)
       true
     else
@@ -21,12 +21,16 @@ class GenericProvider[B](val cap: Capability[B], val instance: B, val side: Enum
   }
 
   override def deserializeNBT(nbt: NBTBase): Unit = {
+    if (cap == null)
+      return
     if (customStorage == null)
       cap.readNBT(instance, side, nbt)
     else
       customStorage.readNBT(cap, instance, side, nbt)}
 
-  override def serializeNBT() = {
+  override def serializeNBT(): NBTBase = {
+    if (cap == null)
+      return null
     if (customStorage == null)
       cap.writeNBT(instance, side)
     else

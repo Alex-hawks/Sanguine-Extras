@@ -49,6 +49,10 @@ item.bauble_stone_summoner.4.name=Sand Charm
 item.bauble_feathered_knife.name=Charm of the Feathered Knife
 
 
+##  Enchantment Localizations
+enchantment.sanguineextras:cutting=Cutting
+
+
 ##	Multipart Localizations (Not present at the moment)
 item.microRitualStone.name=Micro Ritual Stone
 item.microRitualStone.blank.name=Micro Blank Ritual Stone

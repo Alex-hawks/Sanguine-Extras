@@ -13,8 +13,8 @@ buildscript {
 plugins {
 	id "net.minecraftforge.gradle.forge" version "2.0.2"
     id 'com.matthewprenger.cursegradle' version '1.0.5'
-	id 'net.franz-becker.gradle-lombok' version '1.5'
 }
+
 
 apply plugin: 'net.minecraftforge.gradle.forge'
 apply plugin: 'scala'
@@ -24,7 +24,6 @@ compileScala {
     sourceCompatibility = '1.8'
     targetCompatibility = '1.8'
 }
-
 
 def build_number = 'CUSTOM'
 
@@ -37,9 +36,6 @@ version = "${mc_version}-${mod_version}-${build_number}"
 
 if (project.hasProperty('gitpush'))
     version += "-ss"
-
-
-import net.franz_becker.gradle.lombok.task.DelombokTask
 
 //ext.repo = Grgit.open(project.file('.'))
 def gitHash = 'unknown'
@@ -61,25 +57,11 @@ repositories {
     maven { url "http://maven.thiakil.com" }
     maven { url "https://www.curseforge.com/api/maven/" }
     maven { url "http://maven.blamejared.com/"}
-
-
-
-//    ivy {
-//        name "Thaumcraft"
-//        artifactPattern "https://dl.dropboxusercontent.com/u/47135879/[module]-[revision]-deobf.[ext]"
-//    }
 }
-
-sourceSets {
-    api  {
-    }
-}
-
-
 
 dependencies {
-	compile 'org.scala-lang:scala-library:2.11.1'
-	compile 'org.jetbrains:annotations:15.0'
+//    compile 'org.scala-lang:scala-library:2.11.1'
+//	compile 'org.jetbrains:annotations:15.0'
 	
     deobfCompile "mezz.jei:jei_${mc_version}:${jei_version}"
 
@@ -88,7 +70,7 @@ dependencies {
     deobfCompile "vazkii.botania:Botania:r1.10-353"
     deobfCompile "com.azanor.baubles:Baubles:1.12-${baubles_version}"
     deobfCompile "MCMultiPart2:MCMultiPart:${mcmp_version}"
-    deobfCompile "com.wayoftime.bloodmagic:BloodMagic:${mc_version}-${bm_version}"
+    compile "com.wayoftime.bloodmagic:BloodMagic:${mc_version}-${bm_version}"
     deobfCompile "net.sengir.forestry:forestry_${mc_version}:${forestry_version}"
     deobfCompile "mcjty.theoneprobe:TheOneProbe-1.12:${top_version}"
     deobfCompile "info.amerifrance.guideapi:Guide-API:${guideapi_version}"
@@ -132,17 +114,6 @@ if (JavaVersion.current().isJava8Compatible()) {
     }
 }
 
-lombok {
-    version = "1.16.6"
-    sha256 = "e0a471be03e1e6b02bf019480cec7a3ac9801702bf7bf62f15d077ad4df8dd5d"
-}
-
-task delombok(type: DelombokTask) {
-    args("src/main/scala", "-d", "build/sources/delomboked/scala")
-}
-
-tasks.eclipse.dependsOn installLombok
-
 jar {
     classifier = ''
     from sourceSets.main.output
@@ -165,16 +136,11 @@ task apiJar(type: Jar) {
 }
 
 // Javadoc jar
-task javadocJar(type: Jar, dependsOn: javadoc) {
+task javadocJar(type: Jar) {
     from javadoc.destinationDir
     classifier = 'javadoc'
 }
 
-javadoc {
-    source = projectDir.path + "/build/sources/delomboked/java"
-}
-
-tasks.javadoc.dependsOn delombok
 tasks.build.dependsOn javadoc, javadocJar, apiJar
 tasks.compileScala.dependsOn compileApiScala
 

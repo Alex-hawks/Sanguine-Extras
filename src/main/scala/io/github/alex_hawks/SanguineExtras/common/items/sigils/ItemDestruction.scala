@@ -8,13 +8,15 @@ import WayofTime.bloodmagic.client.IMeshProvider
 import WayofTime.bloodmagic.core.data.Binding
 import WayofTime.bloodmagic.item.ItemBindableBase
 import WayofTime.bloodmagic.util.helper.TextHelper
+import io.github.alex_hawks.SanguineExtras.common.enchantment.Cutting
 import io.github.alex_hawks.SanguineExtras.common.util.sigils.UtilsDestruction
-import io.github.alex_hawks.SanguineExtras.common.util.{BloodUtils, BreakContext, SanguineExtrasCreativeTab}
+import io.github.alex_hawks.SanguineExtras.common.util.{BloodUtils, SanguineExtrasCreativeTab}
 import io.github.alex_hawks.util.minecraft.common.Implicit.{iItemStack, item}
 import net.minecraft.client.renderer.ItemMeshDefinition
 import net.minecraft.client.renderer.block.model.ModelResourceLocation
 import net.minecraft.client.util.ITooltipFlag
 import net.minecraft.creativetab.CreativeTabs
+import net.minecraft.enchantment._
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.item.ItemStack
 import net.minecraft.util._
@@ -27,10 +29,6 @@ sealed trait HelperDestruction {
   val RL      = new ResourceLocation(Constants.Metadata.MOD_ID, ID)
   val TIER    =     "tier"
   val LENGTH  =     "length"
-
-  val FORTUNE =     "fortune"
-  val SILK    =     "silk"
-  val CRUSH   =     "crush"
 }
 
 object ItemDestruction extends ItemBindableBase with IMeshProvider with HelperDestruction {
@@ -54,7 +52,7 @@ object ItemDestruction extends ItemBindableBase with IMeshProvider with HelperDe
     tooltip.add(TextHelper.localize("tooltip.se.destruction.maximumlength", "" + getMaxLength(stack)))
   }
 
-  override def getUnlocalizedName(is: ItemStack) = super.getUnlocalizedName + s".$TIER" + getTier(is)
+  override def getUnlocalizedName(is: ItemStack): String = super.getUnlocalizedName + s".$TIER" + getTier(is)
 
   override def onItemUse(player: EntityPlayer, w: World, pos: BlockPos, hand: EnumHand, side: EnumFacing, hitX: Float, hitY: Float, hitZ: Float): EnumActionResult = {
     if (w.isRemote)
@@ -73,23 +71,9 @@ object ItemDestruction extends ItemBindableBase with IMeshProvider with HelperDe
     }
     else {
       val toBreak = UtilsDestruction.find(pos, w, side, getLength(stack))
-      UtilsDestruction.doDrops(player, bind.getOwnerId.toString, toBreak, w, getBreakContext(stack))
+      UtilsDestruction.doDrops(player, hand, bind.getOwnerId, toBreak, w)
       EnumActionResult.SUCCESS
     }
-  }
-
-  def getBreakContext(is: ItemStack): BreakContext = {
-    var fortune = 0
-    var silk    = false
-    var crush   = false
-
-    if (is.hasTagCompound) {
-      val tag = is.getTagCompound
-      fortune = tag.getInteger(FORTUNE)
-      silk    = tag.getBoolean(SILK)
-      crush   = tag.getBoolean(CRUSH)
-    }
-    new BreakContext(fortune, silk, crush)
   }
 
   override def onItemRightClick(world: World, player: EntityPlayer, hand: EnumHand): ActionResult[ItemStack] = {
@@ -116,10 +100,20 @@ object ItemDestruction extends ItemBindableBase with IMeshProvider with HelperDe
       ls.accept(s"$TIER=$i")
   }
 
-  override val getMeshDefinition: ItemMeshDefinition = (stack: ItemStack) =>
-    new ModelResourceLocation(ItemDestruction.this.getRegistryName, s"$TIER=${getTier(stack)}") // Don't need the NBT == null check here, as it's in getTier()
+  override def getMeshDefinition: ItemMeshDefinition = new ItemMeshDefinition {
+    override def getModelLocation(stack: ItemStack): ModelResourceLocation = {
+      new ModelResourceLocation(ItemDestruction.this.getRegistryName, s"$TIER=${getTier(stack)}") // Don't need the NBT == null check here, as it's in getTier()
+    }
+  }
+  
+  override def canApplyAtEnchantingTable(stack: ItemStack, enchantment: Enchantment): Boolean = enchantment match {
+    case Cutting ⇒ true
+    case _: EnchantmentUntouching ⇒ true
+    case x: EnchantmentLootBonus if x.getName.equals("lootBonusDigger") ⇒ true
+    case _ ⇒ false
+  }
 
-  def getMaxTier = BloodUtils.getHighestTierOrb
+  def getMaxTier: Int = BloodUtils.getHighestTierOrb
 
   def getTier(stack: ItemStack): Int = {
     if (stack.hasTagCompound && stack.getTagCompound.hasKey(TIER))

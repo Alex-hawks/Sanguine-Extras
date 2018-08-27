@@ -1,30 +1,30 @@
 package io.github.alex_hawks.SanguineExtras.common.util.sigils;
 
-import WayofTime.bloodmagic.demonAura.WorldDemonWillHandler;
-import WayofTime.bloodmagic.ritual.types.RitualCrushing;
-import WayofTime.bloodmagic.soul.EnumDemonWillType;
 import io.github.alex_hawks.SanguineExtras.common.SanguineExtras;
 import io.github.alex_hawks.SanguineExtras.common.util.BloodUtils;
-import io.github.alex_hawks.SanguineExtras.common.util.BreakContext;
 import io.github.alex_hawks.SanguineExtras.common.util.PlayerUtils;
+import io.github.alex_hawks.SanguineExtras.common.util.SEEventHandler;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.item.EntityXPOrb;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.NonNullList;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.BlockEvent.BreakEvent;
+import net.minecraftforge.event.world.BlockEvent.HarvestDropsEvent;
+import net.minecraftforge.fml.common.eventhandler.EventPriority;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class UtilsDestruction
 {
-    private static double steadfastWillDrain   = RitualCrushing.steadfastWillDrain;
-    private static double destructiveWillDrain = RitualCrushing.destructiveWillDrain;
+    private static boolean eventCaughtStuff = false;
+    private static int blocks = 0;
 
     public static List<BlockPos> find(BlockPos pos, World world, EnumFacing side, int length)
     {
@@ -75,10 +75,13 @@ public class UtilsDestruction
         return toReturn;
     }
 
-    public static void doDrops(EntityPlayer p, String sigilOwner, List<BlockPos> list, World w, BreakContext context)
+    public static void doDrops(final EntityPlayer p, final EnumHand hand, final UUID sigilOwner, List<BlockPos> list, final World w)
     {
+        if (w.isRemote)
+          return;
+
         PlayerUtils.startOrb(p);
-        int blocks = 0;
+        blocks = 0;
 
         for (BlockPos v : list)
         {
@@ -94,66 +97,39 @@ public class UtilsDestruction
 
             if (!MinecraftForge.EVENT_BUS.post(e))
             {
-                if (BloodUtils.drainSoulNetwork(sigilOwner, ++blocks, p))
+                eventCaughtStuff = false;
+                SEEventHandler.hand_$eq(hand); // LOL HAX coz HarvestDropsEvent doesn't have a hand or a harvesting stack for me to use 😛
+
+                MinecraftForge.EVENT_BUS.register(new Object()
                 {
-                    // Corrosive is Cutting Fluid, Steadfast for Silky, Destructive for Fortune
-                    double corrosiveWill    = WorldDemonWillHandler.getCurrentWill(w, v, EnumDemonWillType.CORROSIVE);
-                    double steadfastWill    = WorldDemonWillHandler.getCurrentWill(w, v, EnumDemonWillType.STEADFAST);
-                    double destructiveWill  = WorldDemonWillHandler.getCurrentWill(w, v, EnumDemonWillType.DESTRUCTIVE);
-
-                    if(context.crusher)
+                    @SubscribeEvent(priority = EventPriority.HIGH) // Highest is for the Cutting Enchantment
+                    public void catchDrops(HarvestDropsEvent e)
                     {
-                        //TODO add this feature, run the drops through the cutting fluid handler consuming the required will et al from the player's inventory
-                        //No-op
-                    }
-                    if (context.silk_touch && steadfastWill >= steadfastWillDrain && b.getBlock().canSilkHarvest(w, v, b, p))
-                    {
-                        ItemStack drop = b.getBlock().getItem(w, v, b); // TODO use an AccessTransformer to make the commented out call below valid and use it instead
-//                        List<ItemStack> drops = b.getBlock().getSilkTouchDrop(b);
-
-                        if (!drop.isEmpty())
+                        if (e.getPos() != v)
+                            return; // Somehow, something has happened between this handler's registration and the Block#harvestBlock call below that made this event exist on something else
+                        if (!e.getDrops().isEmpty())
                         {
-                            w.destroyBlock(v, false);
-
-                            PlayerUtils.addToOrb(p, drop);
-                            if (e.getExpToDrop() > 0) // in case someone changed it
-                                w.spawnEntity(new EntityXPOrb(w, p.posX, p.posY, p.posZ, e.getExpToDrop()));
-
-                            WorldDemonWillHandler.drainWill(w, v, EnumDemonWillType.STEADFAST, steadfastWillDrain, true);
-                            continue;
+                            BloodUtils.drainSoulNetwork(sigilOwner, ++blocks, p);
+                            eventCaughtStuff = true;
                         }
+                        e.getDrops().forEach((stack) -> {
+                            if (w.rand.nextFloat() <= e.getDropChance())
+                                PlayerUtils.addToOrb(p, stack);
+                        });
+                        e.getDrops().clear();
+                        MinecraftForge.EVENT_BUS.unregister(this);
                     }
-                    if (context.fortune > 0 && destructiveWill >= destructiveWillDrain)
-                    {
-                        NonNullList<ItemStack> drops = NonNullList.create();
-                        b.getBlock().getDrops(drops, w, v, b, context.fortune);
-                        if (!drops.isEmpty())
-                        {
-                            w.destroyBlock(v, false);
+                });
 
-                            for (ItemStack drop : drops)
-                            {
-                                PlayerUtils.addToOrb(p, drop);
-                                if (e.getExpToDrop() > 0)
-                                    w.spawnEntity(new EntityXPOrb(w, p.posX, p.posY, p.posZ, e.getExpToDrop()));
-                            }
+                b.getBlock().harvestBlock(w, p, v, b, w.getTileEntity(v), p.getHeldItem(hand));
 
-                            WorldDemonWillHandler.drainWill(w, v, EnumDemonWillType.DESTRUCTIVE, destructiveWillDrain, true);
-                            continue;
-                        }
-                    }
-
-                    NonNullList<ItemStack> drops = NonNullList.create();
-                    b.getBlock().getDrops(drops, w, v, b, 0);
+                if (eventCaughtStuff)
+                {
                     w.destroyBlock(v, false);
-
-                    for (ItemStack drop : drops)
-                    {
-                        PlayerUtils.addToOrb(p, drop);
-                        if (e.getExpToDrop() > 0)
-                            w.spawnEntity(new EntityXPOrb(w, p.posX, p.posY, p.posZ, e.getExpToDrop()));
-                    }
+                    if (e.getExpToDrop() > 0)
+                        w.spawnEntity(new EntityXPOrb(w, p.posX, p.posY, p.posZ, e.getExpToDrop()));
                 }
+                SEEventHandler.hand_$eq(null);
             }
         }
         PlayerUtils.finishOrb(p);

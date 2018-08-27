@@ -1,5 +1,8 @@
 package io.github.alex_hawks.SanguineExtras.common.rituals.basic;
 
+import java.util.UUID;
+import java.util.function.Consumer;
+
 import WayofTime.bloodmagic.altar.IBloodAltar;
 import WayofTime.bloodmagic.ritual.IMasterRitualStone;
 import WayofTime.bloodmagic.ritual.Ritual;
@@ -9,7 +12,7 @@ import io.github.alex_hawks.SanguineExtras.common.items.sigils.ItemMobNet;
 import io.github.alex_hawks.SanguineExtras.common.util.BloodUtils;
 import io.github.alex_hawks.SanguineExtras.common.util.config.Base;
 import io.github.alex_hawks.SanguineExtras.common.util.config.Overrides;
-import io.github.alex_hawks.SanguineExtras.common.util.config.Overrides.Spawn.SpawnEntry;
+import io.github.alex_hawks.SanguineExtras.common.util.config.SpawnEntry;
 import io.github.alex_hawks.SanguineExtras.common.util.sigils.UtilsMobNet;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
@@ -21,9 +24,6 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-
-import java.util.UUID;
-import java.util.function.Consumer;
 
 import static WayofTime.bloodmagic.ritual.EnumRuneType.*;
 
@@ -93,9 +93,9 @@ public class Spawn extends Ritual
                     return;
 
                 final SpawnEntry data = Overrides.Spawn.INSTANCE.getData().get(getEntityID(ent));
-                if (data == null || !data.enabled)
+                if (data == null || !data.enabled())
                     return;
-                int cost = data.lpMultiplier * (ent.isNonBoss() ? 4 : 40);
+                int cost = data.lpMultiplier() * (ent.isNonBoss() ? 4 : 40);
                 // TODO Consume other varieties of will to make it cheaper
 
                 if (w.getEntitiesWithinAABB(ent.getClass(), new AxisAlignedBB(pos.add(-2, -4, -2), pos.add(2, 0, 2))).size() > (ent.isNonBoss() ? Base.ritual.spawn.maxEntities : Math.max(Base.ritual.spawn.maxEntities / 10, 1)))

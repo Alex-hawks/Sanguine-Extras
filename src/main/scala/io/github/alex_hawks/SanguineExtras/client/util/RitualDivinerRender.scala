@@ -1,7 +1,9 @@
 package io.github.alex_hawks.SanguineExtras.client.util
 
+import java.util.function.Consumer
+
 import WayofTime.bloodmagic.item.ItemRitualDiviner
-import WayofTime.bloodmagic.ritual.IMasterRitualStone
+import WayofTime.bloodmagic.ritual.{IMasterRitualStone, RitualComponent}
 import io.github.alex_hawks.SanguineExtras.common.util.BloodUtils
 import net.minecraft.client.Minecraft
 import net.minecraft.client.entity.EntityPlayerSP
@@ -39,7 +41,9 @@ class RitualDivinerRender {
         return
 
 //      System.out.println(r)
-      r.gatherComponents(Render.drawFakeRune(_)((px, py, pz), w, v3, dir))
+      r.gatherComponents(new Consumer[RitualComponent] {
+        override def accept(rune: RitualComponent): Unit = Render.drawFakeRune(rune)((px, py, pz), w, v3, dir)
+      })
     }
   }
 }

@@ -11,9 +11,8 @@ import io.github.alex_hawks.SanguineExtras.common.network.entity_motion.MsgEntit
 import io.github.alex_hawks.SanguineExtras.common.util.BloodUtils;
 import io.github.alex_hawks.SanguineExtras.common.util.SanguineExtrasCreativeTab;
 import io.github.alex_hawks.SanguineExtras.common.util.config.Base;
+import io.github.alex_hawks.SanguineExtras.common.util.config.InterdictionEntry;
 import io.github.alex_hawks.SanguineExtras.common.util.config.Overrides;
-import lombok.AccessLevel;
-import lombok.experimental.FieldDefaults;
 import net.minecraft.client.renderer.ItemMeshDefinition;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.util.ITooltipFlag;
@@ -28,25 +27,23 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants.NBT;
-import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
 import static io.github.alex_hawks.SanguineExtras.common.package$.MODULE$;
 import static io.github.alex_hawks.SanguineExtras.common.util.config.Overrides.Interdiction.INSTANCE;
-import static io.github.alex_hawks.SanguineExtras.common.util.config.Overrides.Interdiction.InterdictionEntry;
 
-@FieldDefaults(level = AccessLevel.PUBLIC, makeFinal = true)
 public class ItemInterdiction extends ItemBindableBase implements IMeshProvider
 {
-    static String ID = "sigil_interdiction";
-    static ResourceLocation RL = new ResourceLocation(Constants.Metadata.MOD_ID, ID);
-    static String NBT_ID = "active";
+    public static final String ID                   =       "sigil_interdiction";
+    public static final ResourceLocation RL         = new   ResourceLocation(Constants.Metadata.MOD_ID, ID);
+    public static final String NBT_ID               =       "active";
 
-    private ModelResourceLocation active = new ModelResourceLocation(RL, NBT_ID + "=true");
-    private ModelResourceLocation inactive = new ModelResourceLocation(RL, NBT_ID + "=false");
+    private final ModelResourceLocation active      = new   ModelResourceLocation(RL, NBT_ID + "=true");
+    private final ModelResourceLocation inactive    = new   ModelResourceLocation(RL, NBT_ID + "=false");
 
     public ItemInterdiction()
     {
@@ -58,7 +55,7 @@ public class ItemInterdiction extends ItemBindableBase implements IMeshProvider
         this.setHasSubtypes(true);
     }
 
-    @NotNull
+    @Nonnull
     @Override
     public ActionResult<ItemStack> onItemRightClick(World w, EntityPlayer player, EnumHand hand)
     {
@@ -116,29 +113,7 @@ public class ItemInterdiction extends ItemBindableBase implements IMeshProvider
 
                 if (push(e, p))
                 {
-//                    p.addPotionEffect(new PotionEffect(RegistrarBloodMagic.WHIRLWIND, 2, 1));  //  #ImLazy
-                    System.out.println("movX: " + e.motionX + ", calc: " + (p.posX - e.posX));
-                    System.out.println("movY: " + e.motionY + ", calc: " + (p.posY - e.posY));
-                    System.out.println("movZ: " + e.motionZ + ", calc: " + (p.posZ - e.posZ));
 
-                    System.out.println("x: " + (e.motionX < 0 && p.posX - e.posX > 0 || e.motionX > 0 && p.posX - e.posX < 0));
-                    System.out.println("z: " + (e.motionZ < 0 && p.posZ - e.posZ > 0 || e.motionZ > 0 && p.posZ - e.posZ < 0));
-
-                    if ((e.motionX < 0 && p.posX - e.posX < 0) || (e.motionX > 0 && p.posX - e.posX > 0))
-                        e.motionX = -e.motionX;
-
-                    if ((e.motionY < 0 && p.posY - e.posY < 0) || (e.motionY > 0 && p.posY - e.posY > 0))
-                        e.motionY = -e.motionY;
-
-                    if ((e.motionZ < 0 && p.posZ - e.posZ < 0) || (e.motionZ > 0 && p.posZ - e.posZ > 0))
-                        e.motionZ = -e.motionZ;
-
-//                    if (e instanceof IProjectile)
-//                        continue;
-
-                    e.motionX -= (p.posX - e.posX);
-                    e.motionY -= (p.posY - e.posY);
-                    e.motionZ -= (p.posZ - e.posZ);
 
                     if (!e.getEntityWorld().isRemote)
                         SanguineExtras.networkWrapper.sendToAll(new MsgEntityMotion(e));
@@ -148,8 +123,7 @@ public class ItemInterdiction extends ItemBindableBase implements IMeshProvider
 
         if (w.getWorldTime() % 200 == stack.getTagCompound().getInteger("worldTimeDelay") && isActive(stack))
         {
-            BloodUtils.drainSoulNetworkWithDamage(bind.getOwnerId().toString(), p, Base.sigil.interdiction.cost);
-            // if code here is executed, something went horribly wrong...
+            BloodUtils.drainSoulNetworkWithDamage(bind.getOwnerId(), Base.sigil.interdiction.cost, p);
         }
     }
 
@@ -180,7 +154,7 @@ public class ItemInterdiction extends ItemBindableBase implements IMeshProvider
         final Map<String, IPushCondition> filters = INSTANCE.getFilters();
         IPushCondition.Push tmp, result = IPushCondition.Push.IGNORE;
 
-        for (String name : data.enabledFilters)
+        for (String name : data.enabledFilters())
         {
             IPushCondition filter = filters.get(name);
             tmp = filter.canPush(target, player);

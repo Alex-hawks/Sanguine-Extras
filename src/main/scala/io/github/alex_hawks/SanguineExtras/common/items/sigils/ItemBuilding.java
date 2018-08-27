@@ -11,8 +11,6 @@ import io.github.alex_hawks.SanguineExtras.common.util.PlayerUtils;
 import io.github.alex_hawks.SanguineExtras.common.util.SanguineExtrasCreativeTab;
 import io.github.alex_hawks.SanguineExtras.common.util.config.Base;
 import io.github.alex_hawks.SanguineExtras.common.util.sigils.UtilsBuilding;
-import lombok.AccessLevel;
-import lombok.experimental.FieldDefaults;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.util.ITooltipFlag;
@@ -39,13 +37,11 @@ import java.util.Set;
 import static io.github.alex_hawks.SanguineExtras.common.package$.MODULE$;
 import static net.minecraftforge.fml.common.gameevent.TickEvent.Phase.END;
 
-@FieldDefaults(level = AccessLevel.PUBLIC, makeFinal = true)
 public class ItemBuilding extends ItemBindableBase implements ISigil
 {
-    static String               ID              =       "sigil_building";
-    static ResourceLocation     RL              = new   ResourceLocation(Constants.Metadata.MOD_ID, ID);
-    static int                  TICKS_PER_OP    =       10;
-
+    public static final String              ID              =       "sigil_building";
+    public static final ResourceLocation    RL              = new   ResourceLocation(Constants.Metadata.MOD_ID, ID);
+    public static final int                 TICKS_PER_OP    =       10;
 
     public ItemBuilding()
     {

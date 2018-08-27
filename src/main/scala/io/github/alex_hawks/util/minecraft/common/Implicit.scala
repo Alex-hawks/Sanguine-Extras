@@ -6,7 +6,7 @@ import net.minecraft.item.{Item, ItemStack => IS}
 import net.minecraft.nbt._
 import net.minecraft.util.EnumFacing
 import net.minecraft.util.math.{AxisAlignedBB, BlockPos => BP}
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 import language.implicitConversions
 
@@ -98,7 +98,7 @@ object Implicit {
       else {
         val tag = new NBTTagCompound
 
-        for (entry <- json.entrySet) {
+        for (entry <- json.entrySet.asScala) {
           val data = entry.getValue.getAsJsonPrimitive
           var _data: Any = null
 
@@ -174,7 +174,7 @@ object Implicit {
 
     def +(that: BP) = new BP(p.getX + that.getX, p.getY + that.getY, p.getZ + that.getZ)
 
-    def shift(dir: EnumFacing) = p +(dir.getFrontOffsetX, dir.getFrontOffsetY, dir.getFrontOffsetZ)
+    def shift(dir: EnumFacing): BP = p +(dir.getFrontOffsetX, dir.getFrontOffsetY, dir.getFrontOffsetZ)
 
     def shiftAABB(aabb: AxisAlignedBB): AxisAlignedBB = {
       import aabb._

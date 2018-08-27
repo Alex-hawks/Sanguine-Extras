@@ -10,10 +10,9 @@ import io.github.alex_hawks.SanguineExtras.common.Constants;
 import io.github.alex_hawks.SanguineExtras.common.util.BloodUtils;
 import io.github.alex_hawks.SanguineExtras.common.util.SanguineExtrasCreativeTab;
 import io.github.alex_hawks.SanguineExtras.common.util.config.Base;
+import io.github.alex_hawks.SanguineExtras.common.util.config.CaptureEntry;
 import io.github.alex_hawks.SanguineExtras.common.util.config.Overrides;
 import io.github.alex_hawks.SanguineExtras.common.util.sigils.UtilsMobNet;
-import lombok.AccessLevel;
-import lombok.experimental.FieldDefaults;
 import net.minecraft.client.renderer.ItemMeshDefinition;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.util.ITooltipFlag;
@@ -31,23 +30,21 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import static io.github.alex_hawks.SanguineExtras.common.package$.MODULE$;
-import static io.github.alex_hawks.SanguineExtras.common.util.config.Overrides.Capture.CaptureEntry;
 import static io.github.alex_hawks.SanguineExtras.common.util.config.Overrides.Capture.INSTANCE;
 
-@FieldDefaults(level = AccessLevel.PUBLIC, makeFinal = true)
 public class ItemMobNet extends ItemBindableBase implements ISigil, IMeshProvider
 {
-    static String           ID          =       "sigil_mob_net";
-    static ResourceLocation RL          = new   ResourceLocation(Constants.Metadata.MOD_ID, ID);
-    static String           NBT_ID      =       "full";
+    public static final String           ID         =       "sigil_mob_net";
+    public static final ResourceLocation RL         = new   ResourceLocation(Constants.Metadata.MOD_ID, ID);
+    public static final String           NBT_ID     =       "full";
 
-    private ModelResourceLocation full  = new   ModelResourceLocation(RL, NBT_ID + "=true");
-    private ModelResourceLocation empty = new   ModelResourceLocation(RL, NBT_ID + "=false");
+    public static final String NBT_ENT_NAME         =       "entityName";
+    public static final String NBT_ENT_ID           =       "entityID";
+    public static final String NBT_ENT_BOSS         =       "isBoss";
+    public static final String NBT_ENT              =       "entity";
 
-    static String NBT_ENT_NAME          =       "entityName";
-    static String NBT_ENT_ID            =       "entityID";
-    static String NBT_ENT_BOSS          =       "isBoss";
-    static String NBT_ENT               =       "entity";
+    private final ModelResourceLocation full        = new   ModelResourceLocation(RL, NBT_ID + "=true");
+    private final ModelResourceLocation empty       = new   ModelResourceLocation(RL, NBT_ID + "=false");
 
     public ItemMobNet()
     {
@@ -82,7 +79,7 @@ public class ItemMobNet extends ItemBindableBase implements ISigil, IMeshProvide
     public boolean itemInteractionForEntity(ItemStack stack, EntityPlayer player, EntityLivingBase target, EnumHand hand)
     {
         final CaptureEntry data = INSTANCE.getData().get(Overrides.getEntityID(target));
-        if (data == null || !data.enabled)
+        if (data == null || !data.enabled())
         {
             return true;
         }
@@ -106,12 +103,12 @@ public class ItemMobNet extends ItemBindableBase implements ISigil, IMeshProvide
             ChatUtil.sendNoSpamUnloc(player, "msg.se.fail.sigil.mobnet.creative");
             return true;
         }
-        else if (data.isPercentage && (target.getHealth() / target.getMaxHealth() * 100.0) > data.maxHealth)
+        else if (data.isPercentage() && (target.getHealth() / target.getMaxHealth() * 100.0) > data.maxHealth())
         {
             ChatUtil.sendNoSpamUnloc(player, "msg.se.fail.sigil.mobnet.health");
             return true;
         }
-        else if(target.getHealth() > data.maxHealth)
+        else if(target.getHealth() > data.maxHealth())
         {
             ChatUtil.sendNoSpamUnloc(player, "msg.se.fail.sigil.mobnet.health");
             return true;
@@ -125,7 +122,7 @@ public class ItemMobNet extends ItemBindableBase implements ISigil, IMeshProvide
             return true;
         }
 
-        if (BloodUtils.drainSoulNetworkWithDamage(bd.getOwnerId().toString(), player, Base.sigil.holding.cost * (target.isNonBoss() ? 1 : 10)))
+        if (BloodUtils.drainSoulNetworkWithDamage(bd.getOwnerId(), Base.sigil.holding.cost * (target.isNonBoss() ? 1 : 10), player))
         {
             NBTTagCompound tag = new NBTTagCompound();
             target.writeToNBT(tag);

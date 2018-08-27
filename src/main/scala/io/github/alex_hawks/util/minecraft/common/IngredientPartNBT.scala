@@ -1,19 +1,17 @@
 package io.github.alex_hawks.util.minecraft.common
 
-import javax.annotation.Nullable
-
 import com.google.gson.{JsonArray, JsonObject, JsonSyntaxException}
-import lombok.NonNull
-import net.minecraft.item.{ItemStack => IS}
+import io.github.alex_hawks.util.minecraft.common.Implicit.Helper.fromJson
+import javax.annotation.{Nonnull, Nullable}
 import net.minecraft.item.crafting.Ingredient
+import net.minecraft.item.{ItemStack ⇒ IS}
 import net.minecraft.nbt.{NBTBase, NBTTagCompound}
 import net.minecraftforge.common.crafting.{CraftingHelper, IIngredientFactory, JsonContext}
-import Implicit.Helper.fromJson
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
-class IngredientPartNBT(@NonNull val ing: Ingredient, val filterNBT: NBTTagCompound) extends Ingredient {
-  def this(@NonNull stack: IS) = this(Ingredient.fromStacks(Array(stack):_*), stack.getTagCompound)
+class IngredientPartNBT(@Nonnull val ing: Ingredient, val filterNBT: NBTTagCompound) extends Ingredient {
+  def this(@Nonnull stack: IS) = this(Ingredient.fromStacks(Array(stack):_*), stack.getTagCompound)
 
   override def apply(@Nullable input: IS): Boolean = {
     if (input == null || input.isEmpty)
@@ -46,7 +44,7 @@ class IngredientPartNBT(@NonNull val ing: Ingredient, val filterNBT: NBTTagCompo
 
     var valid = true
 
-    for (key <- filter.getKeySet) {
+    for (key <- filter.getKeySet.asScala) {
       if (!valid)
         return false
 
@@ -73,7 +71,7 @@ class FactoryPartNBT extends IIngredientFactory {
 
     nbt match {
       case x: JsonArray =>
-        for (elem <- x) elem match {
+        for (elem <- x.asScala) elem match {
           case a: JsonObject =>
             tag.merge(a)
         }

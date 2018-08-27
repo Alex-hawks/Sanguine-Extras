@@ -15,7 +15,7 @@ import scala.util.control.Breaks._
 trait BaubleBase extends ItemBindableBase with IBauble {
 
   @CapabilityInject(classOf[IBauble])
-  val CAP_BAUBLE: Capability[IBauble]= null
+  var CAP_BAUBLE: Capability[IBauble]= null
 
   /**
     * Code for right-clicking to equip baubles. This was copied from Botania, which was authored by Vazkii et al,

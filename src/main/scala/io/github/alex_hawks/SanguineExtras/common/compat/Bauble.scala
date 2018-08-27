@@ -10,10 +10,11 @@ object Bauble {
 
     if (slot == -1)
         (false, ItemStack.EMPTY)
-
-    val baubles = BaublesApi.getBaublesHandler(player)
-    val is = baubles.getStackInSlot(slot)
-
-    (true, is)
+    else {
+      val baubles = BaublesApi.getBaublesHandler(player)
+      val is = baubles.getStackInSlot(slot)
+  
+      (true, is)
+    }
   }
 }
